@@ -1,15 +1,17 @@
-(lang dune 3.3)
+(lang dune 2.1)
 
 (name regextkit)
+
+(using menhir 2.0)
 
 (generate_opam_files true)
 
 (source
- (github username/reponame))
+ (github toodom02/regex-toolkit))
 
-(authors "Author Name")
+(authors "Dominic Too")
 
-(maintainers "Maintainer Name")
+(maintainers "Dominic Too")
 
 (license LICENSE)
 
