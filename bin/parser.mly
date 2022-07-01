@@ -26,9 +26,8 @@ regex :
 re :
       IDENT                         { Literal $1 }
     | EPSILON                       { Epsilon }
-    | LPAR RPAR                     { Skip }
+    | EMPTY                         { Empty }
     | LPAR re RPAR                  { $2 }
     | re UNION re                   { Union ($1, $3) }
     | re CONCAT re                  { Concat ($1, $3) }
-    | re STAR                       { Star $1 }
-    | EMPTY                         { Empty } ;
+    | re STAR                       { Star $1 } ;

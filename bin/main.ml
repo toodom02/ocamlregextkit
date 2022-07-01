@@ -1,8 +1,29 @@
 open Ast
+open Nfa
 
 (* |parse| -- parse a string as a regular expression *)
 let parse s =
     Parser.regex Lexer.token (Lexing.from_string s)
 
-let () = print_ast (simplify (parse "(0.1.1.0 + 0.1).(1.0)*"))
-let () = print_ast (simplify (parse "0.1.(1.0)*"))
+(* |main| -- main read-print loop *)
+let main () =
+    print_string "Welcome to the regex toolkit\n";
+    try
+        while true do
+            print_string "? "; flush stdout;
+            let line = input_line stdin in
+            try
+                let re = parse line in
+                let simp_re = simplify re in
+                print_ast simp_re;
+                print_newline ();
+                let nfa2 = construct_nfa simp_re in
+                print_nfa nfa2;
+                print_newline ();
+            with 
+                 _ -> print_string "syntax error"; print_newline ()
+        done
+    with End_of_file -> 
+        print_string "\nBye\n"
+  
+  let regex = main ()

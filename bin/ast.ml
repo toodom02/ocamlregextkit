@@ -1,10 +1,10 @@
 type re = 
       Literal of string     (* a ∈ Σ *)
     | Epsilon               (* ε *)
+    | Empty                 (* ∅ *)
     | Union of re * re      (* E + R *)
     | Concat of re * re     (* E·R *)
     | Star of re            (* E* *)
-    | Empty                 (* ∅ *)
 
 (* |simplify_re| -- recursively simplifies the regex, returns regex and flag signalling change *)
 let rec simplify_re re flag = 
