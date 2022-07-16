@@ -1,5 +1,6 @@
 open Ast
 open Nfa
+open Dfa
 
 (* |parse| -- parse a string as a regular expression *)
 let parse s =
@@ -19,6 +20,9 @@ let main () =
                 print_newline ();
                 let nfa2 = construct_nfa simp_re in
                 print_nfa nfa2;
+                print_newline ();
+                let dfa2 = nfa_to_dfa nfa2 in
+                print_dfa dfa2;
                 print_newline ();
             with 
                  _ -> print_string "syntax error"; print_newline ()
