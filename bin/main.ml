@@ -30,4 +30,4 @@ let main () =
     with End_of_file -> 
         print_string "\nBye\n"
   
-  let regex = main ()
+let regex = main ()
