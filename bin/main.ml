@@ -19,12 +19,12 @@ let main () =
                 let re = parse line in
                 let simp_re = simplify re in
                 print_ast simp_re;
-                print_newline ();
+                (* print_newline (); *)
                 let nfa = construct_nfa simp_re in
-                (* print_nfa nfa2; *)
+                (* print_nfa nfa; *)
                 (* print_newline (); *)
                 let dfa = nfa_to_dfa nfa in
-                (* print_dfa dfa2; *)
+                (* print_dfa dfa; *)
                 (* print_newline (); *)
                 let comp = dfa_compliment dfa in
                 (* print_dfa comp; *)
@@ -54,7 +54,13 @@ let main () =
                 print_dfa not_fst_and_snd;
                 print_newline (); *)
 
-                print_dfa product_dfa;
+                (* print_dfa product_dfa; *)
+                (* print_newline (); *)
+
+                if (is_dfa_empty product_dfa) then
+                    print_string "Input regex are equal" 
+                else print_string "Input regex are not equal";
+                print_newline ();
                 print_newline ();
                 
             with 

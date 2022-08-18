@@ -24,9 +24,9 @@ let rec list_union l1 l2 =
         | x::xs -> if not (List.mem x l1) then list_union (x::l1) xs else list_union l1 xs
 
 let rec find_resulting_state initialState symbol transitions = 
-    let sinkState = function
-        | ProductState (_,_) -> ProductState (State [],State [])
-        | _ -> State []
+    let rec sinkState = function
+        | State _ -> State []
+        | ProductState (l,r) -> ProductState (sinkState l,sinkState r)
     in
 
     match transitions with
@@ -92,6 +92,26 @@ let product_union (m1:dfa) (m2:dfa) : dfa =
         accepting = cartAccepting;
     }
 
+(* |is_dfa_empty| -- returns true iff input dfa is empty *)
+let is_empty (n:dfa) =
+    let marked = ref [n.start] in
+        let changed = ref true in
+        while (!changed) do
+            changed := false;
+            let newMarked = ref !marked in
+            List.iter (fun m ->
+                List.iter (fun (s,_,t) ->
+                    if (s = m && not (List.mem t !newMarked)) then (
+                        newMarked := t :: !newMarked;
+                        changed := true;
+                    )
+                ) n.transitions;
+            ) !marked;
+            marked := !newMarked;
+        done;
+
+    not (List.exists (fun m -> List.mem m n.accepting) !marked)
+
 (* |powerset| -- returns the powerset of input list *)
 let rec powerset xs =
     match xs with
@@ -117,7 +137,7 @@ let eps_reachable_set ss trans =
             sts := !newSts;
             newSts := get_reachable_set !sts
         done;
-        !sts
+        (List.sort compare !sts)
 
 (* |find_dfa_trans| -- returns a list of transitions for the dfa *)
 let find_dfa_trans newstates trans alphabet allstates = 

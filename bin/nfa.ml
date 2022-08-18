@@ -41,7 +41,13 @@ let rec construct_rec_nfa re =
 let construct_nfa re = 
     let n = construct_rec_nfa re in
     counter := 0;
-    n
+    {
+        states = List.sort compare n.states;
+        alphabet = List.rev n.alphabet;
+        start = n.start;
+        accepting = n.accepting;
+        transitions = n.transitions;
+    }
 
 (* |print_nfa| -- prints out nfa representation *)
 let print_nfa n = 
