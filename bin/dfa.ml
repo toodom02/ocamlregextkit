@@ -92,8 +92,8 @@ let product_union (m1:dfa) (m2:dfa) : dfa =
         accepting = cartAccepting;
     }
 
-(* |is_dfa_empty| -- returns true iff input dfa is empty *)
-let is_empty (n:dfa) =
+(* |mark_reachable_states| -- returns the set of states reachable from the start state *)
+let mark_reachable_states n = 
     let marked = ref [n.start] in
         let changed = ref true in
         while (!changed) do
@@ -109,15 +109,30 @@ let is_empty (n:dfa) =
             ) !marked;
             marked := !newMarked;
         done;
+    !marked
 
-    not (List.exists (fun m -> List.mem m n.accepting) !marked)
+(* |reduce_dfa| -- reduces input dfa by removing unreachable states *)
+let reduce_dfa (n:dfa) = 
+    let marked = mark_reachable_states n in
+    {
+        states = List.filter (fun s -> List.mem s marked) n.states;
+        alphabet = n.alphabet;
+        start = n.start;
+        transitions = List.filter (fun (s,_,_) -> List.mem s marked) n.transitions;
+        accepting = List.filter (fun s -> List.mem s marked) n.accepting
+    }
+
+(* |is_dfa_empty| -- returns true iff input dfa is empty *)
+let is_dfa_empty (n:dfa) =
+    let marked = mark_reachable_states n in
+    not (List.exists (fun m -> List.mem m n.accepting) marked)
 
 (* |powerset| -- returns the powerset of input list *)
-let rec powerset xs =
-    match xs with
-        | [] -> [[]]
-        | x :: xs -> let ps = powerset xs in
-            ps @ List.map (fun ss -> x :: ss) ps
+(* stackoverflow at 18 *)
+let powerset s =
+    let prepend l x = List.fold_left (fun a b -> (x::b)::a) [] l in 
+    let fold_func a b = List.rev_append (prepend a b) a
+    in List.fold_left fold_func [[]] (List.rev s)
 
 (* |add_unique| -- adds e to list l only if it is not already in l *)
 let add_unique e l = 
