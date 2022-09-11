@@ -23,6 +23,7 @@ let rec list_union l1 l2 =
         | [] -> l1
         | x::xs -> if not (List.mem x l1) then list_union (x::l1) xs else list_union l1 xs
 
+(* |find_resulting_state| -- finds the resulting state of dfa after reading a symbol *)
 let rec find_resulting_state initialState symbol transitions = 
     let rec sinkState = function
         | State _ -> State []
@@ -75,7 +76,7 @@ let product_intersection (m1:dfa) (m2:dfa) : dfa =
 (* this is very slow *)
 (* |product_union| -- returns the union of two input dfas, using the product construction *)
 (* exponential blowup here! *)
-let product_union (m1:dfa) (m2:dfa) : dfa =
+let product_union m1 m2 =
     let cartesianStates = cross_product m1.states m2.states in
     let unionAlphabet = list_union m1.alphabet m2.alphabet in
     let cartTrans = find_product_trans cartesianStates m1.transitions m2.transitions unionAlphabet and
@@ -92,8 +93,8 @@ let product_union (m1:dfa) (m2:dfa) : dfa =
         accepting = cartAccepting;
     }
 
-(* |mark_reachable_states| -- returns the set of states reachable from the start state *)
-let mark_reachable_states n = 
+(* |reachable_states| -- returns the set of states reachable from the start state *)
+let reachable_states n = 
     let marked = ref [n.start] in
         let changed = ref true in
         while (!changed) do
@@ -112,8 +113,8 @@ let mark_reachable_states n =
     !marked
 
 (* |reduce_dfa| -- reduces input dfa by removing unreachable states *)
-let reduce_dfa (n:dfa) = 
-    let marked = mark_reachable_states n in
+let reduce_dfa n = 
+    let marked = reachable_states n in
     {
         states = List.filter (fun s -> List.mem s marked) n.states;
         alphabet = n.alphabet;
@@ -122,17 +123,46 @@ let reduce_dfa (n:dfa) =
         accepting = List.filter (fun s -> List.mem s marked) n.accepting
     }
 
-(* |is_dfa_empty| -- returns true iff input dfa is empty *)
-let is_dfa_empty (n:dfa) =
-    let marked = mark_reachable_states n in
-    not (List.exists (fun m -> List.mem m n.accepting) marked)
+(* |is_dfa_empty| -- returns None iff input dfa is empty, otherwise Some(reachable accepting states) *)
+let is_dfa_empty n =
+    let marked = reachable_states n in
+    match List.filter (fun m -> List.mem m n.accepting) marked with
+        | [] -> None
+        | xs -> Some xs
+
+let find_word n acceptingState = 
+    let rec find_word_dfs currentState visited path = 
+        if currentState = n.start then 
+            Some(path)
+        else 
+            List.find_map (fun (s,a,t) ->
+                if (t = currentState && not (List.mem s visited)) then (
+                    find_word_dfs s (t::visited) (a^path)
+                ) else None
+            ) n.transitions
+    in
+    Option.get (find_word_dfs acceptingState [acceptingState] "")
+
+
+(* |is_dfa_equal| -- returns true iff input dfas are equal *)
+let is_dfa_equal m m' =
+    let comp = dfa_compliment m and
+        comp' = dfa_compliment m' in
+    let fst_and_not_snd = product_intersection m comp' and
+        not_fst_and_snd = product_intersection comp m' in 
+    let product_dfa = product_union (reduce_dfa fst_and_not_snd) (reduce_dfa not_fst_and_snd) in
+    let reachable_accepting_states = is_dfa_empty product_dfa in
+        if (Option.is_some (reachable_accepting_states)) then
+            Some (find_word product_dfa (List.hd (Option.get reachable_accepting_states)))
+        else None
 
 (* |powerset| -- returns the powerset of input list *)
-(* stackoverflow at 18 *)
+(* produces list of size 2^|s| *)
+(* TODO: Uses too much memory if large input (>18 states) *)
 let powerset s =
     let prepend l x = List.fold_left (fun a b -> (x::b)::a) [] l in 
-    let fold_func a b = List.rev_append (prepend a b) a
-    in List.fold_left fold_func [[]] (List.rev s)
+    let fold_func a b = List.rev_append (prepend a b) a in 
+        List.fold_left fold_func [[]] (List.rev s)
 
 (* |add_unique| -- adds e to list l only if it is not already in l *)
 let add_unique e l = 
@@ -197,16 +227,3 @@ let nfa_to_dfa (n: nfa): dfa =
             start = State (eps_reachable_set [n.start] n.transitions);
             accepting = newaccepting;
         }
-
-(* |print_state| -- prints out a representation of a subset state or product state *)
-let rec print_state = function
-    | State n -> print_string "[ "; List.iter (fun s -> print_int s; print_char ' ') n; print_string "]"
-    | ProductState (l,r) -> print_string "( "; print_state l; print_string " , "; print_state r; print_string " )";
-
-(* |print_dfa| -- prints out dfa representation, formed by subset construction *)
-and print_dfa (n:dfa) = 
-    print_string "states: "; List.iter (fun ss -> print_state ss) n.states; print_newline ();
-    print_string "alphabet: "; List.iter (fun a -> print_string a; print_char ' ') n.alphabet; print_newline ();
-    print_string "start: "; print_state n.start; print_newline ();
-    print_string "accepting: "; List.iter (fun ss -> print_state ss) n.accepting; print_newline ();
-    print_string "transitions: "; print_newline (); List.iter (fun (ss,a,tt) -> print_string "    "; print_state ss; print_string ("\t--"^a^"-->\t"); print_state tt; print_newline ()) n.transitions;

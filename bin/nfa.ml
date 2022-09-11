@@ -49,10 +49,18 @@ let construct_nfa re =
         transitions = n.transitions;
     }
 
-(* |print_nfa| -- prints out nfa representation *)
-let print_nfa n = 
-    print_string "states: "; List.iter (fun s -> print_int s; print_char ' ') n.states; print_newline ();
-    print_string "alphabet: "; List.iter (fun a -> print_string a; print_char ' ') n.alphabet; print_newline ();
-    print_string "start: "; print_int n.start; print_newline ();
-    print_string "accepting: "; List.iter (fun s -> print_int s; print_char ' ') n.accepting; print_newline ();
-    print_string "transitions: "; print_newline(); List.iter (fun (s,a,t) -> print_string "    "; print_int s; print_string ("\t--"^a^"-->\t"); print_int t; print_newline ()) n.transitions;
+(* |list_union| -- returns union of the two input lists *)
+let rec list_union l1 l2 = 
+    match l2 with
+        | [] -> l1
+        | x::xs -> if not (List.mem x l1) then list_union (x::l1) xs else list_union l1 xs
+
+(* |merge_alphabets| -- returns an nfa with the alphabet unioned with another nfa *)
+let merge_alphabets n n' =
+    {
+        states = n.states;
+        alphabet = list_union n.alphabet n'.alphabet;
+        start = n.start;
+        accepting = n.accepting;
+        transitions = n.transitions;
+    }

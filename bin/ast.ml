@@ -24,14 +24,22 @@ let rec simplify_re re flag =
                                                         (Concat(Concat(s1, s2), s3), true) 
         | Concat (Epsilon, r1) -> let (s, _) = simplify_re r1 true in (s, true)                     (* ε.a = a *)
         | Concat (r1, Epsilon) -> let (s, _) = simplify_re r1 true in (s, true)                     (* a.ε = a *)
-        | Concat (r1, Union(r2, r3)) -> let (s1, _) = simplify_re r1 true and                       (* a(b+c) = ab + ac *)
+        | Union (Concat (r1, r2), Concat (r3, r4)) when r1 = r3 -> let (s1, _) = simplify_re r1 true and    (* ab + ac = a(b+c) *)
+                                                                       (s2, _) = simplify_re r2 true and
+                                                                       (s4, _) = simplify_re r4 true in
+                                                                            (Concat(s1, Union(s2, s4)), true)
+        | Union (Concat (r1, r2), Concat (r3, r4)) when r2 = r4 -> let (s1, _) = simplify_re r1 true and    (* ac + bc = (a+b)c *)
+                                                                       (s2, _) = simplify_re r2 true and
+                                                                       (s3, _) = simplify_re r3 true in
+                                                                            (Concat(Union(s1,s3), s2), true)
+        (* | Concat (r1, Union(r2, r3)) -> let (s1, _) = simplify_re r1 true and                       (* a(b+c) = ab + ac *)
                                             (s2, _) = simplify_re r2 true and
                                             (s3, _) = simplify_re r3 true in
                                                     (Union(Concat(s1, s2), Concat(s1,s3)), true)
         | Concat (Union(r1, r2), r3) -> let (s1, _) = simplify_re r1 true and                       (* (a+b)c = ac + bc *)
                                             (s2, _) = simplify_re r2 true and
                                             (s3, _) = simplify_re r3 true in
-                                                    (Union(Concat(s1, s3), Concat(s2,s3)), true)
+                                                    (Union(Concat(s1, s3), Concat(s2,s3)), true) *)
         | Concat (Empty, _) -> (Empty, true)                                                        (* ∅.a = ∅ *)
         | Concat (_, Empty) -> (Empty, true)                                                        (* a.∅ = ∅ *)          
 
@@ -68,16 +76,3 @@ let simplify re =
                     reg := r;
             done;
         !reg
-
-(* |stringify_ast| -- converts regex ast into printable string *)
-let rec stringify_ast re = 
-    match re with
-          Literal a -> "Literal " ^ a
-        | Epsilon -> "ε"
-        | Union (r1, r2) -> "Union (" ^ stringify_ast r1 ^ " , " ^ stringify_ast r2 ^ ")"
-        | Concat (r1, r2) -> "Concat (" ^ stringify_ast r1 ^ " , " ^ stringify_ast r2 ^ ")"
-        | Star r1 -> "Star (" ^ stringify_ast r1 ^ ")"
-        | Empty -> "∅"
-
-(* |print_ast| -- prints string representation of regex ast *)
-let print_ast re = print_string (stringify_ast re);  print_newline ()
