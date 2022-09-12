@@ -30,4 +30,5 @@ re :
     | LPAR re RPAR                  { $2 }
     | re UNION re                   { Union ($1, $3) }
     | re CONCAT re                  { Concat ($1, $3) }
-    | re STAR                       { Star $1 } ;
+    | re STAR                       { Star $1 }
+    | re re                         { Concat ($1, $2) } ;

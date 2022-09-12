@@ -3,7 +3,7 @@ open Parser
 }
 
 let white = [' ' '\t']+
-let ident = ['a'-'z' 'A'-'Z' '0'-'9']+
+let ident = ['a'-'z' 'A'-'Z' '0'-'9']
 
 rule token = 
     parse

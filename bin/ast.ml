@@ -11,19 +11,19 @@ let rec simplify_re re flag =
     match re with
 
         (* Reduce by Kozen Axioms *)
-          Union (r1, Union (r2, r3)) -> let (s1, _) = (simplify_re r1 true) and                     (* a + (b + c) = (a + b) + c*)
+          Union (r1, Union (r2, r3)) -> let (s1, _) = (simplify_re r1 true) and                             (* a + (b + c) = (a + b) + c*)
                                             (s2, _) = (simplify_re r2 true) and 
                                             (s3, _) = (simplify_re r3 true) in
                                                         (Union(Union(s1, s2), s3), true)  
-        | Union (r1, Empty) -> let (s, _) = simplify_re r1 true in (s, true)                        (* a + ∅ = a *)  
-        | Union (Empty, r1) -> let (s, _) = simplify_re r1 true in (s, true)                        (* ∅ + a = a *)
-        | Union (r1, r2) when r1 = r2 -> let (s,_) = (simplify_re r1 true) in (s, true)             (* a + a = a *)
-        | Concat (r1, Concat (r2, r3)) -> let (s1, _) = (simplify_re r1 true) and                   (* a.(b.c) = (a.b).c *)
+        | Union (r1, Empty) -> let (s, _) = simplify_re r1 true in (s, true)                                (* a + ∅ = a *)  
+        | Union (Empty, r1) -> let (s, _) = simplify_re r1 true in (s, true)                                (* ∅ + a = a *)
+        | Union (r1, r2) when r1 = r2 -> let (s,_) = (simplify_re r1 true) in (s, true)                     (* a + a = a *)
+        | Concat (r1, Concat (r2, r3)) -> let (s1, _) = (simplify_re r1 true) and                           (* a.(b.c) = (a.b).c *)
                                             (s2, _) = (simplify_re r2 true) and 
                                             (s3, _) = (simplify_re r3 true) in
                                                         (Concat(Concat(s1, s2), s3), true) 
-        | Concat (Epsilon, r1) -> let (s, _) = simplify_re r1 true in (s, true)                     (* ε.a = a *)
-        | Concat (r1, Epsilon) -> let (s, _) = simplify_re r1 true in (s, true)                     (* a.ε = a *)
+        | Concat (Epsilon, r1) -> let (s, _) = simplify_re r1 true in (s, true)                             (* ε.a = a *)
+        | Concat (r1, Epsilon) -> let (s, _) = simplify_re r1 true in (s, true)                             (* a.ε = a *)
         | Union (Concat (r1, r2), Concat (r3, r4)) when r1 = r3 -> let (s1, _) = simplify_re r1 true and    (* ab + ac = a(b+c) *)
                                                                        (s2, _) = simplify_re r2 true and
                                                                        (s4, _) = simplify_re r4 true in
@@ -32,27 +32,19 @@ let rec simplify_re re flag =
                                                                        (s2, _) = simplify_re r2 true and
                                                                        (s3, _) = simplify_re r3 true in
                                                                             (Concat(Union(s1,s3), s2), true)
-        (* | Concat (r1, Union(r2, r3)) -> let (s1, _) = simplify_re r1 true and                       (* a(b+c) = ab + ac *)
-                                            (s2, _) = simplify_re r2 true and
-                                            (s3, _) = simplify_re r3 true in
-                                                    (Union(Concat(s1, s2), Concat(s1,s3)), true)
-        | Concat (Union(r1, r2), r3) -> let (s1, _) = simplify_re r1 true and                       (* (a+b)c = ac + bc *)
-                                            (s2, _) = simplify_re r2 true and
-                                            (s3, _) = simplify_re r3 true in
-                                                    (Union(Concat(s1, s3), Concat(s2,s3)), true) *)
-        | Concat (Empty, _) -> (Empty, true)                                                        (* ∅.a = ∅ *)
-        | Concat (_, Empty) -> (Empty, true)                                                        (* a.∅ = ∅ *)          
+        | Concat (Empty, _) -> (Empty, true)                                                                (* ∅.a = ∅ *)
+        | Concat (_, Empty) -> (Empty, true)                                                                (* a.∅ = ∅ *)          
 
         (* other reductions *)
-        | Concat (Star r1, Star r2) when r1 = r2 -> let (s,_) = (simplify_re r1 true) in            (* a*a* = a* *)
+        | Concat (Star r1, Star r2) when r1 = r2 -> let (s,_) = (simplify_re r1 true) in                    (* a*a* = a* *)
                                                             (Star s, true)
-        | Star (Star r1) -> let (s,_) = (simplify_re r1 true) in (Star s, true)                     (* ( a* )* = a* *)
-        | Union (Epsilon, Star r1) -> let (s, _) = (simplify_re r1 true) in (Star s, true)          (* ε + a* = a* *)
-        | Union (Star r1, Epsilon) -> let (s, _) = (simplify_re r1 true) in (Star s, true)          (* a* + ε = a* *)
-        | Star Empty -> (Epsilon, true)                                                             (* ∅* = ε *)
-        | Star Epsilon -> (Epsilon, true)                                                           (* ε* = ε *)
-        | Union (r1, Star r2) when r1 = r2 -> let (s, _) = (simplify_re r1 true) in (Star s, true)  (* a + a* = a* *)
-        | Union (Star r1, r2) when r1 = r2 -> let (s, _) = (simplify_re r1 true) in (Star s, true)  (* a* + a = a* *)
+        | Star (Star r1) -> let (s,_) = (simplify_re r1 true) in (Star s, true)                             (* ( a* )* = a* *)
+        | Union (Epsilon, Star r1) -> let (s, _) = (simplify_re r1 true) in (Star s, true)                  (* ε + a* = a* *)
+        | Union (Star r1, Epsilon) -> let (s, _) = (simplify_re r1 true) in (Star s, true)                  (* a* + ε = a* *)
+        | Star Empty -> (Epsilon, true)                                                                     (* ∅* = ε *)
+        | Star Epsilon -> (Epsilon, true)                                                                   (* ε* = ε *)
+        | Union (r1, Star r2) when r1 = r2 -> let (s, _) = (simplify_re r1 true) in (Star s, true)          (* a + a* = a* *)
+        | Union (Star r1, r2) when r1 = r2 -> let (s, _) = (simplify_re r1 true) in (Star s, true)          (* a* + a = a* *)
 
         (* otherwise, simplify children *)
         | Literal a -> (Literal a, flag)
