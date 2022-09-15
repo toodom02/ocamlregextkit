@@ -1,1 +1,12 @@
-_build/
+*.cmi
+*.cmo
+*.cma
+*.a
+*.o
+*.cmx
+*.cmxs
+*.cmxa
+parser.ml
+parser.mli
+lexer.ml
+regextkit

@@ -1,9 +1,0 @@
-(menhir
- (modules parser))
-
-(ocamllex lexer)
-
-(executable
- (public_name regextkit)
- (name main)
- (libraries regextkit))

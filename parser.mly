@@ -2,21 +2,22 @@
 open Ast
 %}
 
-%token <string> IDENT
-%token UNION
-%token CONCAT
-%token STAR
-%token EMPTY
-%token EPSILON
-%token LPAR RPAR
-%token EOF
+%token <string>   IDENT
+%token            UNION
+%token            CONCAT
+%token            STAR
+%token            EMPTY
+%token            EPSILON
+%token            LPAR RPAR
+%token            EOF
 
 /* associativity and precedence */
-%left UNION
-%left CONCAT
-%left STAR
+%left             UNION
+%left             CONCAT
+%left             STAR
 
-%start <Ast.re> regex
+%type <Ast.re>    regex
+%start            regex
 
 %%
 

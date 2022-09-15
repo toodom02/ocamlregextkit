@@ -1,5 +1,3 @@
-open Nfa
-
 type state = State of int list | ProductState of state * state
 type dfa = {
     states: state list; alphabet: string list; transitions: (state * string * state) list; start: state; accepting: state list
@@ -212,7 +210,7 @@ let find_dfa_trans newstates trans alphabet allstates =
 
 (* |nfa_to_dfa| -- converts nfa to dfa by the subset construction *)
 (* exponential blowup here! *)
-let nfa_to_dfa (n: nfa): dfa = 
+let nfa_to_dfa (n: Nfa.nfa): dfa = 
     let newstates = List.map (fun s -> State s) (powerset n.states) in
     let newtrans = find_dfa_trans newstates n.transitions n.alphabet n.states and
         newaccepting = List.filter (fun state -> 
