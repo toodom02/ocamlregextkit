@@ -4,7 +4,7 @@ type dfa = {
 }
 
 (* |dfa_compliment| -- returns the compliment of input dfa *)
-let dfa_compliment (m:dfa):dfa = 
+let dfa_compliment m = 
     {
         states = m.states;
         alphabet = m.alphabet;
@@ -54,7 +54,7 @@ let cross_product a b =
 
 (* |product_intersection| -- returns the union of two input dfas, using the product construction *)
 (* exponential blowup here! *)
-let product_intersection (m1:dfa) (m2:dfa) : dfa =
+let product_intersection m1 m2 =
     let cartesianStates = cross_product m1.states m2.states in
     let unionAlphabet = list_union m1.alphabet m2.alphabet in
     let cartTrans = find_product_trans cartesianStates m1.transitions m2.transitions unionAlphabet and
@@ -142,7 +142,7 @@ let find_word n acceptingState =
     Option.get (find_word_dfs acceptingState [acceptingState] "")
 
 
-(* |is_dfa_equal| -- returns true iff input dfas are equal *)
+(* |is_dfa_equal| -- returns Some(x) if x exists in one dfa but not the other *)
 let is_dfa_equal m m' =
     let comp = dfa_compliment m and
         comp' = dfa_compliment m' in
@@ -210,7 +210,7 @@ let find_dfa_trans newstates trans alphabet allstates =
 
 (* |nfa_to_dfa| -- converts nfa to dfa by the subset construction *)
 (* exponential blowup here! *)
-let nfa_to_dfa (n: Nfa.nfa): dfa = 
+let nfa_to_dfa (n: Nfa.nfa) = 
     let newstates = List.map (fun s -> State s) (powerset n.states) in
     let newtrans = find_dfa_trans newstates n.transitions n.alphabet n.states and
         newaccepting = List.filter (fun state -> 
