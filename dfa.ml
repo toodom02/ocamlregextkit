@@ -11,15 +11,7 @@ let dfa_compliment m =
         transitions = m.transitions;
         start = m.start;
         accepting = List.filter (fun ss -> not (List.mem ss m.accepting)) m.states;  
-        (*possible issues here with ordering of lists. Should be fine for now as we don't change the order of any states*)
-        (* TODO: make sure states are always ordered? To ensure this is never a problem. Perhaps not worth the computation, though*)
     }
-
-(* |list_union| -- returns union of the two input lists *)
-let rec list_union l1 l2 = 
-    match l2 with
-        | [] -> l1
-        | x::xs -> if not (List.mem x l1) then list_union (x::l1) xs else list_union l1 xs
 
 (* |find_resulting_state| -- finds the resulting state of dfa after reading a symbol *)
 let rec find_resulting_state initialState symbol transitions = 
@@ -56,7 +48,7 @@ let cross_product a b =
 (* exponential blowup here! *)
 let product_intersection m1 m2 =
     let cartesianStates = cross_product m1.states m2.states in
-    let unionAlphabet = list_union m1.alphabet m2.alphabet in
+    let unionAlphabet = Utils.list_union m1.alphabet m2.alphabet in
     let cartTrans = find_product_trans cartesianStates m1.transitions m2.transitions unionAlphabet and
         cartAccepting = List.filter (fun state -> 
             match state with
@@ -76,7 +68,7 @@ let product_intersection m1 m2 =
 (* exponential blowup here! *)
 let product_union m1 m2 =
     let cartesianStates = cross_product m1.states m2.states in
-    let unionAlphabet = list_union m1.alphabet m2.alphabet in
+    let unionAlphabet = Utils.list_union m1.alphabet m2.alphabet in
     let cartTrans = find_product_trans cartesianStates m1.transitions m2.transitions unionAlphabet and
         cartAccepting = List.filter (fun state -> 
             match state with
@@ -156,21 +148,30 @@ let is_dfa_equal m m' =
 
 (* |powerset| -- returns the powerset of input list *)
 (* produces list of size 2^|s| *)
-(* TODO: Uses too much memory if large input (>18 states) *)
 let powerset s =
     let prepend l x = List.fold_left (fun a b -> (x::b)::a) [] l in 
     let fold_func a b = List.rev_append (prepend a b) a in 
         List.fold_left fold_func [[]] (List.rev s)
 
-(* |add_unique| -- adds e to list l only if it is not already in l *)
-let add_unique e l = 
-    if List.mem e l then l else e::l
+(* TODO: experiment with runtimes on powerset. *)
+(* let powerset s =
+    let pset = ref [] and
+        len = List.length s in
+    for i = 1 to Int.shift_left 1 len do
+        let set = ref [] in
+        for j = 0 to len-1 do
+            if ((Int.shift_right_logical i j) mod 2 = 1) then set := List.nth s j::!set
+        done;
+        pset := State (List.rev !set)::!pset
+    done;
+    !pset *)
+
 
 (* |eps_reachable_set| -- returns set of all epsilon reachable states from input set of states *)
 let eps_reachable_set ss trans =
 
     let get_reachable_set states =    
-        List.fold_right add_unique (List.filter_map (fun (s,a,t) -> if List.mem s states && a = "ε" then Some(t) else None) trans) states
+        List.fold_right Utils.add_unique (List.filter_map (fun (s,a,t) -> if List.mem s states && a = "ε" then Some(t) else None) trans) states
     in
 
     (* iterate reachable set until no changes *)
@@ -192,7 +193,7 @@ let find_dfa_trans newstates trans alphabet allstates =
                         let temptrans = ref [] in
                         List.iter (fun t ->
                             if List.exists (fun s -> List.mem (s,a,t) trans) ss then (
-                                temptrans := add_unique t !temptrans;
+                                temptrans := Utils.add_unique t !temptrans;
                             );
                         ) allstates;
                         newtrans := (State ss, a, State !temptrans) :: !newtrans;

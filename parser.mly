@@ -9,7 +9,7 @@ open Ast
 %token            EMPTY
 %token            EPSILON
 %token            LPAR RPAR
-%token            EOF
+%token            EOF BADTOK
 
 /* associativity and precedence */
 %left             UNION

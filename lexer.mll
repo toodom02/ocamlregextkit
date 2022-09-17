@@ -17,3 +17,4 @@ rule token =
         | "EPSILON" | "ε" | "?"   { EPSILON }
         | ident                   { IDENT (Lexing.lexeme lexbuf) }
         | eof                     { EOF }
+        | _                       { BADTOK }
