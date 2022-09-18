@@ -22,11 +22,11 @@ let rec construct_rec_nfa re =
                     {states = (!counter - 1) :: (nfa1.states @ nfa2.states); alphabet = Utils.list_union nfa1.alphabet nfa2.alphabet; start = !counter - 1; accepting = nfa1.accepting @ nfa2.accepting; 
                     transitions = ((!counter - 1, "ε", nfa1.start) :: nfa1.transitions) @ ((!counter - 1, "ε", nfa2.start) :: nfa2.transitions)}
         | Concat (r1, r2) -> let nfa1 = construct_rec_nfa r1 and nfa2 = construct_rec_nfa r2 in
-                    let newtrans = List.map (fun s -> (s,"ε",nfa2.start)) nfa1.accepting in
+                    let newtrans = List.rev_map (fun s -> (s,"ε",nfa2.start)) nfa1.accepting in
                     {states = nfa1.states @ nfa2.states; alphabet = Utils.list_union nfa1.alphabet nfa2.alphabet; start = nfa1.start; accepting = nfa2.accepting;
                     transitions = nfa1.transitions @ newtrans @ nfa2.transitions}
         | Star r -> let nfa1 = construct_rec_nfa r in
-                    let newtrans = List.map (fun s -> (s, "ε", nfa1.start)) nfa1.accepting in
+                    let newtrans = List.rev_map (fun s -> (s, "ε", nfa1.start)) nfa1.accepting in
                     counter := !counter + 1;
                     {states = (!counter - 1) :: nfa1.states; alphabet = nfa1.alphabet; start = !counter - 1; accepting = (!counter - 1) :: nfa1.accepting;
                     transitions = (!counter - 1, "ε", nfa1.start) :: newtrans @ nfa1.transitions}

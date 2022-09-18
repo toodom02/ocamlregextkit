@@ -2,22 +2,21 @@
 open Ast
 %}
 
-%token <string>   IDENT
-%token            UNION
-%token            CONCAT
-%token            STAR
-%token            EMPTY
-%token            EPSILON
-%token            LPAR RPAR
-%token            EOF BADTOK
+%token <string>     IDENT
+%token              UNION CONCAT STAR
+%token              EMPTY EPSILON
+%token              LPAR RPAR
+%token              EOF BADTOK
 
-/* associativity and precedence */
-%left             UNION
-%left             CONCAT
-%left             STAR
+/* associativity and precedence, lowest to highest */
+%left               UNION
+%left               CONCAT
+%left               STAR
+%nonassoc           LPAR RPAR
+%nonassoc           IDENT EPSILON EMPTY
 
-%type <Ast.re>    regex
-%start            regex
+%type <Ast.re>      regex
+%start              regex
 
 %%
 
@@ -31,5 +30,5 @@ re :
     | LPAR re RPAR                  { $2 }
     | re UNION re                   { Union ($1, $3) }
     | re CONCAT re                  { Concat ($1, $3) }
-    | re STAR                       { Star $1 }
-    | re re                         { Concat ($1, $2) } ;
+    | re re %prec CONCAT            { Concat ($1, $2) }
+    | re STAR                       { Star $1 } ;

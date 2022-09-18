@@ -42,7 +42,7 @@ let find_product_trans cartStates fstTrans sndTrans alphabet =
     !newTrans
 
 let cross_product a b =
-    List.concat (List.map (fun e1 -> List.map (fun e2 -> ProductState (e1,e2)) b) a)
+    List.concat (List.rev_map (fun e1 -> List.rev_map (fun e2 -> ProductState (e1,e2)) b) a)
 
 (* |product_intersection| -- returns the union of two input dfas, using the product construction *)
 (* exponential blowup here! *)
@@ -202,7 +202,7 @@ let find_dfa_trans newstates trans alphabet allstates =
     ) newstates;
     
     (* add states epsilon reachable from these *)
-    List.map (fun state -> 
+    List.rev_map (fun state -> 
         match state with 
             | (State ss, a, State tt) -> 
                 let reachable = eps_reachable_set tt trans in (State ss, a, State reachable) 
@@ -212,7 +212,7 @@ let find_dfa_trans newstates trans alphabet allstates =
 (* |nfa_to_dfa| -- converts nfa to dfa by the subset construction *)
 (* exponential blowup here! *)
 let nfa_to_dfa (n: Nfa.nfa) = 
-    let newstates = List.map (fun s -> State s) (powerset n.states) in
+    let newstates = List.rev_map (fun s -> State s) (powerset n.states) in
     let newtrans = find_dfa_trans newstates n.transitions n.alphabet n.states and
         newaccepting = List.filter (fun state -> 
             match state with
