@@ -16,8 +16,8 @@ let main () =
         fns = ref [] and
         usage = "Usage: regextkit [-option] \"<regex>\" \"<regex>\"" in
     Arg.parse [
-        ("-v", Arg.Set vflag, " Output stages");
-        ("-d", Arg.Set dflag, " Print the tree");
+        ("-v", Arg.Set vflag, " Output stages and timings of the program");
+        ("-d", Arg.Set dflag, " Output constructed ASTs, NFAs, and DFAs for debugging");
     ] (fun s -> fns := !fns @ [s]) usage;
     if List.length !fns <> 2 then (
         Printf.eprintf "%s\n" usage;

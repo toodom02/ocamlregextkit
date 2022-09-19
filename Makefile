@@ -41,26 +41,77 @@ force:
 
 ###
 
-ast.cmo : ast.cmi
-ast.cmx : ast.cmi
+ast.cmo : \
+    ast.cmi
+ast.cmx : \
+    ast.cmi
 ast.cmi :
-dfa.cmo : utils.cmi nfa.cmi dfa.cmi
-dfa.cmx : utils.cmx nfa.cmx dfa.cmi
-dfa.cmi : nfa.cmi
-lexer.cmo : parser.cmi lexer.cmi
-lexer.cmx : parser.cmx lexer.cmi
-lexer.cmi : parser.cmi
-main.cmo : print.cmi parser.cmi nfa.cmi lexer.cmi dfa.cmi ast.cmi
-main.cmx : print.cmx parser.cmx nfa.cmx lexer.cmx dfa.cmx ast.cmx
-nfa.cmo : utils.cmi ast.cmi nfa.cmi
-nfa.cmx : utils.cmx ast.cmx nfa.cmi
-nfa.cmi : ast.cmi
-parser.cmo : ast.cmi parser.cmi
-parser.cmx : ast.cmx parser.cmi
-parser.cmi : ast.cmi
-print.cmo : nfa.cmi dfa.cmi ast.cmi print.cmi
-print.cmx : nfa.cmx dfa.cmx ast.cmx print.cmi
-print.cmi : nfa.cmi dfa.cmi ast.cmi
-utils.cmo : utils.cmi
-utils.cmx : utils.cmi
+dfa.cmo : \
+    utils.cmi \
+    nfa.cmi \
+    dfa.cmi
+dfa.cmx : \
+    utils.cmx \
+    nfa.cmx \
+    dfa.cmi
+dfa.cmi : \
+    nfa.cmi
+lexer.cmo : \
+    parser.cmi \
+    lexer.cmi
+lexer.cmx : \
+    parser.cmx \
+    lexer.cmi
+lexer.cmi : \
+    parser.cmi
+main.cmo : \
+    print.cmi \
+    parser.cmi \
+    nfa.cmi \
+    lexer.cmi \
+    dfa.cmi \
+    ast.cmi
+main.cmx : \
+    print.cmx \
+    parser.cmx \
+    nfa.cmx \
+    lexer.cmx \
+    dfa.cmx \
+    ast.cmx
+nfa.cmo : \
+    utils.cmi \
+    ast.cmi \
+    nfa.cmi
+nfa.cmx : \
+    utils.cmx \
+    ast.cmx \
+    nfa.cmi
+nfa.cmi : \
+    ast.cmi
+parser.cmo : \
+    ast.cmi \
+    parser.cmi
+parser.cmx : \
+    ast.cmx \
+    parser.cmi
+parser.cmi : \
+    ast.cmi
+print.cmo : \
+    nfa.cmi \
+    dfa.cmi \
+    ast.cmi \
+    print.cmi
+print.cmx : \
+    nfa.cmx \
+    dfa.cmx \
+    ast.cmx \
+    print.cmi
+print.cmi : \
+    nfa.cmi \
+    dfa.cmi \
+    ast.cmi
+utils.cmo : \
+    utils.cmi
+utils.cmx : \
+    utils.cmi
 utils.cmi :
