@@ -10,9 +10,19 @@ parser.mli parser.ml: parser.mly
 lexer.ml: lexer.mll
 	ocamllex lexer.mll
 
+TESTSRC := $(wildcard test/*.test)
+
+test : $(TESTSRC:test/%.test=test-%)
+
+test-%: force
+	@echo "*** Test $*.test"
+	./regextkit $$(sed -n 1p test/$*.test) $$(sed -n 2p test/$*.test) > out.txt
+	sed -n -e '1,/^(\*<</d' -e '/^>>\*)/q' -e p test/$*.test | diff - out.txt
+	@echo "*** Passed"; echo
+
 clean: force
 	rm -f regextkit *.cma *.cmo *.cmi *.o
-	rm -f parser.mli parser.ml lexer.ml
+	rm -f parser.mli parser.ml lexer.ml out.txt
 
 ML = ast.ml ast.mli dfa.ml dfa.mli nfa.ml nfa.mli print.ml print.mli \
 	lexer.ml lexer.mli main.ml parser.ml parser.mli utils.ml utils.mli

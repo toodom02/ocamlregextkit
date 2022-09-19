@@ -1,0 +1,6 @@
+(a*)
+aa
+
+(*<<
+'aaa' exists in one regex but not the other
+>>*)

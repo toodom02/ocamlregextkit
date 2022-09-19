@@ -1,0 +1,6 @@
+a*b*+d
+((a*).(b*))+d
+
+(*<<
+Input regex are equal
+>>*)

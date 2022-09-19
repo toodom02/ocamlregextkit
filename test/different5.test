@@ -1,0 +1,6 @@
+abc
+ab
+
+(*<<
+'abc' exists in one regex but not the other
+>>*)

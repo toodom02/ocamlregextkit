@@ -10,3 +10,4 @@ parser.ml
 parser.mli
 lexer.ml
 regextkit
+out.txt

@@ -1,0 +1,6 @@
+a+EPSILON
+a
+
+(*<<
+'' exists in one regex but not the other
+>>*)

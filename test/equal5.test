@@ -1,0 +1,6 @@
+a(bca)*
+(abc)*a
+
+(*<<
+Input regex are equal
+>>*)

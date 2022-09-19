@@ -1,0 +1,6 @@
+abcde
+(((a.b).c).d).e
+
+(*<<
+Input regex are equal
+>>*)

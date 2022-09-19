@@ -26,12 +26,14 @@ let main () =
     let reg1 = List.hd !fns and
         reg2 = List.nth !fns 1 in
     try
+        let starttime = Sys.time() in
         if !vflag then print_string "Constructing ASTs...\t";
         let re = parse reg1 in
         let simp_re = Ast.simplify re in
         let re2 = parse reg2 in
         let simp_re2 = Ast.simplify re2 in
-        if !vflag then print_string "[DONE]\n";
+        let asttime = Sys.time() in
+        if !vflag then Printf.printf "[DONE] %fs\n" (asttime -. starttime);
         if !dflag then (
             Print.print_ast simp_re;
             print_newline ();
@@ -48,7 +50,8 @@ let main () =
             (e.g. with languages EPSILON,  a* ) *)
         let new_nfa = Nfa.merge_alphabets nfa nfa2 and
             new_nfa2 = Nfa.merge_alphabets nfa2 nfa in
-        if !vflag then print_string "[DONE]\n";
+        let nfatime = Sys.time() in
+        if !vflag then Printf.printf "[DONE] %fs\n" (nfatime -. asttime);
         if !dflag then (
             Print.print_nfa new_nfa;
             print_newline ();
@@ -59,12 +62,14 @@ let main () =
         if !vflag then print_string "Constructing DFAs...\t";
         let dfa = Dfa.nfa_to_dfa new_nfa and
             dfa2 = Dfa.nfa_to_dfa new_nfa2 in
-        if !vflag then print_string "[DONE]\n";
+        let dfatime = Sys.time() in
+        if !vflag then Printf.printf "[DONE] %fs\n" (dfatime -. nfatime);
 
         if !vflag then print_string "Reducing DFAs...\t";
         let reduced_dfa = Dfa.reduce_dfa dfa and
             reduced_dfa2 = Dfa.reduce_dfa dfa2 in
-        if !vflag then print_string "[DONE]\n";
+        let reddfatime = Sys.time() in
+        if !vflag then Printf.printf "[DONE] %fs\n" (reddfatime -. dfatime);
         if !dflag then (
             Print.print_dfa reduced_dfa;
             print_newline ();
@@ -72,11 +77,14 @@ let main () =
             print_newline ();
         );
 
-        begin 
-            match (Dfa.is_dfa_equal reduced_dfa reduced_dfa2) with
-                | Some word -> Printf.printf "'%s' exists in one regex but not the other\n" word;
-                | None -> print_string "Input regex are equal\n";
-        end;
+        if !vflag then print_string "Comparing DFAs...\t";
+        let dfaword = Dfa.is_dfa_equal reduced_dfa reduced_dfa2 in
+        let finaltime = Sys.time() in
+        if !vflag then Printf.printf "[DONE] %fs\n" (finaltime -. reddfatime);
+        match dfaword with
+            | Some word -> Printf.printf "'%s' exists in one regex but not the other\n" word;
+            | None -> print_string "Input regex are equal\n";
+
         exit 0;
         
     with
