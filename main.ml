@@ -78,12 +78,25 @@ let main () =
         );
 
         if !vflag then print_string "Comparing DFAs...\t";
-        let dfaword = Dfa.is_dfa_equal reduced_dfa reduced_dfa2 in
+        let string1 = Dfa.find_unique_word reduced_dfa reduced_dfa2 and
+            string2 = Dfa.find_unique_word reduced_dfa2 reduced_dfa in
         let finaltime = Sys.time() in
         if !vflag then Printf.printf "[DONE] %fs\n" (finaltime -. reddfatime);
-        match dfaword with
-            | Some word -> Printf.printf "'%s' exists in one regex but not the other\n" word;
-            | None -> print_string "Input regex are equal\n";
+
+        if (Option.is_none string1 && Option.is_none string2) then (
+            print_string "Input regex are equal\n";
+            exit 0;
+        );
+        begin 
+            match string1 with
+                | Some word -> Printf.printf "'%s' exists in the first but not the second\n" word;
+                | None -> ();
+        end;
+        begin
+            match string2 with
+                | Some word -> Printf.printf "'%s' exists in the second but not the first\n" word;
+                | None -> ();
+        end;
 
         exit 0;
         

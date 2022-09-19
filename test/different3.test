@@ -2,5 +2,5 @@
 aa
 
 (*<<
-'aaa' exists in one regex but not the other
+'aaa' exists in the first but not the second
 >>*)

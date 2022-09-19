@@ -44,7 +44,7 @@ let find_product_trans cartStates fstTrans sndTrans alphabet =
 let cross_product a b =
     List.concat (List.rev_map (fun e1 -> List.rev_map (fun e2 -> ProductState (e1,e2)) b) a)
 
-(* |product_intersection| -- returns the union of two input dfas, using the product construction *)
+(* |product_intersection| -- returns the intersection of two input dfas, using the product construction *)
 (* exponential blowup here! *)
 let product_intersection m1 m2 =
     let cartesianStates = cross_product m1.states m2.states in
@@ -63,7 +63,6 @@ let product_intersection m1 m2 =
         accepting = cartAccepting;
     }
 
-(* this is very slow *)
 (* |product_union| -- returns the union of two input dfas, using the product construction *)
 (* exponential blowup here! *)
 let product_union m1 m2 =
@@ -120,7 +119,8 @@ let is_dfa_empty n =
         | [] -> None
         | xs -> Some xs
 
-let find_word n acceptingState = 
+(* |reverse_search_word| -- finds a path in DFA n from the start state to acceptingState *)
+let reverse_search_word n acceptingState = 
     let rec find_word_dfs currentState visited path = 
         if currentState = n.start then 
             Some(path)
@@ -131,20 +131,16 @@ let find_word n acceptingState =
                 ) else None
             ) n.transitions
     in
-    Option.get (find_word_dfs acceptingState [acceptingState] "")
+    find_word_dfs acceptingState [acceptingState] ""
 
-
-(* |is_dfa_equal| -- returns Some(x) if x exists in one dfa but not the other *)
-let is_dfa_equal m m' =
-    let comp = dfa_compliment m and
-        comp' = dfa_compliment m' in
-    let fst_and_not_snd = product_intersection m comp' and
-        not_fst_and_snd = product_intersection comp m' in 
-    let product_dfa = product_union (reduce_dfa fst_and_not_snd) (reduce_dfa not_fst_and_snd) in
-    let reachable_accepting_states = is_dfa_empty product_dfa in
-        if (Option.is_some (reachable_accepting_states)) then
-            Some (find_word product_dfa (List.hd (Option.get reachable_accepting_states)))
-        else None
+(* |find_unique_word| -- finds a word accepted by DFA m but not m' *)
+let find_unique_word m m' =
+    let comp' = dfa_compliment m' in
+    let fst_and_not_snd = product_intersection m comp' in
+    let reachable_accepting_states = is_dfa_empty fst_and_not_snd in
+    if (Option.is_some (reachable_accepting_states)) then
+        reverse_search_word fst_and_not_snd (List.hd (Option.get reachable_accepting_states))
+    else None
 
 (* |powerset| -- returns the powerset of input list *)
 (* produces list of size 2^|s| *)
@@ -152,20 +148,6 @@ let powerset s =
     let prepend l x = List.fold_left (fun a b -> (x::b)::a) [] l in 
     let fold_func a b = List.rev_append (prepend a b) a in 
         List.fold_left fold_func [[]] (List.rev s)
-
-(* TODO: experiment with runtimes on powerset. *)
-(* let powerset s =
-    let pset = ref [] and
-        len = List.length s in
-    for i = 1 to Int.shift_left 1 len do
-        let set = ref [] in
-        for j = 0 to len-1 do
-            if ((Int.shift_right_logical i j) mod 2 = 1) then set := List.nth s j::!set
-        done;
-        pset := State (List.rev !set)::!pset
-    done;
-    !pset *)
-
 
 (* |eps_reachable_set| -- returns set of all epsilon reachable states from input set of states *)
 let eps_reachable_set ss trans =
@@ -184,7 +166,8 @@ let eps_reachable_set ss trans =
         (List.sort compare !sts)
 
 (* |find_dfa_trans| -- returns a list of transitions for the dfa *)
-let find_dfa_trans newstates trans alphabet allstates = 
+(* this is where all the time is spent... *)
+let find_dfa_trans newstates nfatrans alphabet nfastates = 
     let newtrans = ref [] in
     List.iter (fun state ->
         match state with
@@ -192,10 +175,10 @@ let find_dfa_trans newstates trans alphabet allstates =
                     List.iter (fun a ->
                         let temptrans = ref [] in
                         List.iter (fun t ->
-                            if List.exists (fun s -> List.mem (s,a,t) trans) ss then (
+                            if List.exists (fun s -> List.mem (s,a,t) nfatrans) ss then (
                                 temptrans := Utils.add_unique t !temptrans;
                             );
-                        ) allstates;
+                        ) nfastates;
                         newtrans := (State ss, a, State !temptrans) :: !newtrans;
                     ) alphabet
             | ProductState _ -> ()
@@ -205,7 +188,7 @@ let find_dfa_trans newstates trans alphabet allstates =
     List.rev_map (fun state -> 
         match state with 
             | (State ss, a, State tt) -> 
-                let reachable = eps_reachable_set tt trans in (State ss, a, State reachable) 
+                let reachable = eps_reachable_set tt nfatrans in (State ss, a, State reachable) 
             | (ss,a,tt) -> (ss,a,tt) (* This function should never be called for anything other than (State ss, a, State tt) *)
     ) !newtrans
 

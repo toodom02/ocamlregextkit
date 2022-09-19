@@ -12,5 +12,5 @@ val nfa_to_dfa : Nfa.nfa -> dfa
 (* |reduce_dfa| -- reduces input dfa by removing unreachable states *)
 val reduce_dfa : dfa -> dfa
 
-(* |is_dfa_equal| -- returns Some(x) if x exists in one dfa but not the other *)
-val is_dfa_equal : dfa -> dfa -> string option
+(* |find_unique_word| -- finds a word accepted by the first DFA but not the second *)
+val find_unique_word : dfa -> dfa -> string option

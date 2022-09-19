@@ -2,5 +2,6 @@ a
 b
 
 (*<<
-'b' exists in one regex but not the other
+'a' exists in the first but not the second
+'b' exists in the second but not the first
 >>*)

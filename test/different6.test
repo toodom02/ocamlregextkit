@@ -2,5 +2,6 @@ a+bc
 (a+b)c
 
 (*<<
-'ac' exists in one regex but not the other
+'a' exists in the first but not the second
+'ac' exists in the second but not the first
 >>*)
