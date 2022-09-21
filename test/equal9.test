@@ -1,0 +1,6 @@
+(b+aa*b)+(b+aa*b)(a+ba*b)*(a+ba*b)
+a*b(a+ba*b)*
+
+(*<<
+Input regex are equal
+>>*)

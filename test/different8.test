@@ -1,0 +1,6 @@
+(a+b)*
+a*b*
+
+(*<<
+'aabbab' exists in the first but not the second
+>>*)

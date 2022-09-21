@@ -1,5 +1,5 @@
-ε+b*(abb)*(b*(abb)*)*
-(b+abb)*
+ε+(a+b)*b
+(b+aa*b)*
 
 (*<<
 Input regex are equal
