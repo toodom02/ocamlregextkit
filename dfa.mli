@@ -6,7 +6,10 @@ type dfa = {
     start: state; accepting: state list
 }
 
-(* |nfa_to_dfa| -- converts nfa to dfa by the subset construction *)
+(* |nfa_to_dfa_subset| -- converts nfa to dfa by the subset construction *)
+val nfa_to_dfa_subset : Nfa.nfa -> dfa
+
+(* |nfa_to_dfa| -- converts nfa to dfa by optimised subset construction *)
 val nfa_to_dfa : Nfa.nfa -> dfa
 
 (* |reduce_dfa| -- reduces input dfa by removing unreachable states *)

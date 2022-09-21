@@ -52,3 +52,19 @@ let merge_alphabets n n' =
         accepting = n.accepting;
         transitions = n.transitions;
     }
+
+(* |eps_reachable_set| -- returns set of all epsilon-reachable states from input set of states *)
+let eps_reachable_set ss n =
+
+    let get_reachable_set states =    
+        List.fold_right Utils.add_unique (List.filter_map (fun (s,a,t) -> if List.mem s states && a = "ε" then Some(t) else None) n.transitions) states
+    in
+
+    (* iterate reachable set until no changes *)
+    let sts = ref (get_reachable_set ss) in
+    let newSts = ref (get_reachable_set !sts) in
+        while (!sts <> !newSts) do
+            sts := !newSts;
+            newSts := get_reachable_set !sts
+        done;
+        List.sort compare !sts

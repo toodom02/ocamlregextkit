@@ -16,7 +16,7 @@ test : $(TESTSRC:test/%.test=test-%)
 
 test-%: force
 	@echo "*** Test $*.test"
-	./regextkit $$(sed -n 1p test/$*.test) $$(sed -n 2p test/$*.test) > out.txt
+	./regextkit -O $$(sed -n 1p test/$*.test) $$(sed -n 2p test/$*.test) > out.txt
 	sed -n -e '1,/^(\*<</d' -e '/^>>\*)/q' -e p test/$*.test | diff - out.txt
 	@echo "*** Passed"; echo
 

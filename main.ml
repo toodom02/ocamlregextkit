@@ -13,11 +13,13 @@ let parse s =
 let main () =
     let dflag = ref false and
         vflag = ref false and
+        oflag = ref false and
         fns = ref [] and
         usage = "Usage: regextkit [-option] \"<regex>\" \"<regex>\"" in
     Arg.parse [
         ("-v", Arg.Set vflag, " Output stages and timings of the program");
         ("-d", Arg.Set dflag, " Output constructed ASTs, NFAs, and DFAs for debugging");
+        ("-O", Arg.Set oflag, " Use optimised DFA construction");
     ] (fun s -> fns := !fns @ [s]) usage;
     if List.length !fns <> 2 then (
         Printf.eprintf "%s\n" usage;
@@ -60,17 +62,24 @@ let main () =
         );
 
         if !vflag then print_string "Constructing DFAs...\t";
-        let dfa = Dfa.nfa_to_dfa new_nfa and
-            dfa2 = Dfa.nfa_to_dfa new_nfa2 in
+        let dfa = if !oflag then Dfa.nfa_to_dfa new_nfa else Dfa.nfa_to_dfa_subset new_nfa and
+            dfa2 = if !oflag then Dfa.nfa_to_dfa new_nfa2 else Dfa.nfa_to_dfa_subset new_nfa2 in
         let dfatime = Sys.time() in
         if !vflag then Printf.printf "[DONE] %fs\n" (dfatime -. nfatime);
-
-        if !vflag then print_string "Reducing DFAs...\t";
-        let reduced_dfa = Dfa.reduce_dfa dfa and
-            reduced_dfa2 = Dfa.reduce_dfa dfa2 in
-        let reddfatime = Sys.time() in
-        if !vflag then Printf.printf "[DONE] %fs\n" (reddfatime -. dfatime);
         if !dflag then (
+            Print.print_dfa dfa;
+            print_newline ();
+            Print.print_dfa dfa2;
+            print_newline ();
+        );
+
+        (* No need to reduce DFAs if we use our optimised *)
+        if !vflag && not !oflag then print_string "Reducing DFAs...\t";
+        let reduced_dfa = if !oflag then dfa else Dfa.reduce_dfa dfa and
+            reduced_dfa2 = if !oflag then dfa2 else Dfa.reduce_dfa dfa2 in
+        let reddfatime = Sys.time() in
+        if !vflag && not !oflag then Printf.printf "[DONE] %fs\n" (reddfatime -. dfatime);
+        if !dflag && not !oflag then (
             Print.print_dfa reduced_dfa;
             print_newline ();
             Print.print_dfa reduced_dfa2;

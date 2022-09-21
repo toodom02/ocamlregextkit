@@ -28,6 +28,7 @@ make
 
  - `-v` Output stages and timings of the program
  - `-d` Output constructed ASTs, NFAs, and DFAs for debugging
+ - `-O` Use optimised DFA construction
  - `-help` Display this list of options
  - `--help` Disply this list of options
 

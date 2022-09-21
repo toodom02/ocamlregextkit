@@ -82,28 +82,9 @@ let product_union m1 m2 =
         accepting = cartAccepting;
     }
 
-(* |reachable_states| -- returns the set of states reachable from the start state *)
-let reachable_states n = 
-    let marked = ref [n.start] in
-        let changed = ref true in
-        while (!changed) do
-            changed := false;
-            let newMarked = ref !marked in
-            List.iter (fun m ->
-                List.iter (fun (s,_,t) ->
-                    if (s = m && not (List.mem t !newMarked)) then (
-                        newMarked := t :: !newMarked;
-                        changed := true;
-                    )
-                ) n.transitions;
-            ) !marked;
-            marked := !newMarked;
-        done;
-    !marked
-
 (* |reduce_dfa| -- reduces input dfa by removing unreachable states *)
 let reduce_dfa n = 
-    let marked = reachable_states n in
+    let marked = Utils.reachable_states n.start n.transitions in
     {
         states = List.filter (fun s -> List.mem s marked) n.states;
         alphabet = n.alphabet;
@@ -114,7 +95,7 @@ let reduce_dfa n =
 
 (* |is_dfa_empty| -- returns None iff input dfa is empty, otherwise Some(reachable accepting states) *)
 let is_dfa_empty n =
-    let marked = reachable_states n in
+    let marked = Utils.reachable_states n.start n.transitions in
     match List.filter (fun m -> List.mem m n.accepting) marked with
         | [] -> None
         | xs -> Some xs
@@ -149,25 +130,9 @@ let powerset s =
     let fold_func a b = List.rev_append (prepend a b) a in 
         List.fold_left fold_func [[]] (List.rev s)
 
-(* |eps_reachable_set| -- returns set of all epsilon reachable states from input set of states *)
-let eps_reachable_set ss trans =
-
-    let get_reachable_set states =    
-        List.fold_right Utils.add_unique (List.filter_map (fun (s,a,t) -> if List.mem s states && a = "ε" then Some(t) else None) trans) states
-    in
-
-    (* iterate reachable set until no changes *)
-    let sts = ref (get_reachable_set ss) in
-    let newSts = ref (get_reachable_set !sts) in
-        while (!sts <> !newSts) do
-            sts := !newSts;
-            newSts := get_reachable_set !sts
-        done;
-        (List.sort compare !sts)
-
 (* |find_dfa_trans| -- returns a list of transitions for the dfa *)
 (* this is where all the time is spent... *)
-let find_dfa_trans newstates nfatrans alphabet nfastates = 
+let find_dfa_trans newstates (n: Nfa.nfa) = 
     let newtrans = ref [] in
     List.iter (fun state ->
         match state with
@@ -175,12 +140,12 @@ let find_dfa_trans newstates nfatrans alphabet nfastates =
                     List.iter (fun a ->
                         let temptrans = ref [] in
                         List.iter (fun t ->
-                            if List.exists (fun s -> List.mem (s,a,t) nfatrans) ss then (
+                            if List.exists (fun s -> List.mem (s,a,t) n.transitions) ss then (
                                 temptrans := Utils.add_unique t !temptrans;
                             );
-                        ) nfastates;
+                        ) n.states;
                         newtrans := (State ss, a, State !temptrans) :: !newtrans;
-                    ) alphabet
+                    ) n.alphabet
             | ProductState _ -> ()
     ) newstates;
     
@@ -188,24 +153,89 @@ let find_dfa_trans newstates nfatrans alphabet nfastates =
     List.rev_map (fun state -> 
         match state with 
             | (State ss, a, State tt) -> 
-                let reachable = eps_reachable_set tt nfatrans in (State ss, a, State reachable) 
+                let reachable = Nfa.eps_reachable_set tt n in (State ss, a, State reachable) 
             | (ss,a,tt) -> (ss,a,tt) (* This function should never be called for anything other than (State ss, a, State tt) *)
     ) !newtrans
 
 (* |nfa_to_dfa| -- converts nfa to dfa by the subset construction *)
 (* exponential blowup here! *)
-let nfa_to_dfa (n: Nfa.nfa) = 
+let nfa_to_dfa_subset (n: Nfa.nfa) = 
     let newstates = List.rev_map (fun s -> State s) (powerset n.states) in
-    let newtrans = find_dfa_trans newstates n.transitions n.alphabet n.states and
+    let newtrans = find_dfa_trans newstates n and
         newaccepting = List.filter (fun state -> 
             match state with
                 | State ss -> (List.exists (fun s -> List.mem s n.accepting) ss)
                 | _ -> false
-            ) newstates in
-        {
-            states = newstates;
-            alphabet = n.alphabet;
-            transitions = newtrans;
-            start = State (eps_reachable_set [n.start] n.transitions);
-            accepting = newaccepting;
-        }
+        ) newstates in
+    {
+        states = newstates;
+        alphabet = n.alphabet;
+        transitions = newtrans;
+        start = State (Nfa.eps_reachable_set [n.start] n);
+        accepting = newaccepting;
+    }
+
+(* 
+
+An improved algorithm for nfa-dfa conversion:
+
+start = eps_closure(n.start)
+transitions = []
+stack = [start]
+seenstates = [start]
+
+while stack not empty:
+    currentstate = stack.pop
+    for a in n.alphabet:
+        nextstate = []
+        for s in currentstate:
+            for (s',a',t) in n.transitions:
+                if s' = s && a' = a then 
+                    nextstate = t::nextstate
+        
+        if eps_closure(nextstate) not in seenstates:
+            stack.add(eps_closure(nextstate))
+            seenstates = eps_closure(nextstate)::seenstates
+        transitions = (currentstate, a, eps_closure(nextstate))::transitions
+
+*)
+
+let nfa_to_dfa (n: Nfa.nfa) =
+    let newstart = Nfa.eps_reachable_set [n.start] n in
+    let newtrans = ref [] and
+        newstates = ref [State newstart] and
+        stack = ref [newstart] and
+        donestates = ref [newstart] in
+    while (List.length !stack > 0) do
+        let currentstate = List.hd !stack in
+        stack := List.tl !stack;
+        List.iter (fun a ->
+            let nextstate = ref [] in
+            List.iter (fun s ->
+                List.iter (fun (s',a',t) ->
+                    if (s' = s && a' = a) then nextstate := t::!nextstate
+                ) n.transitions
+            ) currentstate;
+            let epsnext = Nfa.eps_reachable_set !nextstate n in
+            newstates := Utils.add_unique (State epsnext) !newstates;
+            if (not (List.mem epsnext !donestates)) then (
+                stack := epsnext::!stack;
+                donestates := epsnext::!donestates;
+            );
+            newtrans := (State currentstate, a, State epsnext)::!newtrans;
+        ) n.alphabet
+    done;
+
+    let newaccepting = List.filter (fun state ->
+        match state with
+              State s -> List.exists (fun s' -> List.mem s' n.accepting) s
+            | _ -> false
+    ) !newstates in
+        
+    {
+        states = !newstates;
+        alphabet = n.alphabet;
+        transitions = !newtrans;
+        start = State newstart;
+        accepting = newaccepting;
+    }
