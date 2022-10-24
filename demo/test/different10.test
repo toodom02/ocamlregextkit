@@ -1,0 +1,7 @@
+(b+aa*b)+(b+aa*b)(a+ba*b)*(a+ba*)
+a*b(a+ba*b)*
+
+(*<<
+'bb' exists in the first but not the second
+'bbb' exists in the second but not the first
+>>*)

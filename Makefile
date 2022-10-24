@@ -1,8 +1,8 @@
-all: regextkit
+all: regextkit.cma
 
-regextkit: ast.cmo lexer.cmo parser.cmo utils.cmo \
-		nfa.cmo dfa.cmo print.cmo main.cmo
-	ocamlc $^ -o $@
+regextkit.cma: ast.cmo lexer.cmo parser.cmo utils.cmo \
+		nfa.cmo dfa.cmo
+		ocamlc -a $^ -o $@ 
 
 parser.mli parser.ml: parser.mly
 	ocamlyacc parser.mly
@@ -10,26 +10,21 @@ parser.mli parser.ml: parser.mly
 lexer.ml: lexer.mll
 	ocamllex lexer.mll
 
-TESTSRC := $(wildcard test/*.test)
-
-test : $(TESTSRC:test/%.test=test-%)
-
-test-%: force
-	@echo "*** Test $*.test"
-	./regextkit -O $$(sed -n 1p test/$*.test) $$(sed -n 2p test/$*.test) > out.txt
-	sed -n -e '1,/^(\*<</d' -e '/^>>\*)/q' -e p test/$*.test | diff - out.txt
-	@echo "*** Passed"; echo
-
 clean: force
-	rm -f regextkit *.cma *.cmo *.cmi *.o
-	rm -f parser.mli parser.ml lexer.ml out.txt
+	rm -f *.cma *.cmo *.cmi *.o
+	rm -f parser.mli parser.ml lexer.ml
 
-ML = ast.ml ast.mli dfa.ml dfa.mli nfa.ml nfa.mli print.ml print.mli \
-	lexer.ml lexer.mli main.ml parser.ml parser.mli utils.ml utils.mli
+ML = ast.ml ast.mli dfa.ml dfa.mli nfa.ml nfa.mli \
+	lexer.ml parser.ml parser.mli utils.ml utils.mli
 
 depend : $(ML) force
 	(sed '/^###/q' Makefile; echo; ocamldep $(ML)) >new
 	mv new Makefile
+
+DOCS = ast.mli dfa.mli nfa.mli utils.mli
+
+docs : force
+	ocamldoc -html -sort -t "Regex Toolkit" -d ./docs -css-style ./style.css $(DOCS)
 
 %.cmi : %.mli
 	ocamlc -c $<
@@ -57,27 +52,9 @@ dfa.cmx : \
 dfa.cmi : \
     nfa.cmi
 lexer.cmo : \
-    parser.cmi \
-    lexer.cmi
-lexer.cmx : \
-    parser.cmx \
-    lexer.cmi
-lexer.cmi : \
     parser.cmi
-main.cmo : \
-    print.cmi \
-    parser.cmi \
-    nfa.cmi \
-    lexer.cmi \
-    dfa.cmi \
-    ast.cmi
-main.cmx : \
-    print.cmx \
-    parser.cmx \
-    nfa.cmx \
-    lexer.cmx \
-    dfa.cmx \
-    ast.cmx
+lexer.cmx : \
+    parser.cmx
 nfa.cmo : \
     utils.cmi \
     ast.cmi \
@@ -95,20 +72,6 @@ parser.cmx : \
     ast.cmx \
     parser.cmi
 parser.cmi : \
-    ast.cmi
-print.cmo : \
-    nfa.cmi \
-    dfa.cmi \
-    ast.cmi \
-    print.cmi
-print.cmx : \
-    nfa.cmx \
-    dfa.cmx \
-    ast.cmx \
-    print.cmi
-print.cmi : \
-    nfa.cmi \
-    dfa.cmi \
     ast.cmi
 utils.cmo : \
     utils.cmi

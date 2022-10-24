@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="./style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Nfa.html">
+<link rel="next" href="Print.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Ast" rel="Chapter" href="Ast.html">
+<link title="Dfa" rel="Chapter" href="Dfa.html">
+<link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="Nfa" rel="Chapter" href="Nfa.html">
+<link title="Parser" rel="Chapter" href="Parser.html">
+<link title="Print" rel="Chapter" href="Print.html">
+<link title="Utils" rel="Chapter" href="Utils.html"><title>Parser</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Nfa.html" title="Nfa">Previous</a>
+&nbsp;<a class="up" href="index.html" title="Index">Up</a>
+&nbsp;<a class="post" href="Print.html" title="Print">Next</a>
+</div>
+<h1>Module <a href="type_Parser.html">Parser</a></h1>
+
+<pre><span id="MODULEParser"><span class="keyword">module</span> Parser</span>: <code class="code">sig</code> <a href="Parser.html">..</a> <code class="code">end</code></pre><hr width="100%">
+
+<pre><code><span id="TYPEtoken"><span class="keyword">type</span> <code class="type"></code>token</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTtoken.IDENT"><span class="constructor">IDENT</span></span> <span class="keyword">of</span> <code class="type">string</code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTtoken.UNION"><span class="constructor">UNION</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTtoken.CONCAT"><span class="constructor">CONCAT</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTtoken.STAR"><span class="constructor">STAR</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTtoken.EMPTY"><span class="constructor">EMPTY</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTtoken.EPSILON"><span class="constructor">EPSILON</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTtoken.LPAR"><span class="constructor">LPAR</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTtoken.RPAR"><span class="constructor">RPAR</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTtoken.EOF"><span class="constructor">EOF</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTtoken.BADTOK"><span class="constructor">BADTOK</span></span></code></td>
+
+</tr></table>
+
+
+
+<pre><span id="VALregex"><span class="keyword">val</span> regex</span> : <code class="type">(Stdlib.Lexing.lexbuf -&gt; <a href="Parser.html#TYPEtoken">token</a>) -&gt; Stdlib.Lexing.lexbuf -&gt; <a href="Ast.html#TYPEre">Ast.re</a></code></pre></body></html>

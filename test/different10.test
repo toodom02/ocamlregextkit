@@ -1,7 +1,0 @@
-(b+aa*b)+(b+aa*b)(a+ba*b)*(a+ba*)
-a*b(a+ba*b)*
-
-(*<<
-'aaabaaba' exists in the first but not the second
-'aaabaabaab' exists in the second but not the first
->>*)

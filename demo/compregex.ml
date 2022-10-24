@@ -1,5 +1,5 @@
 (* |parse| -- parse a string as a regular expression *)
-let parse s =
+let parse s : Ast.re =
     let lexbuf = Lexing.from_string s in
     try
         Parser.regex Lexer.token lexbuf
@@ -15,7 +15,7 @@ let main () =
         vflag = ref false and
         oflag = ref false and
         fns = ref [] and
-        usage = "Usage: regextkit [-option] \"<regex>\" \"<regex>\"" in
+        usage = "Usage: compregex [-option] \"<regex>\" \"<regex>\"" in
     Arg.parse [
         ("-v", Arg.Set vflag, " Output stages and timings of the program");
         ("-d", Arg.Set dflag, " Output constructed ASTs, NFAs, and DFAs for debugging");
@@ -37,27 +37,26 @@ let main () =
         let asttime = Sys.time() in
         if !vflag then Printf.printf "[DONE] %fs\n" (asttime -. starttime);
         if !dflag then (
-            Print.print_ast simp_re;
+            Ast.print simp_re;
             print_newline ();
-            Print.print_ast simp_re2;
+            Ast.print simp_re2;
             print_newline ();
         );
 
         if !vflag then print_string "Constructing NFAs...\t";
-        let nfa = Nfa.construct_nfa simp_re and
-            nfa2 = Nfa.construct_nfa simp_re2 in
+        let nfa = Nfa.re_to_nfa simp_re and
+            nfa2 = Nfa.re_to_nfa simp_re2 in
 
         (* need to correct each nfa's alphabets to be the union, otherwise we 
             have an issue where the compliment of one language is the same as the compliment of another
             (e.g. with languages EPSILON,  a* ) *)
-        let new_nfa = Nfa.merge_alphabets nfa nfa2 and
-            new_nfa2 = Nfa.merge_alphabets nfa2 nfa in
+        let (new_nfa, new_nfa2) = Nfa.merge_alphabets nfa nfa2 in
         let nfatime = Sys.time() in
         if !vflag then Printf.printf "[DONE] %fs\n" (nfatime -. asttime);
         if !dflag then (
-            Print.print_nfa new_nfa;
+            Nfa.print new_nfa;
             print_newline ();
-            Print.print_nfa new_nfa2;
+            Nfa.print new_nfa2;
             print_newline ();
         );
 
@@ -67,22 +66,22 @@ let main () =
         let dfatime = Sys.time() in
         if !vflag then Printf.printf "[DONE] %fs\n" (dfatime -. nfatime);
         if !dflag then (
-            Print.print_dfa dfa;
+            Dfa.print dfa;
             print_newline ();
-            Print.print_dfa dfa2;
+            Dfa.print dfa2;
             print_newline ();
         );
 
         (* No need to reduce DFAs if we use our optimised *)
         if !vflag && not !oflag then print_string "Reducing DFAs...\t";
-        let reduced_dfa = if !oflag then dfa else Dfa.reduce_dfa dfa and
-            reduced_dfa2 = if !oflag then dfa2 else Dfa.reduce_dfa dfa2 in
+        let reduced_dfa = if !oflag then dfa else Dfa.prune dfa and
+            reduced_dfa2 = if !oflag then dfa2 else Dfa.prune dfa2 in
         let reddfatime = Sys.time() in
         if !vflag && not !oflag then Printf.printf "[DONE] %fs\n" (reddfatime -. dfatime);
         if !dflag && not !oflag then (
-            Print.print_dfa reduced_dfa;
+            Dfa.print reduced_dfa;
             print_newline ();
-            Print.print_dfa reduced_dfa2;
+            Dfa.print reduced_dfa2;
             print_newline ();
         );
 
@@ -116,17 +115,4 @@ let main () =
             Printf.eprintf "[ERROR] %s%s\n" msg stack;
             raise e
   
-let regex = main ()
-
-(* TODO: Uses too much memory if large input (>18 NFA states)  
-    -- this issue is acutally caused by List.map (which was applied to the result). 
-    Since List.map is not tail recursive, the stack space is proportional to the length of the input list (exponential to our NFA states in our case)
-    this problem persists for all usages of List.map. experiment using List.rev_map instead?
-    see more here https://discuss.ocaml.org/t/a-new-list-map-that-is-both-stack-safe-and-fast/865/2
-
-    issue exemplified by the following strings:
-        ? (1+0.1)*.(0+?)
-        ? (1*.0.1.1* ).(0+?)+1*.(0+?)
-
-        caused by stack overflow from powerset (and from typing each set as State)
-*)
+let compregex = main ()

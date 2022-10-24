@@ -9,5 +9,6 @@
 parser.ml
 parser.mli
 lexer.ml
-regextkit
-out.txt
+
+demo/compregex
+demo/out.txt

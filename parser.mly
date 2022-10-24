@@ -1,7 +1,3 @@
-%{
-open Ast
-%}
-
 %token <string>     IDENT
 %token              UNION CONCAT STAR
 %token              EMPTY EPSILON

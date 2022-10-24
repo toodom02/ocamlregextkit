@@ -1,0 +1,6 @@
+(a*)
+aa
+
+(*<<
+'' exists in the first but not the second
+>>*)

@@ -1,3 +1,5 @@
+(** Representation of a Regular Expression as an Abstract Syntax Tree *)
+
 type re = 
       Literal of string     (* a ∈ Σ *)
     | Epsilon               (* ε *)
@@ -6,5 +8,8 @@ type re =
     | Concat of re * re     (* E·R *)
     | Star of re            (* E* *)
 
-(* |simplify| -- simplifies input regex. Repeats until no more changes *)
+(** [simplify r] attempts to simplify RE [r] by Kozen Axioms *)
 val simplify : re -> re
+
+(** [print r] prints a string representation of the Abstract Syntax Tree representing [r] *)
+val print : re -> unit 

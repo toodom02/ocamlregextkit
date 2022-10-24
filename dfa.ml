@@ -3,8 +3,8 @@ type dfa = {
     states: state list; alphabet: string list; transitions: (state * string * state) list; start: state; accepting: state list
 }
 
-(* |dfa_compliment| -- returns the compliment of input dfa *)
-let dfa_compliment m = 
+(* |compliment| -- returns the compliment of input dfa *)
+let compliment m = 
     {
         states = m.states;
         alphabet = m.alphabet;
@@ -13,28 +13,81 @@ let dfa_compliment m =
         accepting = List.filter (fun ss -> not (List.mem ss m.accepting)) m.states;  
     }
 
-(* |find_resulting_state| -- finds the resulting state of dfa after reading a symbol *)
-let rec find_resulting_state initialState symbol transitions = 
+(* |succ| -- the resulting state of dfa m after reading symbol *)
+let succ m state symbol = 
     let rec sinkState = function
         | State _ -> State []
         | ProductState (l,r) -> ProductState (sinkState l,sinkState r)
     in
 
-    match transitions with
-        | [] -> sinkState initialState
-        | (s,a,t)::trans -> 
-            if (s = initialState && a = symbol) then t
-            else find_resulting_state initialState symbol trans
+    let postState = 
+        List.find_map (fun (s,a,t) -> 
+            if s = state && a = symbol then Some(t) else None
+        ) m.transitions in
+    if Option.is_none postState then sinkState m.start else Option.get postState
+
+(* |pred| -- returns the set of states preceeding state in dfa m *)
+let pred m state = 
+    let pred = ref [] in
+    List.iter (fun (s,a,t) ->
+        if t = state then pred := Utils.add_unique s !pred
+    ) m.transitions;
+    !pred
+
+(* |prune| -- reduces input dfa by pruning unreachable states *)
+let prune n = 
+    let marked = Utils.reachable_states n.start n.transitions in
+    {
+        states = List.filter (fun s -> List.mem s marked) n.states;
+        alphabet = n.alphabet;
+        start = n.start;
+        transitions = List.filter (fun (s,_,_) -> List.mem s marked) n.transitions;
+        accepting = List.filter (fun s -> List.mem s marked) n.accepting
+    }
+
+(* |is_empty| -- returns None iff input dfa is empty, otherwise Some(reachable accepting states) *)
+let is_empty n =
+    let marked = Utils.reachable_states n.start n.transitions in
+    match List.filter (fun m -> List.mem m n.accepting) marked with
+        | [] -> None
+        | xs -> Some xs
+
+(* |accepts| -- returns true iff string s is accepted by the dfa m *)
+let accepts m s =
+    let rec does_accept state str =
+        match str with
+            | "" -> List.mem state m.accepting
+            | _ -> does_accept (succ m state (String.make 1 str.[0])) (String.sub str 1 ((String.length str) - 1))
+    in
+    does_accept m.start s
+
+(* |accepted| -- returns the shortest word accepted by dfa m *)
+let accepted m =
+    let queue = ref [(m.start, "")] and
+        seen = ref [] and
+        shortest = ref None in
+    while Option.is_none !shortest && List.length !queue > 0 do
+        let (currentState, currentWord) = List.hd !queue in
+        if List.mem currentState m.accepting then (shortest := Some(currentWord))
+        else (
+            seen := currentState::!seen;
+            queue := (List.tl !queue) @ 
+                List.filter_map (fun (s,a,t) -> 
+                    if s = currentState && not (List.mem t !seen) then Some((t,currentWord^a)) else None
+                ) m.transitions;
+        )
+    done;
+    !shortest
 
 (* |find_product_trans| -- returns { ((l,r),a,(l',r')) : (l,a,l') ∧ (r,a,r') }*)
-let find_product_trans cartStates fstTrans sndTrans alphabet = 
+let find_product_trans m1 m2 cartStates alphabet = 
     let newTrans = ref [] in
     List.iter (fun state ->
         match state with
             | ProductState (l,r) -> 
                 List.iter (fun a -> 
-                    let lRes = find_resulting_state l a fstTrans and
-                        rRes = find_resulting_state r a sndTrans in
+                    let lRes = succ m1 l a and
+                        rRes = succ m2 r a in
                             newTrans := (ProductState (l,r), a, ProductState (lRes,rRes))::!newTrans;
                 ) alphabet
             | State _ -> ()
@@ -49,7 +102,7 @@ let cross_product a b =
 let product_intersection m1 m2 =
     let cartesianStates = cross_product m1.states m2.states in
     let unionAlphabet = Utils.list_union m1.alphabet m2.alphabet in
-    let cartTrans = find_product_trans cartesianStates m1.transitions m2.transitions unionAlphabet and
+    let cartTrans = find_product_trans m1 m2 cartesianStates unionAlphabet and
         cartAccepting = List.filter (fun state -> 
             match state with
                 | ProductState (l,r) -> List.mem l m1.accepting && List.mem r m2.accepting
@@ -68,7 +121,7 @@ let product_intersection m1 m2 =
 let product_union m1 m2 =
     let cartesianStates = cross_product m1.states m2.states in
     let unionAlphabet = Utils.list_union m1.alphabet m2.alphabet in
-    let cartTrans = find_product_trans cartesianStates m1.transitions m2.transitions unionAlphabet and
+    let cartTrans = find_product_trans m1 m2 cartesianStates unionAlphabet and
         cartAccepting = List.filter (fun state -> 
             match state with
                 | ProductState (l,r) -> List.mem l m1.accepting || List.mem r m2.accepting
@@ -82,45 +135,13 @@ let product_union m1 m2 =
         accepting = cartAccepting;
     }
 
-(* |reduce_dfa| -- reduces input dfa by removing unreachable states *)
-let reduce_dfa n = 
-    let marked = Utils.reachable_states n.start n.transitions in
-    {
-        states = List.filter (fun s -> List.mem s marked) n.states;
-        alphabet = n.alphabet;
-        start = n.start;
-        transitions = List.filter (fun (s,_,_) -> List.mem s marked) n.transitions;
-        accepting = List.filter (fun s -> List.mem s marked) n.accepting
-    }
-
-(* |is_dfa_empty| -- returns None iff input dfa is empty, otherwise Some(reachable accepting states) *)
-let is_dfa_empty n =
-    let marked = Utils.reachable_states n.start n.transitions in
-    match List.filter (fun m -> List.mem m n.accepting) marked with
-        | [] -> None
-        | xs -> Some xs
-
-(* |reverse_search_word| -- finds a path in DFA n from the start state to acceptingState *)
-let reverse_search_word n acceptingState = 
-    let rec find_word_dfs currentState visited path = 
-        if currentState = n.start then 
-            Some(path)
-        else 
-            List.find_map (fun (s,a,t) ->
-                if (t = currentState && not (List.mem s visited)) then (
-                    find_word_dfs s (t::visited) (a^path)
-                ) else None
-            ) n.transitions
-    in
-    find_word_dfs acceptingState [acceptingState] ""
-
-(* |find_unique_word| -- finds a word accepted by DFA m but not m' *)
-let find_unique_word m m' =
-    let comp' = dfa_compliment m' in
-    let fst_and_not_snd = product_intersection m comp' in
-    let reachable_accepting_states = is_dfa_empty fst_and_not_snd in
+(* |find_unique_word| -- finds a word accepted by DFA m1 but not m2 *)
+let find_unique_word m1 m2 =
+    let comp = compliment m2 in
+    let fst_and_not_snd = product_intersection m1 comp in
+    let reachable_accepting_states = is_empty fst_and_not_snd in
     if (Option.is_some (reachable_accepting_states)) then
-        reverse_search_word fst_and_not_snd (List.hd (Option.get reachable_accepting_states))
+        accepted fst_and_not_snd
     else None
 
 (* |powerset| -- returns the powerset of input list *)
@@ -206,6 +227,7 @@ let nfa_to_dfa (n: Nfa.nfa) =
         newstates = ref [State newstart] and
         stack = ref [newstart] and
         donestates = ref [newstart] in
+    
     while (List.length !stack > 0) do
         let currentstate = List.hd !stack in
         stack := List.tl !stack;
@@ -239,3 +261,15 @@ let nfa_to_dfa (n: Nfa.nfa) =
         start = State newstart;
         accepting = newaccepting;
     }
+
+(* |print| -- prints out dfa representation *)
+let print n = 
+let rec print_state = function
+    | State n -> print_string "[ "; List.iter (fun s -> print_int s; print_char ' ') n; print_string "]"
+    | ProductState (l,r) -> print_string "( "; print_state l; print_string " , "; print_state r; print_string " )";
+in
+print_string "states: "; List.iter (fun ss -> print_state ss) n.states; print_newline ();
+print_string "alphabet: "; List.iter (fun a -> print_string a; print_char ' ') n.alphabet; print_newline ();
+print_string "start: "; print_state n.start; print_newline ();
+print_string "accepting: "; List.iter (fun ss -> print_state ss) n.accepting; print_newline ();
+print_string "transitions: "; print_newline (); List.iter (fun (ss,a,tt) -> print_string "    "; print_state ss; print_string ("\t--"^a^"-->\t"); print_state tt; print_newline ()) n.transitions;

@@ -1,0 +1,28 @@
+<html><head>
+<link rel="stylesheet" href="./style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Ast" rel="Chapter" href="Ast.html">
+<link title="Dfa" rel="Chapter" href="Dfa.html">
+<link title="Nfa" rel="Chapter" href="Nfa.html">
+<link title="Utils" rel="Chapter" href="Utils.html"><title>Regex Toolkit : Nfa</title>
+</head>
+<body>
+<code class="code"><span class="keyword">sig</span><br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;state&nbsp;=&nbsp;int<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;nfa&nbsp;=&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;states&nbsp;:&nbsp;<span class="constructor">Nfa</span>.state&nbsp;list;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;alphabet&nbsp;:&nbsp;string&nbsp;list;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;transitions&nbsp;:&nbsp;(<span class="constructor">Nfa</span>.state&nbsp;*&nbsp;string&nbsp;*&nbsp;<span class="constructor">Nfa</span>.state)&nbsp;list;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;start&nbsp;:&nbsp;<span class="constructor">Nfa</span>.state;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;accepting&nbsp;:&nbsp;<span class="constructor">Nfa</span>.state&nbsp;list;<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;re_to_nfa&nbsp;:&nbsp;<span class="constructor">Ast</span>.re&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Nfa</span>.nfa<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;merge_alphabets&nbsp;:&nbsp;<span class="constructor">Nfa</span>.nfa&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Nfa</span>.nfa&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Nfa</span>.nfa&nbsp;*&nbsp;<span class="constructor">Nfa</span>.nfa<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;eps_reachable_set&nbsp;:&nbsp;<span class="constructor">Nfa</span>.state&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Nfa</span>.nfa&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Nfa</span>.state&nbsp;list<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;print&nbsp;:&nbsp;<span class="constructor">Nfa</span>.nfa&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
+<span class="keyword">end</span></code></body></html>

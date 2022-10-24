@@ -1,13 +1,18 @@
+(** Representation of NFAs and implementation of standard operations *)
+
 type state = int
 type nfa = {
     states: state list; alphabet: string list; transitions: (state * string * state) list; start: state; accepting: state list
 }
 
-(* |construct_nfa| -- constructs an nfa from input regex *)
-val construct_nfa : Ast.re -> nfa
+(** [re_to_nfa r] returns an NFA constructed from the RE r *)
+val re_to_nfa : Ast.re -> nfa
 
-(* |merge_alphabets| -- returns an nfa with the alphabet unioned with another nfa *)
-val merge_alphabets : nfa -> nfa -> nfa
+(** [merge_alphabets n1 n2] returns a tuple of NFAs [(n1', n2')] such that [n1'] and [n2'] both share a common alphabet *)
+val merge_alphabets : nfa -> nfa -> (nfa * nfa)
 
-(* |eps_reachable_set| -- returns set of all epsilon reachable states from input set of states *)
+(** [eps_reachable_set ss n] returns the set of all epsilon reachable states in the NFA [n] from the set of states [ss] *)
 val eps_reachable_set : state list -> nfa -> state list
+
+(** [print n] prints a string representation of the NFA [n] *)
+val print : nfa -> unit
