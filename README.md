@@ -12,7 +12,7 @@ See [OCaml docs](https://ocaml.org/docs/up-and-running) for installation instruc
 
 ## Demo
 
-For demonstration purposes, `compregex` is an app built using the toolkit which accepts two regular expressions on the command line, and either verifies that they are equivalent or prints a word that matches one expression but not the other.
+For demonstration purposes, `demo` is an app built using the toolkit which accepts two regular expressions on the command line, and either verifies that they are equivalent or prints a word that matches one expression but not the other.
 
 ### Build the Library
 
@@ -24,13 +24,13 @@ make
 
 ```bash
 cd demo
-make
+make demo
 ```
 
 ### Run the app
 
 ```bash
-./compregex [-options] "<regex>" "<regex>"
+./demo "<regex>" "<regex>"
 ```
 
 To test the app, run
@@ -39,13 +39,7 @@ To test the app, run
 make test
 ```
 
-### Options
-
- - `-v` Output stages and timings of the program
- - `-d` Output constructed ASTs, NFAs, and DFAs for debugging
- - `-O` Use optimised DFA construction
- - `-help` Display this list of options
- - `--help` Disply this list of options
+This will run a set of test cases, which checks correctness of basic parsing, equivalence, and difference of two regular expressions.
 
 
 ## Make Targets

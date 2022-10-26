@@ -9,17 +9,8 @@
 <link title="Ast" rel="Chapter" href="Ast.html">
 <link title="Dfa" rel="Chapter" href="Dfa.html">
 <link title="Nfa" rel="Chapter" href="Nfa.html">
+<link title="Re" rel="Chapter" href="Re.html">
 <link title="Utils" rel="Chapter" href="Utils.html"><title>Regex Toolkit : Ast</title>
 </head>
 <body>
-<code class="code"><span class="keyword">sig</span><br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;re&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Literal</span>&nbsp;<span class="keyword">of</span>&nbsp;string<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Epsilon</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Empty</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Union</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Ast</span>.re&nbsp;*&nbsp;<span class="constructor">Ast</span>.re<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Concat</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Ast</span>.re&nbsp;*&nbsp;<span class="constructor">Ast</span>.re<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Star</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Ast</span>.re<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;simplify&nbsp;:&nbsp;<span class="constructor">Ast</span>.re&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Ast</span>.re<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;print&nbsp;:&nbsp;<span class="constructor">Ast</span>.re&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
-<span class="keyword">end</span></code></body></html>
+<code class="code"><span class="keyword">sig</span>&nbsp;<span class="keyword">val</span>&nbsp;parse&nbsp;:&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Re</span>.re&nbsp;<span class="keyword">end</span></code></body></html>

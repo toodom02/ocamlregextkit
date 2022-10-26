@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="./style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Nfa.html">
+<link rel="next" href="Utils.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Ast" rel="Chapter" href="Ast.html">
+<link title="Dfa" rel="Chapter" href="Dfa.html">
+<link title="Nfa" rel="Chapter" href="Nfa.html">
+<link title="Re" rel="Chapter" href="Re.html">
+<link title="Utils" rel="Chapter" href="Utils.html"><title>Regex Toolkit : Re</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Nfa.html" title="Nfa">Previous</a>
+&nbsp;<a class="up" href="index.html" title="Index">Up</a>
+&nbsp;<a class="post" href="Utils.html" title="Utils">Next</a>
+</div>
+<h1>Module <a href="type_Re.html">Re</a></h1>
+
+<pre><span id="MODULERe"><span class="keyword">module</span> Re</span>: <code class="code">sig</code> <a href="Re.html">..</a> <code class="code">end</code></pre><div class="info module top">
+<div class="info-desc">
+<p>Representation of Regular Expressions and implementation of standard operations</p>
+</div>
+</div>
+<hr width="100%">
+
+<pre><code><span id="TYPEre"><span class="keyword">type</span> <code class="type"></code>re</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTre.Literal"><span class="constructor">Literal</span></span> <span class="keyword">of</span> <code class="type">string</code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTre.Epsilon"><span class="constructor">Epsilon</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTre.Empty"><span class="constructor">Empty</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTre.Union"><span class="constructor">Union</span></span> <span class="keyword">of</span> <code class="type"><a href="Re.html#TYPEre">re</a> * <a href="Re.html#TYPEre">re</a></code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTre.Concat"><span class="constructor">Concat</span></span> <span class="keyword">of</span> <code class="type"><a href="Re.html#TYPEre">re</a> * <a href="Re.html#TYPEre">re</a></code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTre.Star"><span class="constructor">Star</span></span> <span class="keyword">of</span> <code class="type"><a href="Re.html#TYPEre">re</a></code></code></td>
+
+</tr></table>
+
+
+
+<pre><span id="VALsimplify"><span class="keyword">val</span> simplify</span> : <code class="type"><a href="Re.html#TYPEre">re</a> -&gt; <a href="Re.html#TYPEre">re</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">simplify r</code> attempts to simplify RE <code class="code">r</code> by Kozen Axioms</p>
+</div>
+</div>
+
+<pre><span id="VALprint"><span class="keyword">val</span> print</span> : <code class="type"><a href="Re.html#TYPEre">re</a> -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">print r</code> prints a string representation of the Abstract Syntax Tree representing <code class="code">r</code></p>
+</div>
+</div>
+</body></html>

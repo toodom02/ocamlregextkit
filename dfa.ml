@@ -48,9 +48,7 @@ let prune n =
 (* |is_empty| -- returns None iff input dfa is empty, otherwise Some(reachable accepting states) *)
 let is_empty n =
     let marked = Utils.reachable_states n.start n.transitions in
-    match List.filter (fun m -> List.mem m n.accepting) marked with
-        | [] -> None
-        | xs -> Some xs
+    List.exists (fun m -> List.mem m n.accepting) marked
 
 (* |accepts| -- returns true iff string s is accepted by the dfa m *)
 let accepts m s =
@@ -134,15 +132,6 @@ let product_union m1 m2 =
         start = ProductState (m1.start, m2.start);
         accepting = cartAccepting;
     }
-
-(* |find_unique_word| -- finds a word accepted by DFA m1 but not m2 *)
-let find_unique_word m1 m2 =
-    let comp = compliment m2 in
-    let fst_and_not_snd = product_intersection m1 comp in
-    let reachable_accepting_states = is_empty fst_and_not_snd in
-    if (Option.is_some (reachable_accepting_states)) then
-        accepted fst_and_not_snd
-    else None
 
 (* |powerset| -- returns the powerset of input list *)
 (* produces list of size 2^|s| *)

@@ -11,4 +11,5 @@ parser.mli
 lexer.ml
 
 demo/compregex
+demo/demo
 demo/out.txt

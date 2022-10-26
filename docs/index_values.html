@@ -10,6 +10,7 @@
 <link title="Ast" rel="Chapter" href="Ast.html">
 <link title="Dfa" rel="Chapter" href="Dfa.html">
 <link title="Nfa" rel="Chapter" href="Nfa.html">
+<link title="Re" rel="Chapter" href="Re.html">
 <link title="Utils" rel="Chapter" href="Utils.html"><title>Regex Toolkit : Index of values</title>
 </head>
 <body>
@@ -50,13 +51,10 @@
 
 </div>
 </td></tr>
-<tr><td align="left"><div>F</div></td></tr>
-<tr><td><a href="Dfa.html#VALfind_unique_word">find_unique_word</a> [<a href="Dfa.html">Dfa</a>]</td>
-<td></td></tr>
 <tr><td align="left"><div>I</div></td></tr>
 <tr><td><a href="Dfa.html#VALis_empty">is_empty</a> [<a href="Dfa.html">Dfa</a>]</td>
 <td><div class="info">
-<p><code class="code">is_empty m</code> returns None if <code class="code">m</code> is empty, otherwise an option list of reachable accepting states</p>
+<p><code class="code">is_empty m</code> returns true iff DFA <code class="code">m</code> is empty</p>
 
 </div>
 </td></tr>
@@ -88,9 +86,21 @@
 </div>
 </td></tr>
 <tr><td align="left"><div>P</div></td></tr>
+<tr><td><a href="Ast.html#VALparse">parse</a> [<a href="Ast.html">Ast</a>]</td>
+<td><div class="info">
+<p><code class="code">parse s</code> Invokes the parser on string <code class="code">s</code> to create a Regular Expression Abstract Syntax Tree</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Dfa.html#VALpred">pred</a> [<a href="Dfa.html">Dfa</a>]</td>
 <td><div class="info">
 <p><code class="code">pred m s</code> returns a list of states that preceed the state <code class="code">s</code> in DFA <code class="code">m</code></p>
+
+</div>
+</td></tr>
+<tr><td><a href="Re.html#VALprint">print</a> [<a href="Re.html">Re</a>]</td>
+<td><div class="info">
+<p><code class="code">print r</code> prints a string representation of the Abstract Syntax Tree representing <code class="code">r</code></p>
 
 </div>
 </td></tr>
@@ -103,12 +113,6 @@
 <tr><td><a href="Dfa.html#VALprint">print</a> [<a href="Dfa.html">Dfa</a>]</td>
 <td><div class="info">
 <p><code class="code">print n</code> prints a string representation of the DFA <code class="code">n</code></p>
-
-</div>
-</td></tr>
-<tr><td><a href="Ast.html#VALprint">print</a> [<a href="Ast.html">Ast</a>]</td>
-<td><div class="info">
-<p><code class="code">print r</code> prints a string representation of the Abstract Syntax Tree representing <code class="code">r</code></p>
 
 </div>
 </td></tr>
@@ -144,7 +148,7 @@
 </div>
 </td></tr>
 <tr><td align="left"><div>S</div></td></tr>
-<tr><td><a href="Ast.html#VALsimplify">simplify</a> [<a href="Ast.html">Ast</a>]</td>
+<tr><td><a href="Re.html#VALsimplify">simplify</a> [<a href="Re.html">Re</a>]</td>
 <td><div class="info">
 <p><code class="code">simplify r</code> attempts to simplify RE <code class="code">r</code> by Kozen Axioms</p>
 

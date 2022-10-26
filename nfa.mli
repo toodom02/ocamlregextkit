@@ -6,7 +6,7 @@ type nfa = {
 }
 
 (** [re_to_nfa r] returns an NFA constructed from the RE r *)
-val re_to_nfa : Ast.re -> nfa
+val re_to_nfa : Re.re -> nfa
 
 (** [merge_alphabets n1 n2] returns a tuple of NFAs [(n1', n2')] such that [n1'] and [n2'] both share a common alphabet *)
 val merge_alphabets : nfa -> nfa -> (nfa * nfa)

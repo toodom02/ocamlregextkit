@@ -13,6 +13,7 @@
 <link title="Ast" rel="Chapter" href="Ast.html">
 <link title="Dfa" rel="Chapter" href="Dfa.html">
 <link title="Nfa" rel="Chapter" href="Nfa.html">
+<link title="Re" rel="Chapter" href="Re.html">
 <link title="Utils" rel="Chapter" href="Utils.html"><title>Regex Toolkit : Ast</title>
 </head>
 <body>
@@ -23,66 +24,14 @@
 
 <pre><span id="MODULEAst"><span class="keyword">module</span> Ast</span>: <code class="code">sig</code> <a href="Ast.html">..</a> <code class="code">end</code></pre><div class="info module top">
 <div class="info-desc">
-<p>Representation of a Regular Expression as an Abstract Syntax Tree</p>
+<p>Interface to generate Abstract Syntax Tree for Regular Expressions</p>
 </div>
 </div>
 <hr width="100%">
 
-<pre><code><span id="TYPEre"><span class="keyword">type</span> <code class="type"></code>re</span> = </code></pre><table class="typetable">
-<tr>
-<td align="left" valign="top" >
-<code><span class="keyword">|</span></code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTre.Literal"><span class="constructor">Literal</span></span> <span class="keyword">of</span> <code class="type">string</code></code></td>
-
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code><span class="keyword">|</span></code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTre.Epsilon"><span class="constructor">Epsilon</span></span></code></td>
-
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code><span class="keyword">|</span></code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTre.Empty"><span class="constructor">Empty</span></span></code></td>
-
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code><span class="keyword">|</span></code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTre.Union"><span class="constructor">Union</span></span> <span class="keyword">of</span> <code class="type"><a href="Ast.html#TYPEre">re</a> * <a href="Ast.html#TYPEre">re</a></code></code></td>
-
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code><span class="keyword">|</span></code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTre.Concat"><span class="constructor">Concat</span></span> <span class="keyword">of</span> <code class="type"><a href="Ast.html#TYPEre">re</a> * <a href="Ast.html#TYPEre">re</a></code></code></td>
-
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code><span class="keyword">|</span></code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTre.Star"><span class="constructor">Star</span></span> <span class="keyword">of</span> <code class="type"><a href="Ast.html#TYPEre">re</a></code></code></td>
-
-</tr></table>
-
-
-
-<pre><span id="VALsimplify"><span class="keyword">val</span> simplify</span> : <code class="type"><a href="Ast.html#TYPEre">re</a> -&gt; <a href="Ast.html#TYPEre">re</a></code></pre><div class="info ">
+<pre><span id="VALparse"><span class="keyword">val</span> parse</span> : <code class="type">string -&gt; <a href="Re.html#TYPEre">Re.re</a></code></pre><div class="info ">
 <div class="info-desc">
-<p><code class="code">simplify r</code> attempts to simplify RE <code class="code">r</code> by Kozen Axioms</p>
-</div>
-</div>
-
-<pre><span id="VALprint"><span class="keyword">val</span> print</span> : <code class="type"><a href="Ast.html#TYPEre">re</a> -&gt; unit</code></pre><div class="info ">
-<div class="info-desc">
-<p><code class="code">print r</code> prints a string representation of the Abstract Syntax Tree representing <code class="code">r</code></p>
+<p><code class="code">parse s</code> Invokes the parser on string <code class="code">s</code> to create a Regular Expression Abstract Syntax Tree</p>
 </div>
 </div>
 </body></html>

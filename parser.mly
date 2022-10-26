@@ -11,7 +11,7 @@
 %nonassoc           LPAR RPAR
 %nonassoc           IDENT EPSILON EMPTY
 
-%type <Ast.re>      regex
+%type <Re.re>      regex
 %start              regex
 
 %%

@@ -20,8 +20,8 @@ val pred : dfa -> state -> state list
 (** [prune m] reduces DFA [m] by removing unreachable states *)
 val prune : dfa -> dfa
 
-(** [is_empty m] returns None if [m] is empty, otherwise an option list of reachable accepting states *)
-val is_empty : dfa -> state list option
+(** [is_empty m] returns true iff DFA [m] is empty *)
+val is_empty : dfa -> bool
 
 (** [accepts m s] returns true iff DFA [m] accepts string [s] *)
 val accepts : dfa -> string -> bool
@@ -40,9 +40,6 @@ val nfa_to_dfa_subset : Nfa.nfa -> dfa
 
 (** [nfa_to_dfa m] returns the NFA equivalent to DFA [m], by an optimised subset construction *)
 val nfa_to_dfa : Nfa.nfa -> dfa
-
-(* |find_unique_word| -- finds a word accepted by the first DFA but not the second *)
-val find_unique_word : dfa -> dfa -> string option
 
 (** [print n] prints a string representation of the DFA [n] *)
 val print : dfa -> unit

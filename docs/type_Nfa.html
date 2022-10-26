@@ -9,6 +9,7 @@
 <link title="Ast" rel="Chapter" href="Ast.html">
 <link title="Dfa" rel="Chapter" href="Dfa.html">
 <link title="Nfa" rel="Chapter" href="Nfa.html">
+<link title="Re" rel="Chapter" href="Re.html">
 <link title="Utils" rel="Chapter" href="Utils.html"><title>Regex Toolkit : Nfa</title>
 </head>
 <body>
@@ -21,7 +22,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;start&nbsp;:&nbsp;<span class="constructor">Nfa</span>.state;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;accepting&nbsp;:&nbsp;<span class="constructor">Nfa</span>.state&nbsp;list;<br>
 &nbsp;&nbsp;}<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;re_to_nfa&nbsp;:&nbsp;<span class="constructor">Ast</span>.re&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Nfa</span>.nfa<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;re_to_nfa&nbsp;:&nbsp;<span class="constructor">Re</span>.re&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Nfa</span>.nfa<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;merge_alphabets&nbsp;:&nbsp;<span class="constructor">Nfa</span>.nfa&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Nfa</span>.nfa&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Nfa</span>.nfa&nbsp;*&nbsp;<span class="constructor">Nfa</span>.nfa<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;eps_reachable_set&nbsp;:&nbsp;<span class="constructor">Nfa</span>.state&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Nfa</span>.nfa&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Nfa</span>.state&nbsp;list<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;print&nbsp;:&nbsp;<span class="constructor">Nfa</span>.nfa&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>

@@ -1,15 +1,4 @@
-(** Representation of a Regular Expression as an Abstract Syntax Tree *)
+(** Interface to generate Abstract Syntax Tree for Regular Expressions *)
 
-type re = 
-      Literal of string     (* a ∈ Σ *)
-    | Epsilon               (* ε *)
-    | Empty                 (* ∅ *)
-    | Union of re * re      (* E + R *)
-    | Concat of re * re     (* E·R *)
-    | Star of re            (* E* *)
-
-(** [simplify r] attempts to simplify RE [r] by Kozen Axioms *)
-val simplify : re -> re
-
-(** [print r] prints a string representation of the Abstract Syntax Tree representing [r] *)
-val print : re -> unit 
+(** [parse s] Invokes the parser on string [s] to create a Regular Expression Abstract Syntax Tree *)
+val parse : string -> Re.re

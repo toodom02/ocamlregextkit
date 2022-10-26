@@ -1,4 +1,4 @@
-open Ast
+open Re
 
 type state = int
 type nfa = {
@@ -49,7 +49,7 @@ let re_to_nfa re =
 (* TODO [pred m s] returns a list of states that preceed the state [s] in NFA [m] *)
 (* val pred : dfa -> state -> state list *)
 
-(* |merge_alphabets| -- returns an nfa with the alphabet unioned with another nfa *)
+(* |merge_alphabets| -- returns nfas with the alphabet unioned with the other nfa *)
 let merge_alphabets n1 n2 =
     let newalphabet = Utils.list_union n1.alphabet n2.alphabet in
     ({

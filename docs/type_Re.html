@@ -1,0 +1,26 @@
+<html><head>
+<link rel="stylesheet" href="./style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Ast" rel="Chapter" href="Ast.html">
+<link title="Dfa" rel="Chapter" href="Dfa.html">
+<link title="Nfa" rel="Chapter" href="Nfa.html">
+<link title="Re" rel="Chapter" href="Re.html">
+<link title="Utils" rel="Chapter" href="Utils.html"><title>Regex Toolkit : Re</title>
+</head>
+<body>
+<code class="code"><span class="keyword">sig</span><br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;re&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Literal</span>&nbsp;<span class="keyword">of</span>&nbsp;string<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Epsilon</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Empty</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Union</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Re</span>.re&nbsp;*&nbsp;<span class="constructor">Re</span>.re<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Concat</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Re</span>.re&nbsp;*&nbsp;<span class="constructor">Re</span>.re<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Star</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Re</span>.re<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;simplify&nbsp;:&nbsp;<span class="constructor">Re</span>.re&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Re</span>.re<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;print&nbsp;:&nbsp;<span class="constructor">Re</span>.re&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
+<span class="keyword">end</span></code></body></html>

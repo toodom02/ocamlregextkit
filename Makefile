@@ -1,7 +1,7 @@
 all: regextkit.cma
 
-regextkit.cma: ast.cmo lexer.cmo parser.cmo utils.cmo \
-		nfa.cmo dfa.cmo
+regextkit.cma: lexer.cmo parser.cmo utils.cmo \
+		ast.cmo re.cmo nfa.cmo dfa.cmo
 		ocamlc -a $^ -o $@ 
 
 parser.mli parser.ml: parser.mly
@@ -14,14 +14,14 @@ clean: force
 	rm -f *.cma *.cmo *.cmi *.o
 	rm -f parser.mli parser.ml lexer.ml
 
-ML = ast.ml ast.mli dfa.ml dfa.mli nfa.ml nfa.mli \
+ML = ast.ml ast.mli re.ml re.mli nfa.ml nfa.mli dfa.ml dfa.mli \
 	lexer.ml parser.ml parser.mli utils.ml utils.mli
 
 depend : $(ML) force
 	(sed '/^###/q' Makefile; echo; ocamldep $(ML)) >new
 	mv new Makefile
 
-DOCS = ast.mli dfa.mli nfa.mli utils.mli
+DOCS = ast.mli re.mli nfa.mli dfa.mli utils.mli
 
 docs : force
 	ocamldoc -html -sort -t "Regex Toolkit" -d ./docs -css-style ./style.css $(DOCS)
@@ -37,10 +37,15 @@ force:
 ###
 
 ast.cmo : \
+    parser.cmi \
+    lexer.cmo \
     ast.cmi
 ast.cmx : \
+    parser.cmx \
+    lexer.cmx \
     ast.cmi
-ast.cmi :
+ast.cmi : \
+    re.cmi
 dfa.cmo : \
     utils.cmi \
     nfa.cmi \
@@ -57,22 +62,27 @@ lexer.cmx : \
     parser.cmx
 nfa.cmo : \
     utils.cmi \
-    ast.cmi \
+    re.cmi \
     nfa.cmi
 nfa.cmx : \
     utils.cmx \
-    ast.cmx \
+    re.cmx \
     nfa.cmi
 nfa.cmi : \
-    ast.cmi
+    re.cmi
 parser.cmo : \
-    ast.cmi \
+    re.cmi \
     parser.cmi
 parser.cmx : \
-    ast.cmx \
+    re.cmx \
     parser.cmi
 parser.cmi : \
-    ast.cmi
+    re.cmi
+re.cmo : \
+    re.cmi
+re.cmx : \
+    re.cmi
+re.cmi :
 utils.cmo : \
     utils.cmi
 utils.cmx : \
