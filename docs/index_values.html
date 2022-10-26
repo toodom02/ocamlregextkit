@@ -47,7 +47,7 @@
 <tr><td align="left"><div>E</div></td></tr>
 <tr><td><a href="Nfa.html#VALeps_reachable_set">eps_reachable_set</a> [<a href="Nfa.html">Nfa</a>]</td>
 <td><div class="info">
-<p><code class="code">eps_reachable_set ss n</code> returns the set of all epsilon reachable states in the NFA <code class="code">n</code> from the set of states <code class="code">ss</code></p>
+<p><code class="code">eps_reachable_set n ss</code> returns the set of all epsilon reachable states in the NFA <code class="code">n</code> from the set of states <code class="code">ss</code></p>
 
 </div>
 </td></tr>
@@ -89,6 +89,12 @@
 <tr><td><a href="Ast.html#VALparse">parse</a> [<a href="Ast.html">Ast</a>]</td>
 <td><div class="info">
 <p><code class="code">parse s</code> Invokes the parser on string <code class="code">s</code> to create a Regular Expression Abstract Syntax Tree</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Nfa.html#VALpred">pred</a> [<a href="Nfa.html">Nfa</a>]</td>
+<td><div class="info">
+<p><code class="code">pred n s</code> returns a list of states that preceed the state <code class="code">s</code> in NFA <code class="code">n</code></p>
 
 </div>
 </td></tr>
@@ -154,9 +160,15 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Nfa.html#VALsucc">succ</a> [<a href="Nfa.html">Nfa</a>]</td>
+<td><div class="info">
+<p><code class="code">succ n s w</code> returns a list of successor states of NFA <code class="code">n</code> after reading word <code class="code">w</code> from state <code class="code">s</code></p>
+
+</div>
+</td></tr>
 <tr><td><a href="Dfa.html#VALsucc">succ</a> [<a href="Dfa.html">Dfa</a>]</td>
 <td><div class="info">
-<p><code class="code">succ m s w</code> returns the state of DFA <code class="code">m</code> after reading word <code class="code">w</code> from state <code class="code">s</code></p>
+<p><code class="code">succ m s w</code> returns the successor state of DFA <code class="code">m</code> after reading word <code class="code">w</code> from state <code class="code">s</code></p>
 
 </div>
 </td></tr>

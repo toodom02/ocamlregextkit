@@ -11,7 +11,7 @@ type dfa = {
 (** [compliment m] returns the compliment of DFA [m] *)
 val compliment : dfa -> dfa
 
-(** [succ m s w] returns the state of DFA [m] after reading word [w] from state [s] *)
+(** [succ m s w] returns the successor state of DFA [m] after reading word [w] from state [s] *)
 val succ : dfa -> state -> string -> state
 
 (** [pred m s] returns a list of states that preceed the state [s] in DFA [m] *)

@@ -163,7 +163,7 @@ let find_dfa_trans newstates (n: Nfa.nfa) =
     List.rev_map (fun state -> 
         match state with 
             | (State ss, a, State tt) -> 
-                let reachable = Nfa.eps_reachable_set tt n in (State ss, a, State reachable) 
+                let reachable = Nfa.eps_reachable_set n tt in (State ss, a, State reachable) 
             | (ss,a,tt) -> (ss,a,tt) (* This function should never be called for anything other than (State ss, a, State tt) *)
     ) !newtrans
 
@@ -181,7 +181,7 @@ let nfa_to_dfa_subset (n: Nfa.nfa) =
         states = newstates;
         alphabet = n.alphabet;
         transitions = newtrans;
-        start = State (Nfa.eps_reachable_set [n.start] n);
+        start = State (Nfa.eps_reachable_set n [n.start]);
         accepting = newaccepting;
     }
 
@@ -211,7 +211,7 @@ while stack not empty:
 *)
 
 let nfa_to_dfa (n: Nfa.nfa) =
-    let newstart = Nfa.eps_reachable_set [n.start] n in
+    let newstart = Nfa.eps_reachable_set n [n.start] in
     let newtrans = ref [] and
         newstates = ref [State newstart] and
         stack = ref [newstart] and
@@ -227,7 +227,7 @@ let nfa_to_dfa (n: Nfa.nfa) =
                     if (s' = s && a' = a) then nextstate := t::!nextstate
                 ) n.transitions
             ) currentstate;
-            let epsnext = Nfa.eps_reachable_set !nextstate n in
+            let epsnext = Nfa.eps_reachable_set n !nextstate in
             newstates := Utils.add_unique (State epsnext) !newstates;
             if (not (List.mem epsnext !donestates)) then (
                 stack := epsnext::!stack;

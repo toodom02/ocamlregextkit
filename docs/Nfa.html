@@ -80,15 +80,27 @@
 </div>
 </div>
 
-<pre><span id="VALmerge_alphabets"><span class="keyword">val</span> merge_alphabets</span> : <code class="type"><a href="Nfa.html#TYPEnfa">nfa</a> -&gt; <a href="Nfa.html#TYPEnfa">nfa</a> -&gt; <a href="Nfa.html#TYPEnfa">nfa</a> * <a href="Nfa.html#TYPEnfa">nfa</a></code></pre><div class="info ">
+<pre><span id="VALeps_reachable_set"><span class="keyword">val</span> eps_reachable_set</span> : <code class="type"><a href="Nfa.html#TYPEnfa">nfa</a> -&gt; <a href="Nfa.html#TYPEstate">state</a> list -&gt; <a href="Nfa.html#TYPEstate">state</a> list</code></pre><div class="info ">
 <div class="info-desc">
-<p><code class="code">merge_alphabets n1 n2</code> returns a tuple of NFAs <code class="code">(n1', n2')</code> such that <code class="code">n1'</code> and <code class="code">n2'</code> both share a common alphabet</p>
+<p><code class="code">eps_reachable_set n ss</code> returns the set of all epsilon reachable states in the NFA <code class="code">n</code> from the set of states <code class="code">ss</code></p>
 </div>
 </div>
 
-<pre><span id="VALeps_reachable_set"><span class="keyword">val</span> eps_reachable_set</span> : <code class="type"><a href="Nfa.html#TYPEstate">state</a> list -&gt; <a href="Nfa.html#TYPEnfa">nfa</a> -&gt; <a href="Nfa.html#TYPEstate">state</a> list</code></pre><div class="info ">
+<pre><span id="VALsucc"><span class="keyword">val</span> succ</span> : <code class="type"><a href="Nfa.html#TYPEnfa">nfa</a> -&gt; <a href="Nfa.html#TYPEstate">state</a> -&gt; string -&gt; <a href="Nfa.html#TYPEstate">state</a> list</code></pre><div class="info ">
 <div class="info-desc">
-<p><code class="code">eps_reachable_set ss n</code> returns the set of all epsilon reachable states in the NFA <code class="code">n</code> from the set of states <code class="code">ss</code></p>
+<p><code class="code">succ n s w</code> returns a list of successor states of NFA <code class="code">n</code> after reading word <code class="code">w</code> from state <code class="code">s</code></p>
+</div>
+</div>
+
+<pre><span id="VALpred"><span class="keyword">val</span> pred</span> : <code class="type"><a href="Nfa.html#TYPEnfa">nfa</a> -&gt; <a href="Nfa.html#TYPEstate">state</a> -&gt; <a href="Nfa.html#TYPEstate">state</a> list</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">pred n s</code> returns a list of states that preceed the state <code class="code">s</code> in NFA <code class="code">n</code></p>
+</div>
+</div>
+
+<pre><span id="VALmerge_alphabets"><span class="keyword">val</span> merge_alphabets</span> : <code class="type"><a href="Nfa.html#TYPEnfa">nfa</a> -&gt; <a href="Nfa.html#TYPEnfa">nfa</a> -&gt; <a href="Nfa.html#TYPEnfa">nfa</a> * <a href="Nfa.html#TYPEnfa">nfa</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">merge_alphabets n1 n2</code> returns a tuple of NFAs <code class="code">(n1', n2')</code> such that <code class="code">n1'</code> and <code class="code">n2'</code> both share a common alphabet</p>
 </div>
 </div>
 

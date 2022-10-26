@@ -43,11 +43,44 @@ let re_to_nfa re =
         transitions = n.transitions;
     }
 
-(* TODO [succ m s w] returns the state of NFA [m] after reading word [w] from state [s] *)
-(* val succ : dfa -> state -> string -> state *)
+(* |eps_reachable_set| -- returns set of all epsilon-reachable states from input set of states *)
+let eps_reachable_set n ss =
 
-(* TODO [pred m s] returns a list of states that preceed the state [s] in NFA [m] *)
-(* val pred : dfa -> state -> state list *)
+    let get_reachable_set states =    
+        List.fold_right Utils.add_unique (List.filter_map (fun (s,a,t) -> if List.mem s states && a = "ε" then Some(t) else None) n.transitions) states
+    in
+
+    (* iterate reachable set until no changes *)
+    let sts = ref (get_reachable_set ss) in
+    let newSts = ref (get_reachable_set !sts) in
+        while (!sts <> !newSts) do
+            sts := !newSts;
+            newSts := get_reachable_set !sts
+        done;
+        List.sort compare !sts
+
+(* |succ| -- the resulting states of nfa n after reading symbol *)
+let succ n state symbol =
+    let initial_reachable = eps_reachable_set n [state] and
+        succs = ref [] in
+    List.iter (fun ss ->
+        List.iter (fun (s,a,t) -> 
+            if (ss = s && a = symbol) then succs := Utils.add_unique t !succs;
+        ) n.transitions;
+    ) initial_reachable;
+    eps_reachable_set n !succs
+
+(* |pred| -- returns the set of states preceeding state in nfa n *)
+let pred n state =
+    (* all states from which state is eps_reachable *)
+    let epspreds = List.filter (fun s -> List.mem state (eps_reachable_set n [s])) n.states and
+        preds = ref [] in
+    List.iter (fun tt ->
+        List.iter (fun (s,a,t) ->
+            if (tt = t && a <> "ε") then preds := Utils.add_unique s !preds;
+        ) n.transitions;
+    ) epspreds;
+    List.filter (fun s -> List.exists (fun ss -> List.mem ss !preds) (eps_reachable_set n [s])) n.states
 
 (* |merge_alphabets| -- returns nfas with the alphabet unioned with the other nfa *)
 let merge_alphabets n1 n2 =
@@ -67,22 +100,6 @@ let merge_alphabets n1 n2 =
         transitions = n2.transitions;
     }
     )
-
-(* |eps_reachable_set| -- returns set of all epsilon-reachable states from input set of states *)
-let eps_reachable_set ss n =
-
-    let get_reachable_set states =    
-        List.fold_right Utils.add_unique (List.filter_map (fun (s,a,t) -> if List.mem s states && a = "ε" then Some(t) else None) n.transitions) states
-    in
-
-    (* iterate reachable set until no changes *)
-    let sts = ref (get_reachable_set ss) in
-    let newSts = ref (get_reachable_set !sts) in
-        while (!sts <> !newSts) do
-            sts := !newSts;
-            newSts := get_reachable_set !sts
-        done;
-        List.sort compare !sts
 
 (* |print| -- prints out nfa representation *)
 let print n = 

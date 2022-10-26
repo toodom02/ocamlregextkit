@@ -27,7 +27,7 @@ body
   min-width: 40ex;
   max-width: 78ex;
   padding: 1.25rem;
-  margin-left: 3.75rem;
+  margin: auto;
   color: #222; background: #FAFAFA; }
 
 /* Basic markup elements */
@@ -144,6 +144,7 @@ div.def table { text-indent: 0em; padding:0; margin-left: -2ex; }
 td.def { padding-right: 2ex }
 .record td.def { padding-left:2ex; }
 td.doc *:first-child { margin-top: 0em }
+td { padding-right: 0.5rem }
 
 /* @ tags */
 
@@ -205,11 +206,6 @@ h1 + .modules, h1 + .sel { margin-top: 0.625rem }
 .package.info ul { list-style-type: none; display: inline; margin:0; }
 .package.info li { display: inline-block; margin:0; margin-right:1ex; }
 #info-authors li, #info-maintainers li { display:block; }
-
-/* Mobile adjustements. */
-
-@media only screen and (max-width: 78ex)
-{ body { margin: auto; } }
 
 /* Print adjustements. */
 
