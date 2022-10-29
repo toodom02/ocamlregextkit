@@ -5,6 +5,14 @@ type nfa = {
     states: state list; alphabet: string list; transitions: (state * string * state) list; start: state; accepting: state list
 }
 
+(** [create q al t s f] returns the NFA of States [q], alphabet [al], transition function [t], initial state [s], and accepting states [f].
+    Note that states will be renamed to integers.
+    @raise Invalid_argument if [s] is not a valid state in [q]
+    @raise Invalid_argument if [f] is not a valid subset of [q]
+    @raise Invalid_argument if [t] is not a valid tranition function for states [qs] and alphabet [al]
+*)
+val create : 'a list -> string list -> ('a * string * 'a) list -> 'a -> 'a list -> nfa
+
 (** [re_to_nfa r] returns an NFA constructed from the RE r *)
 val re_to_nfa : Re.re -> nfa
 

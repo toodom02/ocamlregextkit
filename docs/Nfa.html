@@ -9,6 +9,7 @@
 <link rel="next" href="Re.html">
 <link rel="Up" href="index.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="Ast" rel="Chapter" href="Ast.html">
@@ -73,6 +74,19 @@
 <code>}</code>
 
 
+
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">'a list -&gt; string list -&gt; ('a * string * 'a) list -&gt; 'a -&gt; 'a list -&gt; <a href="Nfa.html#TYPEnfa">nfa</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">create q al t s f</code> returns the NFA of States <code class="code">q</code>, alphabet <code class="code">al</code>, transition function <code class="code">t</code>, initial state <code class="code">s</code>, and accepting states <code class="code">f</code>.
+    Note that states will be renamed to integers.</p>
+</div>
+<ul class="info-attributes">
+<li><b>Raises</b><ul><li><code>Invalid_argument</code> if <code class="code">s</code> is not a valid state in <code class="code">q</code></li>
+<li><code>Invalid_argument</code> if <code class="code">f</code> is not a valid subset of <code class="code">q</code></li>
+<li><code>Invalid_argument</code> if <code class="code">t</code> is not a valid tranition function for states <code class="code">qs</code> and alphabet <code class="code">al</code></li>
+</ul></li>
+</ul>
+</div>
 
 <pre><span id="VALre_to_nfa"><span class="keyword">val</span> re_to_nfa</span> : <code class="type"><a href="Re.html#TYPEre">Re.re</a> -&gt; <a href="Nfa.html#TYPEnfa">nfa</a></code></pre><div class="info ">
 <div class="info-desc">

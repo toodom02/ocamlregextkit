@@ -8,6 +8,7 @@
 <link rel="previous" href="Re.html">
 <link rel="Up" href="index.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="Ast" rel="Chapter" href="Ast.html">
@@ -38,6 +39,12 @@
 <pre><span id="VALadd_unique"><span class="keyword">val</span> add_unique</span> : <code class="type">'a -&gt; 'a list -&gt; 'a list</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">add_unique x xs</code> returns the list <code class="code">x:xs</code> only if x is not already in xs</p>
+</div>
+</div>
+
+<pre><span id="VALindex"><span class="keyword">val</span> index</span> : <code class="type">'a -&gt; 'a list -&gt; int option</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">index x xs</code> returns Some index of the first occurence of <code class="code">x</code> in list <code class="code">xs</code>, otherwise None</p>
 </div>
 </div>
 

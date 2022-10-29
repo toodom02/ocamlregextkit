@@ -45,10 +45,10 @@ let prune n =
         accepting = List.filter (fun s -> List.mem s marked) n.accepting
     }
 
-(* |is_empty| -- returns None iff input dfa is empty, otherwise Some(reachable accepting states) *)
+(* |is_empty| -- returns true iff dfa has no reachable accepting states *)
 let is_empty n =
     let marked = Utils.reachable_states n.start n.transitions in
-    List.exists (fun m -> List.mem m n.accepting) marked
+    not (List.exists (fun m -> List.mem m n.accepting) marked)
 
 (* |accepts| -- returns true iff string s is accepted by the dfa m *)
 let accepts m s =
@@ -249,6 +249,39 @@ let nfa_to_dfa (n: Nfa.nfa) =
         transitions = !newtrans;
         start = State newstart;
         accepting = newaccepting;
+    }
+
+(* |create| -- Creates DFA, Renames states as their index in qs *)
+let create qs alph tran init fin =
+
+    (* Check parameters for correctness *)
+    if not (List.mem init qs) then raise (Invalid_argument "DFA Initial State not in States");
+    List.iter (fun f -> 
+        if not (List.mem f qs) then raise (Invalid_argument "DFA Accepting State not in States")
+    ) fin;
+    List.iter (fun (s,a,t) ->
+        if (a = "ε") then raise (Invalid_argument "DFA cannot contain ε-transitions");
+        if not (List.mem a alph && List.mem s qs && List.mem t qs) then raise (Invalid_argument "DFA Transition not valid")
+    ) tran;
+
+    let newstates = List.init (List.length qs) (fun i -> State [i]) in
+    let newinit = State [Option.get (Utils.index init qs)]
+    and newtran = 
+        List.rev_map (fun (s,a,t) ->
+            (State [Option.get (Utils.index s qs)], a, State [Option.get (Utils.index t qs)])
+        ) tran
+    and newfin = 
+        List.rev_map (fun s ->
+            State [Option.get (Utils.index s qs)]
+        ) fin
+    in
+
+    {
+        states = newstates;
+        alphabet = alph;
+        start = newinit;
+        accepting = newfin;
+        transitions = newtran;
     }
 
 (* |print| -- prints out dfa representation *)

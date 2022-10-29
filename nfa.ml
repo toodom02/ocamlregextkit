@@ -101,6 +101,38 @@ let merge_alphabets n1 n2 =
     }
     )
 
+(* |create| -- Creates NFA, Renames states as their index in qs *)
+let create qs alph tran init fin =
+
+    (* Check parameters for correctness *)
+    if not (List.mem init qs) then raise (Invalid_argument "NFA Initial State not in States");
+    List.iter (fun f -> 
+        if not (List.mem f qs) then raise (Invalid_argument "NFA Accepting State not in States")
+    ) fin;
+    List.iter (fun (s,a,t) ->
+        if not ((a = "ε" || List.mem a alph) && List.mem s qs && List.mem t qs) then raise (Invalid_argument "NFA Transition not valid")
+    ) tran;
+
+    let newstates = List.init (List.length qs) (fun i -> i) in
+    let newinit = Option.get (Utils.index init qs)
+    and newtran = 
+        List.rev_map (fun (s,a,t) ->
+            (Option.get (Utils.index s qs), a, Option.get (Utils.index t qs))
+        ) tran
+    and newfin = 
+        List.rev_map (fun s ->
+            Option.get (Utils.index s qs)
+        ) fin
+    in
+
+    {
+        states = newstates;
+        alphabet = alph;
+        start = newinit;
+        accepting = newfin;
+        transitions = newtran;
+    }
+
 (* |print| -- prints out nfa representation *)
 let print n = 
     print_string "states: "; List.iter (fun s -> print_int s; print_char ' ') n.states; print_newline ();

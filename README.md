@@ -10,6 +10,10 @@ Requires OCaml v4.14.0 or greater.
 
 See [OCaml docs](https://ocaml.org/docs/up-and-running) for installation instructions.
 
+## Documentation
+
+Find documentation for the toolkit [here](https://toodom02.github.io/regex-toolkit/)
+
 ## Demo
 
 For demonstration purposes, `demo` is an app built using the toolkit which accepts two regular expressions on the command line, and either verifies that they are equivalent or prints a word that matches one expression but not the other.

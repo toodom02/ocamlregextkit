@@ -1,3 +1,5 @@
+exception Syntax_error of string
+
 let parse s =
     let lexbuf = Lexing.from_string s in
     try
@@ -5,5 +7,4 @@ let parse s =
     with 
         Parsing.Parse_error -> 
             let tok = Lexing.lexeme lexbuf in
-            Printf.printf "[ERROR] Syntax Error at token '%s'\n" tok;
-            exit 1
+            raise (Syntax_error ("Syntax Error at token "^tok))
