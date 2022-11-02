@@ -6,6 +6,19 @@ type re =
     | Concat of re * re     (* E·R *)
     | Star of re            (* E* *)
 
+(* |print| -- prints string representation of regex ast *)
+let print re = 
+      let rec stringify_ast re = 
+        match re with
+              Literal a -> "Literal " ^ a
+            | Epsilon -> "ε"
+            | Union (r1, r2) -> "Union (" ^ stringify_ast r1 ^ " , " ^ stringify_ast r2 ^ ")"
+            | Concat (r1, r2) -> "Concat (" ^ stringify_ast r1 ^ " , " ^ stringify_ast r2 ^ ")"
+            | Star r1 -> "Star (" ^ stringify_ast r1 ^ ")"
+            | Empty -> "∅"
+      in
+      print_string (stringify_ast re);  print_newline ()
+
 (* |simplify_re| -- recursively simplifies the regex, returns regex and flag signalling change *)
 let rec simplify_re re flag = 
   match re with
@@ -80,16 +93,3 @@ let simplify re =
                   reg := r;
           done;
       !reg
-
-(* |print| -- prints string representation of regex ast *)
-let print re = 
-  let rec stringify_ast re = 
-    match re with
-          Literal a -> "Literal " ^ a
-        | Epsilon -> "ε"
-        | Union (r1, r2) -> "Union (" ^ stringify_ast r1 ^ " , " ^ stringify_ast r2 ^ ")"
-        | Concat (r1, r2) -> "Concat (" ^ stringify_ast r1 ^ " , " ^ stringify_ast r2 ^ ")"
-        | Star r1 -> "Star (" ^ stringify_ast r1 ^ ")"
-        | Empty -> "∅"
-  in
-  print_string (stringify_ast re);  print_newline ()

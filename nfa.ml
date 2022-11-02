@@ -5,6 +5,14 @@ type nfa = {
     states: state list; alphabet: string list; transitions: (state * string * state) list; start: state; accepting: state list
 }
 
+(* |print| -- prints out nfa representation *)
+let print n = 
+    print_string "states: "; List.iter (fun s -> print_int s; print_char ' ') n.states; print_newline ();
+    print_string "alphabet: "; List.iter (fun a -> print_string a; print_char ' ') n.alphabet; print_newline ();
+    print_string "start: "; print_int n.start; print_newline ();
+    print_string "accepting: "; List.iter (fun s -> print_int s; print_char ' ') n.accepting; print_newline ();
+    print_string "transitions: "; print_newline(); List.iter (fun (s,a,t) -> print_string "    "; print_int s; print_string ("\t--"^a^"-->\t"); print_int t; print_newline ()) n.transitions
+
 let counter = ref 0;;
 let alphabet: string list ref = ref [];;
 
@@ -132,12 +140,4 @@ let create qs alph tran init fin =
         accepting = newfin;
         transitions = newtran;
     }
-
-(* |print| -- prints out nfa representation *)
-let print n = 
-    print_string "states: "; List.iter (fun s -> print_int s; print_char ' ') n.states; print_newline ();
-    print_string "alphabet: "; List.iter (fun a -> print_string a; print_char ' ') n.alphabet; print_newline ();
-    print_string "start: "; print_int n.start; print_newline ();
-    print_string "accepting: "; List.iter (fun s -> print_int s; print_char ' ') n.accepting; print_newline ();
-    print_string "transitions: "; print_newline(); List.iter (fun (s,a,t) -> print_string "    "; print_int s; print_string ("\t--"^a^"-->\t"); print_int t; print_newline ()) n.transitions;
   

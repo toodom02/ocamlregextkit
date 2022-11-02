@@ -9,7 +9,7 @@ type dfa = {
 }
 
 (** [create q al t s f] returns the DFA of States [q], alphabet [al], transition function [t], initial state [s], and accepting states [f].
-    Note that states will be renamed to integer list.
+    Note that states will be renamed to integer list. Sink state will be added to make transition function [t] total.
     @raise Invalid_argument if [s] is not a valid state in [q]
     @raise Invalid_argument if [f] is not a valid subset of [q]
     @raise Invalid_argument if [t] contains epsilon-transitions.
@@ -43,6 +43,9 @@ val product_intersection : dfa -> dfa -> dfa
 
 (** [product_union m1 m2] returns the union of DFAs [m1] [m2], by the product construction *)
 val product_union : dfa -> dfa -> dfa
+
+(** [is_equiv m1 m2] returns true if the two DFAs [m1] and [m2] are equivalent, by equivalence closure *)
+val is_equiv : dfa -> dfa -> bool
 
 (** [nfa_to_dfa_subset m] returns the NFA equivalent to DFA [m], by the subset construction *)
 val nfa_to_dfa_subset : Nfa.nfa -> dfa

@@ -1,5 +1,5 @@
 
-(* Tests DFAs pred and succ methods by checking that for each state, the successor of a predecessor is itself*)
+(* |test_dfa_pred_succ| -- Tests DFAs pred and succ methods by checking that for each state, the successor of a predecessor is itself*)
 let test_dfa_pred_succ m =
     List.iter (fun s -> 
         let pred = Dfa.pred m s in
@@ -10,7 +10,7 @@ let test_dfa_pred_succ m =
         ) pred;
     ) m.states
 
-(* Tests NFAs pred and succ methods by checking that for each state, the successor of a predecessor contains itself*)
+(* |test_nfa_pred_succ| -- Tests NFAs pred and succ methods by checking that for each state, the successor of a predecessor contains itself*)
 let test_nfa_pred_succ n =
     List.iter (fun s -> 
         let pred = Nfa.pred n s in

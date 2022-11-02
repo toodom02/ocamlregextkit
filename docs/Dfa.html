@@ -93,7 +93,7 @@
 <pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">'a list -&gt; string list -&gt; ('a * string * 'a) list -&gt; 'a -&gt; 'a list -&gt; <a href="Dfa.html#TYPEdfa">dfa</a></code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">create q al t s f</code> returns the DFA of States <code class="code">q</code>, alphabet <code class="code">al</code>, transition function <code class="code">t</code>, initial state <code class="code">s</code>, and accepting states <code class="code">f</code>.
-    Note that states will be renamed to integer list.</p>
+    Note that states will be renamed to integer list. Sink state will be added to make transition function <code class="code">t</code> total.</p>
 </div>
 <ul class="info-attributes">
 <li><b>Raises</b><ul><li><code>Invalid_argument</code> if <code class="code">s</code> is not a valid state in <code class="code">q</code></li>
@@ -155,6 +155,12 @@
 <pre><span id="VALproduct_union"><span class="keyword">val</span> product_union</span> : <code class="type"><a href="Dfa.html#TYPEdfa">dfa</a> -&gt; <a href="Dfa.html#TYPEdfa">dfa</a> -&gt; <a href="Dfa.html#TYPEdfa">dfa</a></code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">product_union m1 m2</code> returns the union of DFAs <code class="code">m1</code> <code class="code">m2</code>, by the product construction</p>
+</div>
+</div>
+
+<pre><span id="VALis_equiv"><span class="keyword">val</span> is_equiv</span> : <code class="type"><a href="Dfa.html#TYPEdfa">dfa</a> -&gt; <a href="Dfa.html#TYPEdfa">dfa</a> -&gt; bool</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">is_equiv m1 m2</code> returns true if the two DFAs <code class="code">m1</code> and <code class="code">m2</code> are equivalent, by equivalence closure</p>
 </div>
 </div>
 

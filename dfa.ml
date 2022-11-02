@@ -3,6 +3,18 @@ type dfa = {
     states: state list; alphabet: string list; transitions: (state * string * state) list; start: state; accepting: state list
 }
 
+(* |print| -- prints out dfa representation *)
+let print n = 
+    let rec print_state = function
+        | State n -> print_string "[ "; List.iter (fun s -> print_int s; print_char ' ') n; print_string "]"
+        | ProductState (l,r) -> print_string "( "; print_state l; print_string " , "; print_state r; print_string " )";
+    in
+    print_string "states: "; List.iter (fun ss -> print_state ss) n.states; print_newline ();
+    print_string "alphabet: "; List.iter (fun a -> print_string a; print_char ' ') n.alphabet; print_newline ();
+    print_string "start: "; print_state n.start; print_newline ();
+    print_string "accepting: "; List.iter (fun ss -> print_state ss) n.accepting; print_newline ();
+    print_string "transitions: "; print_newline (); List.iter (fun (ss,a,tt) -> print_string "    "; print_state ss; print_string ("\t--"^a^"-->\t"); print_state tt; print_newline ()) n.transitions
+
 (* |compliment| -- returns the compliment of input dfa *)
 let compliment m = 
     {
@@ -133,6 +145,107 @@ let product_union m1 m2 =
         accepting = cartAccepting;
     }
 
+let is_equiv m1 m2 =
+    let rec negate_state = function
+        State xs -> State (List.rev_map (fun x -> -x-1) xs)
+      | ProductState (s1,s2) -> ProductState (negate_state s1, negate_state s2)
+    in
+
+    let merged_alphabet = Utils.list_union m1.alphabet m2.alphabet in
+
+    (* first need to merge alphabets and disjoin our DFAs by renaming states in m2, by negative numbers *)
+    let m1' = {
+        states = m1.states;
+        alphabet = merged_alphabet;
+        transitions = m1.transitions;
+        start = m1.start;
+        accepting = m1.accepting;
+    }
+    and m2' = 
+    {
+        states = List.rev_map (fun s -> negate_state s) m2.states;
+        alphabet = merged_alphabet;
+        transitions = List.rev_map (fun (s,a,t) -> (negate_state s,a,negate_state t)) m2.transitions;
+        start = negate_state m2.start;
+        accepting = List.rev_map (fun s -> negate_state s) m2.accepting;
+    }
+    in
+
+    let merged_states = Utils.list_union m1'.states m2'.states in
+
+    (* Find Reflex, Symmetric, & Transitive closure (Warshall's algo) *)
+    let equiv_closure qs =
+        let reflexclosure = List.fold_left (fun a s -> Utils.add_unique (s,s) a) qs merged_states in
+        let symclosure = List.fold_left (fun a (q1,q2) -> Utils.add_unique (q2,q1) a) reflexclosure reflexclosure in
+
+        let tranclosure = 
+            (* adjacency matrix *)
+            let res = ref (List.map (fun q -> List.map (fun q' -> if (List.exists (fun (q1,q2) -> q1 = q && q2 = q') symclosure) then 1 else 0) merged_states) merged_states) in
+
+            List.iteri (fun k _ ->
+                List.iteri (fun i _ ->
+                    List.iteri (fun j _ ->
+                        if (List.nth (List.nth !res i) j) <> 1 then
+                            (* if res[i][k] = 1 and res[k][j] = 1 *)
+                            if (List.nth (List.nth !res i) k) = 1 && (List.nth (List.nth !res k) j) = 1 then
+                                (* set res[i][j] to 1 *)
+                                res := List.mapi (fun ind xs -> List.mapi (fun ind' x -> if (ind = i && ind' = j) then 1 else x) xs) !res;
+                    ) merged_states;
+                ) merged_states;
+            ) merged_states;
+
+            (* convert back into a list of relations *)
+            let rel = ref [] in
+            List.iteri (fun i xs ->
+                List.iteri (fun j x -> 
+                    if x = 1 then rel := (List.nth merged_states i, List.nth merged_states j)::!rel
+                ) xs;
+            ) !res;
+            !rel
+        in
+        tranclosure
+    in
+
+    let delta (u,v) = 
+        let res = ref [] and
+            union_trans = m1'.transitions @ m2'.transitions in
+        List.iter (fun a -> 
+            let deltu = ref u and
+                deltv = ref v in
+            List.iter (fun (s,a',t) ->
+                if (a = a') then (
+                    if (s = u) then deltu := t
+                    else if (s = v) then deltv := t
+                )
+            ) union_trans;
+            res := (!deltu, !deltv)::!res;
+        ) merged_alphabet;
+        !res
+    in
+
+    let e = List.concat (List.rev_map (fun e1 -> List.filter_map (fun e2 -> 
+        if (List.mem e1 m1'.accepting && List.mem e2 m2'.accepting) then Some(e1,e2)
+        else if (List.mem e1 m1'.accepting || List.mem e2 m2'.accepting) then None
+        else Some(e1,e2)
+        ) m2'.states) m1'.states) in
+    
+    let flag = ref false and
+        q = ref [] and
+        w = ref [(m1'.start, m2'.start)] in
+    while (List.length !w > 0 && not !flag) do
+        let qclosure = if List.length !q > 0 then equiv_closure !q else [] in
+        let uv = List.hd !w in
+        w := List.tl !w;
+
+        if not (List.mem uv e) then (
+            flag := true;
+        ) else if not (List.mem uv qclosure) then (
+            q := uv::!q;
+            w := (delta uv) @ !w
+        )
+    done;
+    not !flag
+
 (* |powerset| -- returns the powerset of input list *)
 (* produces list of size 2^|s| *)
 let powerset s =
@@ -261,10 +374,10 @@ let create qs alph tran init fin =
     ) fin;
     List.iter (fun (s,a,t) ->
         if (a = "ε") then raise (Invalid_argument "DFA cannot contain ε-transitions");
-        if not (List.mem a alph && List.mem s qs && List.mem t qs) then raise (Invalid_argument "DFA Transition not valid")
+        if not (List.mem a alph && List.mem s qs && List.mem t qs) then raise (Invalid_argument "DFA Transition function not valid")
     ) tran;
 
-    let newstates = List.init (List.length qs) (fun i -> State [i]) in
+    let newstates = List.init (List.length qs + 1) (fun i -> State [i]) in
     let newinit = State [Option.get (Utils.index init qs)]
     and newtran = 
         List.rev_map (fun (s,a,t) ->
@@ -276,22 +389,22 @@ let create qs alph tran init fin =
         ) fin
     in
 
+    (* missing transitions for total transition function *)
+    let missingtran = 
+        let missing = ref [] and
+            sink = State [List.length qs] in
+        List.iter (fun a ->
+            List.iter (fun q ->
+                if not (List.exists (fun (s,a',t) -> s = q && a = a') newtran) then missing := (q,a,sink)::!missing
+            ) newstates;
+        ) alph;
+        !missing
+    in
+
     {
         states = newstates;
         alphabet = alph;
         start = newinit;
         accepting = newfin;
-        transitions = newtran;
+        transitions = Utils.list_union missingtran newtran;
     }
-
-(* |print| -- prints out dfa representation *)
-let print n = 
-let rec print_state = function
-    | State n -> print_string "[ "; List.iter (fun s -> print_int s; print_char ' ') n; print_string "]"
-    | ProductState (l,r) -> print_string "( "; print_state l; print_string " , "; print_state r; print_string " )";
-in
-print_string "states: "; List.iter (fun ss -> print_state ss) n.states; print_newline ();
-print_string "alphabet: "; List.iter (fun a -> print_string a; print_char ' ') n.alphabet; print_newline ();
-print_string "start: "; print_state n.start; print_newline ();
-print_string "accepting: "; List.iter (fun ss -> print_state ss) n.accepting; print_newline ();
-print_string "transitions: "; print_newline (); List.iter (fun (ss,a,tt) -> print_string "    "; print_state ss; print_string ("\t--"^a^"-->\t"); print_state tt; print_newline ()) n.transitions;
