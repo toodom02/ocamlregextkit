@@ -4,6 +4,7 @@
 exception Syntax_error of string
 
 (** [parse s] Invokes the parser on string [s] to create a Regular Expression Abstract Syntax Tree 
+    @return Regular Expression Abstract Syntax Tree for string [s]
     @raise Syntax_error if [s] contains an invalid character
 *)
 val parse : string -> Re.re

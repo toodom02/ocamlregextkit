@@ -8,7 +8,8 @@ type re =
     | Concat of re * re     (* E·R *)
     | Star of re            (* E* *)
 
-(** [simplify r] attempts to simplify RE [r] by Kozen Axioms *)
+(** [simplify r] attempts to simplify RE [r] by Kozen Axioms 
+    @return a simplfication of RE [r] *)
 val simplify : re -> re
 
 (** [print r] prints a string representation of the Abstract Syntax Tree representing [r] *)

@@ -145,32 +145,33 @@ let product_union m1 m2 =
         accepting = cartAccepting;
     }
 
-let is_equiv m1 m2 =
+let disjoin_dfas m1 m2 =
     let rec negate_state = function
-        State xs -> State (List.rev_map (fun x -> -x-1) xs)
-      | ProductState (s1,s2) -> ProductState (negate_state s1, negate_state s2)
+            State xs -> State (List.rev_map (fun x -> -x-1) xs)
+          | ProductState (s1,s2) -> ProductState (negate_state s1, negate_state s2)
     in
 
     let merged_alphabet = Utils.list_union m1.alphabet m2.alphabet in
 
-    (* first need to merge alphabets and disjoin our DFAs by renaming states in m2, by negative numbers *)
-    let m1' = {
+    (* need to merge alphabets and disjoin our DFAs by renaming states in m2, by negative numbers *)
+    ({
         states = m1.states;
         alphabet = merged_alphabet;
         transitions = m1.transitions;
         start = m1.start;
         accepting = m1.accepting;
-    }
-    and m2' = 
+    },
     {
         states = List.rev_map (fun s -> negate_state s) m2.states;
         alphabet = merged_alphabet;
         transitions = List.rev_map (fun (s,a,t) -> (negate_state s,a,negate_state t)) m2.transitions;
         start = negate_state m2.start;
         accepting = List.rev_map (fun s -> negate_state s) m2.accepting;
-    }
-    in
+    })
 
+(* |spivey_equiv| -- returns true iff input DFAs are equivalent, by equivalence closure *)
+let spivey_equiv m1 m2 =
+    let (m1', m2') = disjoin_dfas m1 m2 in
     let merged_states = Utils.list_union m1'.states m2'.states in
 
     (* Find Reflex, Symmetric, & Transitive closure (Warshall's algo) *)
@@ -219,7 +220,7 @@ let is_equiv m1 m2 =
                 )
             ) union_trans;
             res := (!deltu, !deltv)::!res;
-        ) merged_alphabet;
+        ) m1'.alphabet;
         !res
     in
 
@@ -245,6 +246,38 @@ let is_equiv m1 m2 =
         )
     done;
     not !flag
+
+(* |hopcroft_equiv| -- returns true iff DFAs are equivalent, by Hopcroft's algorithm *)
+let hopcroft_equiv m1 m2 =
+    let (m1', m2') = disjoin_dfas m1 m2 in
+    let merged_states = ref (List.rev_map (fun s -> [s]) (Utils.list_union m1'.states m2'.states)) and
+        merged_accepting = Utils.list_union m1'.accepting m2'.accepting and
+        stack = ref [] in
+
+    merged_states := List.filter_map (fun s -> if List.mem m2'.start s then Some(m1'.start::s) else if List.mem m1'.start s then None else Some(s)) !merged_states;
+    stack := [(m1'.start, m2'.start)];
+    while (List.length !stack > 0) do
+        let (q1,q2) = List.hd !stack in
+        stack := List.tl !stack;
+        List.iter (fun a ->
+            let succ1 = succ m1' q1 a and succ2 = succ m2' q2 a in
+            let r1 = List.find (fun s -> List.mem succ1 s) !merged_states in
+            merged_states := List.filter_map (fun s -> 
+                if (List.mem succ2 s) then 
+                    if (List.mem succ1 s) then Some(s) 
+                    else (stack := (succ1, succ2)::!stack; Some(r1@s))
+                else if (List.mem succ1 s) then None
+                else Some(s)
+            ) !merged_states;
+        ) m1'.alphabet
+    done;
+
+    List.for_all (fun ss ->
+        List.for_all (fun s -> List.mem s merged_accepting) ss || List.for_all (fun s -> not (List.mem s merged_accepting)) ss
+    ) !merged_states
+
+(* |is_equiv| -- synonym for hopcroft_equiv *)
+let is_equiv = hopcroft_equiv
 
 (* |powerset| -- returns the powerset of input list *)
 (* produces list of size 2^|s| *)
@@ -372,8 +405,10 @@ let create qs alph tran init fin =
     List.iter (fun f -> 
         if not (List.mem f qs) then raise (Invalid_argument "DFA Accepting State not in States")
     ) fin;
+    let checkseentran = ref [] in
     List.iter (fun (s,a,t) ->
         if (a = "ε") then raise (Invalid_argument "DFA cannot contain ε-transitions");
+        if (List.mem (s,a) !checkseentran) then raise (Invalid_argument "DFA Transition function not valid") else checkseentran := (s,a)::!checkseentran;
         if not (List.mem a alph && List.mem s qs && List.mem t qs) then raise (Invalid_argument "DFA Transition function not valid")
     ) tran;
 

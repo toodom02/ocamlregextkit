@@ -22,91 +22,98 @@
 <tr><td align="left"><div>A</div></td></tr>
 <tr><td><a href="Dfa.html#VALaccepted">accepted</a> [<a href="Dfa.html">Dfa</a>]</td>
 <td><div class="info">
-<p><code class="code">accepted m</code> returns the shortest string accepted by DFA <code class="code">m</code></p>
+<p><code class="code">accepted m</code></p>
 
 </div>
 </td></tr>
 <tr><td><a href="Dfa.html#VALaccepts">accepts</a> [<a href="Dfa.html">Dfa</a>]</td>
 <td><div class="info">
-<p><code class="code">accepts m s</code> returns true iff DFA <code class="code">m</code> accepts string <code class="code">s</code></p>
+<p><code class="code">accepts m s</code></p>
 
 </div>
 </td></tr>
 <tr><td><a href="Utils.html#VALadd_unique">add_unique</a> [<a href="Utils.html">Utils</a>]</td>
 <td><div class="info">
-<p><code class="code">add_unique x xs</code> returns the list <code class="code">x:xs</code> only if x is not already in xs</p>
+<p><code class="code">add_unique x xs</code></p>
 
 </div>
 </td></tr>
 <tr><td align="left"><div>C</div></td></tr>
 <tr><td><a href="Dfa.html#VALcompliment">compliment</a> [<a href="Dfa.html">Dfa</a>]</td>
 <td><div class="info">
-<p><code class="code">compliment m</code> returns the compliment of DFA <code class="code">m</code></p>
+<p><code class="code">compliment m</code></p>
 
 </div>
 </td></tr>
 <tr><td><a href="Nfa.html#VALcreate">create</a> [<a href="Nfa.html">Nfa</a>]</td>
 <td><div class="info">
-<p><code class="code">create q al t s f</code> returns the NFA of States <code class="code">q</code>, alphabet <code class="code">al</code>, transition function <code class="code">t</code>, initial state <code class="code">s</code>, and accepting states <code class="code">f</code>.</p>
+<p><code class="code">create q al t s f</code></p>
 
 </div>
 </td></tr>
 <tr><td><a href="Dfa.html#VALcreate">create</a> [<a href="Dfa.html">Dfa</a>]</td>
 <td><div class="info">
-<p><code class="code">create q al t s f</code> returns the DFA of States <code class="code">q</code>, alphabet <code class="code">al</code>, transition function <code class="code">t</code>, initial state <code class="code">s</code>, and accepting states <code class="code">f</code>.</p>
+<p><code class="code">create q al t s f</code></p>
 
 </div>
 </td></tr>
 <tr><td align="left"><div>E</div></td></tr>
 <tr><td><a href="Nfa.html#VALeps_reachable_set">eps_reachable_set</a> [<a href="Nfa.html">Nfa</a>]</td>
 <td><div class="info">
-<p><code class="code">eps_reachable_set n ss</code> returns the set of all epsilon reachable states in the NFA <code class="code">n</code> from the set of states <code class="code">ss</code></p>
+<p><code class="code">eps_reachable_set n ss</code></p>
+
+</div>
+</td></tr>
+<tr><td align="left"><div>H</div></td></tr>
+<tr><td><a href="Dfa.html#VALhopcroft_equiv">hopcroft_equiv</a> [<a href="Dfa.html">Dfa</a>]</td>
+<td><div class="info">
+<p><code class="code">hopcroft_equiv m1 m2</code></p>
 
 </div>
 </td></tr>
 <tr><td align="left"><div>I</div></td></tr>
 <tr><td><a href="Utils.html#VALindex">index</a> [<a href="Utils.html">Utils</a>]</td>
 <td><div class="info">
-<p><code class="code">index x xs</code> returns Some index of the first occurence of <code class="code">x</code> in list <code class="code">xs</code>, otherwise None</p>
+<p><code class="code">index x xs</code></p>
 
 </div>
 </td></tr>
 <tr><td><a href="Dfa.html#VALis_empty">is_empty</a> [<a href="Dfa.html">Dfa</a>]</td>
 <td><div class="info">
-<p><code class="code">is_empty m</code> returns true iff DFA <code class="code">m</code> is empty</p>
+<p><code class="code">is_empty m</code></p>
 
 </div>
 </td></tr>
 <tr><td><a href="Dfa.html#VALis_equiv">is_equiv</a> [<a href="Dfa.html">Dfa</a>]</td>
 <td><div class="info">
-<p><code class="code">is_equiv m1 m2</code> returns true if the two DFAs <code class="code">m1</code> and <code class="code">m2</code> are equivalent, by equivalence closure</p>
+<p><code class="code">is_equiv m1 m2</code> synonym for <code class="code">hopcroft_equiv m1 m2</code></p>
 
 </div>
 </td></tr>
 <tr><td align="left"><div>L</div></td></tr>
 <tr><td><a href="Utils.html#VALlist_union">list_union</a> [<a href="Utils.html">Utils</a>]</td>
 <td><div class="info">
-<p><code class="code">list_union xs ys</code> returns the set union of the lists <code class="code">xs</code> and <code class="code">ys</code></p>
+<p><code class="code">list_union xs ys</code></p>
 
 </div>
 </td></tr>
 <tr><td align="left"><div>M</div></td></tr>
 <tr><td><a href="Nfa.html#VALmerge_alphabets">merge_alphabets</a> [<a href="Nfa.html">Nfa</a>]</td>
 <td><div class="info">
-<p><code class="code">merge_alphabets n1 n2</code> returns a tuple of NFAs <code class="code">(n1', n2')</code> such that <code class="code">n1'</code> and <code class="code">n2'</code> both share a common alphabet</p>
+<p><code class="code">merge_alphabets n1 n2</code></p>
 
 </div>
 </td></tr>
 <tr><td align="left"><div>N</div></td></tr>
 <tr><td><a href="Dfa.html#VALnfa_to_dfa">nfa_to_dfa</a> [<a href="Dfa.html">Dfa</a>]</td>
 <td><div class="info">
-<p><code class="code">nfa_to_dfa m</code> returns the NFA equivalent to DFA <code class="code">m</code>, by an optimised subset construction</p>
+<p><code class="code">nfa_to_dfa m</code></p>
 
 </div>
 </td></tr>
 <tr><td><a href="Dfa.html#VALnfa_to_dfa_subset">nfa_to_dfa_subset</a> [<a href="Dfa.html">Dfa</a>]</td>
 <td><div class="info">
-<p><code class="code">nfa_to_dfa_subset m</code> returns the NFA equivalent to DFA <code class="code">m</code>, by the subset construction</p>
+<p><code class="code">nfa_to_dfa_subset m</code></p>
 
 </div>
 </td></tr>
@@ -119,13 +126,13 @@
 </td></tr>
 <tr><td><a href="Nfa.html#VALpred">pred</a> [<a href="Nfa.html">Nfa</a>]</td>
 <td><div class="info">
-<p><code class="code">pred n s</code> returns a list of states that preceed the state <code class="code">s</code> in NFA <code class="code">n</code></p>
+<p><code class="code">pred n s</code></p>
 
 </div>
 </td></tr>
 <tr><td><a href="Dfa.html#VALpred">pred</a> [<a href="Dfa.html">Dfa</a>]</td>
 <td><div class="info">
-<p><code class="code">pred m s</code> returns a list of states that preceed the state <code class="code">s</code> in DFA <code class="code">m</code></p>
+<p><code class="code">pred m s</code></p>
 
 </div>
 </td></tr>
@@ -149,32 +156,32 @@
 </td></tr>
 <tr><td><a href="Dfa.html#VALproduct_intersection">product_intersection</a> [<a href="Dfa.html">Dfa</a>]</td>
 <td><div class="info">
-<p><code class="code">product_insterection m1 m2</code> returns the intersection of DFAs <code class="code">m1</code> <code class="code">m2</code>, by the product construction</p>
+<p><code class="code">product_insterection m1 m2</code></p>
 
 </div>
 </td></tr>
 <tr><td><a href="Dfa.html#VALproduct_union">product_union</a> [<a href="Dfa.html">Dfa</a>]</td>
 <td><div class="info">
-<p><code class="code">product_union m1 m2</code> returns the union of DFAs <code class="code">m1</code> <code class="code">m2</code>, by the product construction</p>
+<p><code class="code">product_union m1 m2</code></p>
 
 </div>
 </td></tr>
 <tr><td><a href="Dfa.html#VALprune">prune</a> [<a href="Dfa.html">Dfa</a>]</td>
 <td><div class="info">
-<p><code class="code">prune m</code> reduces DFA <code class="code">m</code> by removing unreachable states</p>
+<p><code class="code">prune m</code></p>
 
 </div>
 </td></tr>
 <tr><td align="left"><div>R</div></td></tr>
 <tr><td><a href="Nfa.html#VALre_to_nfa">re_to_nfa</a> [<a href="Nfa.html">Nfa</a>]</td>
 <td><div class="info">
-<p><code class="code">re_to_nfa r</code> returns an NFA constructed from the RE r</p>
+<p><code class="code">re_to_nfa r</code></p>
 
 </div>
 </td></tr>
 <tr><td><a href="Utils.html#VALreachable_states">reachable_states</a> [<a href="Utils.html">Utils</a>]</td>
 <td><div class="info">
-<p><code class="code">reachable_states s t</code> returns the set of states reachable for an automaton in state <code class="code">s</code> with transition function <code class="code">t</code></p>
+<p><code class="code">reachable_states s t</code></p>
 
 </div>
 </td></tr>
@@ -185,15 +192,21 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Dfa.html#VALspivey_equiv">spivey_equiv</a> [<a href="Dfa.html">Dfa</a>]</td>
+<td><div class="info">
+<p><code class="code">spivey_equiv m1 m2</code></p>
+
+</div>
+</td></tr>
 <tr><td><a href="Nfa.html#VALsucc">succ</a> [<a href="Nfa.html">Nfa</a>]</td>
 <td><div class="info">
-<p><code class="code">succ n s w</code> returns a list of successor states of NFA <code class="code">n</code> after reading word <code class="code">w</code> from state <code class="code">s</code></p>
+<p><code class="code">succ n s w</code></p>
 
 </div>
 </td></tr>
 <tr><td><a href="Dfa.html#VALsucc">succ</a> [<a href="Dfa.html">Dfa</a>]</td>
 <td><div class="info">
-<p><code class="code">succ m s w</code> returns the successor state of DFA <code class="code">m</code> after reading word <code class="code">w</code> from state <code class="code">s</code></p>
+<p><code class="code">succ m s w</code></p>
 
 </div>
 </td></tr>

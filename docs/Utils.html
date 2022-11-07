@@ -32,25 +32,37 @@
 
 <pre><span id="VALlist_union"><span class="keyword">val</span> list_union</span> : <code class="type">'a list -&gt; 'a list -&gt; 'a list</code></pre><div class="info ">
 <div class="info-desc">
-<p><code class="code">list_union xs ys</code> returns the set union of the lists <code class="code">xs</code> and <code class="code">ys</code></p>
+<p><code class="code">list_union xs ys</code></p>
 </div>
+<ul class="info-attributes">
+<li><b>Returns</b> the set union of the lists <code class="code">xs</code> and <code class="code">ys</code></li>
+</ul>
 </div>
 
 <pre><span id="VALadd_unique"><span class="keyword">val</span> add_unique</span> : <code class="type">'a -&gt; 'a list -&gt; 'a list</code></pre><div class="info ">
 <div class="info-desc">
-<p><code class="code">add_unique x xs</code> returns the list <code class="code">x:xs</code> only if x is not already in xs</p>
+<p><code class="code">add_unique x xs</code></p>
 </div>
+<ul class="info-attributes">
+<li><b>Returns</b> the list <code class="code">x:xs</code> only if <code class="code">x</code> is not already in <code class="code">xs</code></li>
+</ul>
 </div>
 
 <pre><span id="VALindex"><span class="keyword">val</span> index</span> : <code class="type">'a -&gt; 'a list -&gt; int option</code></pre><div class="info ">
 <div class="info-desc">
-<p><code class="code">index x xs</code> returns Some index of the first occurence of <code class="code">x</code> in list <code class="code">xs</code>, otherwise None</p>
+<p><code class="code">index x xs</code></p>
 </div>
+<ul class="info-attributes">
+<li><b>Returns</b> Some index of the first occurence of <code class="code">x</code> in list <code class="code">xs</code>, otherwise None</li>
+</ul>
 </div>
 
 <pre><span id="VALreachable_states"><span class="keyword">val</span> reachable_states</span> : <code class="type">'a -&gt; ('a * string * 'a) list -&gt; 'a list</code></pre><div class="info ">
 <div class="info-desc">
-<p><code class="code">reachable_states s t</code> returns the set of states reachable for an automaton in state <code class="code">s</code> with transition function <code class="code">t</code></p>
+<p><code class="code">reachable_states s t</code></p>
 </div>
+<ul class="info-attributes">
+<li><b>Returns</b> the set of states reachable for an automaton in state <code class="code">s</code> with transition function <code class="code">t</code></li>
+</ul>
 </div>
 </body></html>
