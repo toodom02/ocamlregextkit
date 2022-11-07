@@ -16,7 +16,7 @@ Find documentation for the toolkit [here](https://toodom02.github.io/regex-toolk
 
 ## Demo
 
-For demonstration purposes, `demo` is an app built using the toolkit which accepts two regular expressions on the command line, and either verifies that they are equivalent or prints a word that matches one expression but not the other.
+For demonstration purposes, `demo` is a program built using the toolkit which accepts two regular expressions on the command line, and either verifies that they are equivalent or prints a word that matches one expression but not the other.
 
 ### Build the Library
 
@@ -31,13 +31,13 @@ cd demo
 make demo
 ```
 
-### Run the app
+### Run the demo
 
 ```bash
 ./demo "<regex>" "<regex>"
 ```
 
-To test the app, run
+To test the demo, run
 
 ```bash
 make test
@@ -52,3 +52,4 @@ This will run a set of test cases, which checks correctness of basic parsing, eq
  - `make depend` Generates list of dependencies
  - `make clean` Removes any built binaries and generated files
  - `make docs` Generates documentation for toolkit
+ - `make test` Compiles and runs the test defined in `test.ml`

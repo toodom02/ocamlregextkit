@@ -4,6 +4,10 @@ regextkit.cma: lexer.cmo parser.cmo utils.cmo \
 		ast.cmo re.cmo nfa.cmo dfa.cmo
 		ocamlc -a $^ -o $@ 
 
+test: test.cmo
+		ocamlc regextkit.cma $^ -o $@
+		./test > test.csv
+
 parser.mli parser.ml: parser.mly
 	ocamlyacc parser.mly
 
@@ -13,6 +17,7 @@ lexer.ml: lexer.mll
 clean: force
 	rm -f *.cma *.cmo *.cmi *.o
 	rm -f parser.mli parser.ml lexer.ml
+	rm -f test
 
 ML = ast.ml ast.mli re.ml re.mli nfa.ml nfa.mli dfa.ml dfa.mli \
 	lexer.ml parser.ml parser.mli utils.ml utils.mli
