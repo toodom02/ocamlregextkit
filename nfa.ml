@@ -90,6 +90,57 @@ let pred n state =
     ) epspreds;
     List.filter (fun s -> List.exists (fun ss -> List.mem ss !preds) (eps_reachable_set n [s])) n.states
 
+(* |prune| -- reduces input nfa by pruning unreachable states *)
+let prune n = 
+    let marked = Utils.reachable_states n.start n.transitions in
+    {
+        states = List.filter (fun s -> List.mem s marked) n.states;
+        alphabet = n.alphabet;
+        start = n.start;
+        transitions = List.filter (fun (s,_,_) -> List.mem s marked) n.transitions;
+        accepting = List.filter (fun s -> List.mem s marked) n.accepting
+    }
+
+(* |is_empty| -- returns true iff nfa has no reachable accepting states *)
+let is_empty n =
+    let marked = Utils.reachable_states n.start n.transitions in
+    not (List.exists (fun m -> List.mem m n.accepting) marked)
+
+(* |accepts| -- returns true iff string s is accepted by the nfa n. Can take a long (long) time *)
+let accepts n s =
+    (* passing 'stateset' as the set of successors that state is from, to prevent cycles *)
+    let rec does_accept state stateset str =
+        match str with
+            | "" -> List.mem state n.accepting
+            | _ -> 
+                let successors = succ n state (String.make 1 str.[0]) in
+                if Utils.list_equal stateset successors then false 
+                else List.exists (fun suc -> does_accept suc successors (String.sub str 1 ((String.length str) - 1))) successors
+    in
+    let eps = eps_reachable_set n [n.start] in
+    List.exists (fun st -> does_accept st eps s) eps
+    
+(* |accepted| -- returns the shortest word accepted by dfa m *)
+let accepted n =
+    let queue = ref (List.rev_map (fun s -> (s,"")) (eps_reachable_set n [n.start])) and
+        seen = ref [] and
+        shortest = ref None in
+    while Option.is_none !shortest && List.length !queue > 0 do
+        let (currentState, currentWord) = List.hd !queue in
+        if List.mem currentState n.accepting then (shortest := Some(currentWord))
+        else (
+            seen := currentState::!seen;
+            queue := (List.tl !queue) @ 
+                List.filter_map (fun (s,a,t) -> 
+                    if s = currentState && not (List.mem t !seen) then 
+                        if a = "ε" then Some((t,currentWord)) 
+                        else Some((t,currentWord^a)) 
+                    else None
+                ) n.transitions;
+        )
+    done;
+    !shortest
+
 (* |merge_alphabets| -- returns nfas with the alphabet unioned with the other nfa *)
 let merge_alphabets n1 n2 =
     let newalphabet = Utils.list_union n1.alphabet n2.alphabet in

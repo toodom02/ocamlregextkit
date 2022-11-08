@@ -125,6 +125,42 @@
 </ul>
 </div>
 
+<pre><span id="VALprune"><span class="keyword">val</span> prune</span> : <code class="type"><a href="Nfa.html#TYPEnfa">nfa</a> -&gt; <a href="Nfa.html#TYPEnfa">nfa</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">prune n</code></p>
+</div>
+<ul class="info-attributes">
+<li><b>Returns</b> a reduction of NFA <code class="code">n</code> by removing unreachable states</li>
+</ul>
+</div>
+
+<pre><span id="VALis_empty"><span class="keyword">val</span> is_empty</span> : <code class="type"><a href="Nfa.html#TYPEnfa">nfa</a> -&gt; bool</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">is_empty n</code></p>
+</div>
+<ul class="info-attributes">
+<li><b>Returns</b> true iff NFA <code class="code">n</code> is empty</li>
+</ul>
+</div>
+
+<pre><span id="VALaccepts"><span class="keyword">val</span> accepts</span> : <code class="type"><a href="Nfa.html#TYPEnfa">nfa</a> -&gt; string -&gt; bool</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">accepts n s</code></p>
+</div>
+<ul class="info-attributes">
+<li><b>Returns</b> true iff NFA <code class="code">n</code> accepts string <code class="code">s</code></li>
+</ul>
+</div>
+
+<pre><span id="VALaccepted"><span class="keyword">val</span> accepted</span> : <code class="type"><a href="Nfa.html#TYPEnfa">nfa</a> -&gt; string option</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">accepted n</code></p>
+</div>
+<ul class="info-attributes">
+<li><b>Returns</b> the shortest string accepted by NFA <code class="code">n</code></li>
+</ul>
+</div>
+
 <pre><span id="VALmerge_alphabets"><span class="keyword">val</span> merge_alphabets</span> : <code class="type"><a href="Nfa.html#TYPEnfa">nfa</a> -&gt; <a href="Nfa.html#TYPEnfa">nfa</a> -&gt; <a href="Nfa.html#TYPEnfa">nfa</a> * <a href="Nfa.html#TYPEnfa">nfa</a></code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">merge_alphabets n1 n2</code></p>

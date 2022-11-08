@@ -5,7 +5,8 @@ type dfa = {
     states: state list; 
     alphabet: string list; 
     transitions: (state * string * state) list; 
-    start: state; accepting: state list
+    start: state; 
+    accepting: state list
 }
 
 (** [create q al t s f] 
