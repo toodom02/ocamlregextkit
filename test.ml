@@ -42,7 +42,7 @@ let generate_random_dfa n =
 
 (* Output intended to be saved to CSV *)
 let equiv_tester () = 
-    Printf.printf "# States,Total Equiv,Total Hopcroft,Total Emptiness,Equivalence,Hopcroft,Emptiness\n";
+    Printf.printf "# States,Total Equiv,Total Hopcroft,Total Symmetric,Equivalence,Hopcroft,Symmetric\n";
     let cumul_time_1 = ref 0. and
         cumul_time_2 = ref 0. and
         cumul_time_3 = ref 0. in
@@ -63,14 +63,9 @@ let equiv_tester () =
             let res_2 = Dfa.hopcroft_equiv d1 d2 in
             cumul_time_2  := (Sys.time () -. start_2) +. !cumul_time_2;
 
-            (* case 3: Emptiness by product construction *)
+            (* case 3: Symmetric equiv *)
             let start_3 = Sys.time () in
-            let comp1 = Dfa.compliment d1 and
-                comp2 = Dfa.compliment d2 in
-            let un1 = Dfa.product_intersection d1 comp2 and
-                un2 = Dfa.product_intersection d2 comp1 in
-            let emp = Dfa.product_union un1 un2 in
-            let res_3 = Dfa.is_empty emp in
+            let res_3 = Dfa.symmetric_equiv d1 d2 in
             cumul_time_3 := (Sys.time () -. start_3) +. !cumul_time_3;
 
             (* Sanity check that our results are the same *)
@@ -86,7 +81,7 @@ let equiv_tester () =
 (* DFA EQUIVALENCE PROFILING: *)
 
 (* 
-# States,Total Equiv,Total Hopcroft,Total Emptiness,Equivalence,Hopcroft,Emptiness
+# States,Total Equiv,Total Hopcroft,Total Symmetric,Equivalence,Hopcroft,Symmetric
 1,0.019179,0.002027,0.008271,0.000192,0.000020,0.000083
 2,0.096559,0.004719,0.055363,0.000966,0.000047,0.000554
 3,0.323253,0.008787,0.253573,0.003233,0.000088,0.002536

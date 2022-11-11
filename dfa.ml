@@ -176,6 +176,7 @@ let spivey_equiv m1 m2 =
 
     (* Find Reflex, Symmetric, & Transitive closure (Warshall's algo) *)
     let equiv_closure qs =
+        if List.length qs = 0 then [] else
         let reflexclosure = List.fold_left (fun a s -> Utils.add_unique (s,s) a) qs merged_states in
         let symclosure = List.fold_left (fun a (q1,q2) -> Utils.add_unique (q2,q1) a) reflexclosure reflexclosure in
 
@@ -234,13 +235,12 @@ let spivey_equiv m1 m2 =
         q = ref [] and
         w = ref [(m1'.start, m2'.start)] in
     while (List.length !w > 0 && not !flag) do
-        let qclosure = if List.length !q > 0 then equiv_closure !q else [] in
         let uv = List.hd !w in
         w := List.tl !w;
 
         if not (List.mem uv e) then (
             flag := true;
-        ) else if not (List.mem uv qclosure) then (
+        ) else if not (List.mem uv (equiv_closure !q)) then (
             q := uv::!q;
             w := (delta uv) @ !w
         )
@@ -275,6 +275,14 @@ let hopcroft_equiv m1 m2 =
     List.for_all (fun ss ->
         List.for_all (fun s -> List.mem s merged_accepting) ss || List.for_all (fun s -> not (List.mem s merged_accepting)) ss
     ) !merged_states
+
+let symmetric_equiv m1 m2 =
+    let comp1 = compliment m1 and
+        comp2 = compliment m2 in
+    let m1notm2 = product_intersection m1 comp2 and
+        m2notm1 = product_intersection comp1 m2 in
+    let emp = product_union m1notm2 m2notm1 in
+        is_empty emp
 
 (* |is_equiv| -- synonym for hopcroft_equiv *)
 let is_equiv = hopcroft_equiv

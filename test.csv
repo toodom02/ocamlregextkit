@@ -1,4 +1,4 @@
-# States,Total Equiv,Total Hopcroft,Total Emptiness,Equivalence,Hopcroft,Emptiness
+# States,Total Equiv,Total Hopcroft,Total Symmetric,Equivalence,Hopcroft,Symmetric
 1,0.019179,0.002027,0.008271,0.000192,0.000020,0.000083
 2,0.096559,0.004719,0.055363,0.000966,0.000047,0.000554
 3,0.323253,0.008787,0.253573,0.003233,0.000088,0.002536
