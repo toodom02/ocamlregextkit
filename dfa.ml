@@ -251,7 +251,6 @@ let spivey_equiv m1 m2 =
 let hopcroft_equiv m1 m2 =
     let (m1', m2') = disjoin_dfas m1 m2 in
     let merged_states = ref (List.rev_map (fun s -> [s]) (Utils.list_union m1'.states m2'.states)) and
-        merged_accepting = Utils.list_union m1'.accepting m2'.accepting and
         stack = ref [] in
 
     merged_states := List.filter_map (fun s -> if List.mem m2'.start s then Some(m1'.start::s) else if List.mem m1'.start s then None else Some(s)) !merged_states;
@@ -261,19 +260,21 @@ let hopcroft_equiv m1 m2 =
         stack := List.tl !stack;
         List.iter (fun a ->
             let succ1 = succ m1' q1 a and succ2 = succ m2' q2 a in
-            let r1 = List.find (fun s -> List.mem succ1 s) !merged_states in
-            merged_states := List.filter_map (fun s -> 
-                if (List.mem succ2 s) then 
-                    if (List.mem succ1 s) then Some(s) 
-                    else (stack := (succ1, succ2)::!stack; Some(r1@s))
-                else if (List.mem succ1 s) then None
-                else Some(s)
-            ) !merged_states;
+            let r1 = List.find (fun s -> List.mem succ1 s) !merged_states and
+                r2 = List.find (fun s -> List.mem succ2 s) !merged_states in
+            if (r1 <> r2) then (
+                stack := (succ1, succ2)::!stack;
+                merged_states := List.filter_map (fun s -> 
+                    if (s = r1) then None
+                    else if (s = r2) then Some(r1@s)
+                    else Some(s)
+                ) !merged_states
+            )
         ) m1'.alphabet
     done;
 
     List.for_all (fun ss ->
-        List.for_all (fun s -> List.mem s merged_accepting) ss || List.for_all (fun s -> not (List.mem s merged_accepting)) ss
+        List.for_all (fun s -> List.mem s m1'.accepting || List.mem s m2'.accepting) ss || List.for_all (fun s -> not (List.mem s m1'.accepting || List.mem s m2'.accepting)) ss
     ) !merged_states
 
 let symmetric_equiv m1 m2 =
