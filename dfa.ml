@@ -172,17 +172,17 @@ let disjoin_dfas m1 m2 =
 (* |spivey_equiv| -- returns true iff input DFAs are equivalent, by equivalence closure *)
 let spivey_equiv m1 m2 =
     let (m1', m2') = disjoin_dfas m1 m2 in
-    let merged_states = Utils.list_union m1'.states m2'.states in
+    let merged_states = m1'.states @ m2'.states in
 
     (* Find Reflex, Symmetric, & Transitive closure (Warshall's algo) *)
     let equiv_closure qs =
         if List.length qs = 0 then [] else
-        let reflexclosure = List.fold_left (fun a s -> Utils.add_unique (s,s) a) qs merged_states in
-        let symclosure = List.fold_left (fun a (q1,q2) -> Utils.add_unique (q2,q1) a) reflexclosure reflexclosure in
+        let symclosure = List.fold_left (fun a (q1,q2) -> (q2,q1)::a) qs qs in
+        let reflexclosure = List.fold_left (fun a s -> (s,s)::a) symclosure merged_states in
 
         let tranclosure = 
             (* adjacency matrix *)
-            let res = ref (List.map (fun q -> List.map (fun q' -> if (List.exists (fun (q1,q2) -> q1 = q && q2 = q') symclosure) then 1 else 0) merged_states) merged_states) in
+            let res = ref (List.map (fun q -> List.map (fun q' -> if (List.exists (fun (q1,q2) -> q1 = q && q2 = q') reflexclosure) then 1 else 0) merged_states) merged_states) in
 
             List.iteri (fun k _ ->
                 List.iteri (fun i _ ->
@@ -250,7 +250,7 @@ let spivey_equiv m1 m2 =
 (* |hopcroft_equiv| -- returns true iff DFAs are equivalent, by Hopcroft's algorithm *)
 let hopcroft_equiv m1 m2 =
     let (m1', m2') = disjoin_dfas m1 m2 in
-    let merged_states = ref (List.rev_map (fun s -> [s]) (Utils.list_union m1'.states m2'.states)) and
+    let merged_states = ref (List.rev_map (fun s -> [s]) (m1'.states @ m2'.states)) and
         stack = ref [] in
 
     merged_states := List.filter_map (fun s -> if List.mem m2'.start s then Some(m1'.start::s) else if List.mem m1'.start s then None else Some(s)) !merged_states;
@@ -274,7 +274,8 @@ let hopcroft_equiv m1 m2 =
     done;
 
     List.for_all (fun ss ->
-        List.for_all (fun s -> List.mem s m1'.accepting || List.mem s m2'.accepting) ss || List.for_all (fun s -> not (List.mem s m1'.accepting || List.mem s m2'.accepting)) ss
+        List.for_all (fun s -> List.mem s m1'.accepting || List.mem s m2'.accepting) ss || 
+        List.for_all (fun s -> not (List.mem s m1'.accepting || List.mem s m2'.accepting)) ss
     ) !merged_states
 
 let symmetric_equiv m1 m2 =

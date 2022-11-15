@@ -40,6 +40,10 @@ let main () =
     let accepted1 = Dfa.accepted fst_and_not_snd and
         accepted2 = Dfa.accepted snd_and_not_fst in
 
+    (* Test that our equivalence functions all give the same result *)
+    if (Dfa.spivey_equiv dfa1 dfa2 <> Dfa.symmetric_equiv dfa1 dfa2) then exit 1;
+    if (Dfa.spivey_equiv dfa1 dfa2 <> Dfa.hopcroft_equiv dfa1 dfa2) then exit 1;
+
     if (Option.is_none accepted1 && Option.is_none accepted2) then (
         print_string "Input regex are equal\n";
         exit 0;
