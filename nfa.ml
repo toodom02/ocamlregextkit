@@ -106,20 +106,17 @@ let is_empty n =
     let marked = Utils.reachable_states n.start n.transitions in
     not (List.exists (fun m -> List.mem m n.accepting) marked)
 
-(* |accepts| -- returns true iff string s is accepted by the nfa n. Can take a long (long) time *)
+(* |accepts| -- returns true iff string s is accepted by the nfa n. Can take a long time *)
 let accepts n s =
-    (* passing 'stateset' as the set of successors that state is from, to prevent cycles *)
-    let rec does_accept state stateset str =
-        match str with
-            | "" -> List.mem state n.accepting
-            | _ -> 
-                let successors = succ n state (String.make 1 str.[0]) in
-                if Utils.list_equal stateset successors then false 
-                else List.exists (fun suc -> does_accept suc successors (String.sub str 1 ((String.length str) - 1))) successors
-    in
-    let eps = eps_reachable_set n [n.start] in
-    List.exists (fun st -> does_accept st eps s) eps
-    
+    let sts = ref (eps_reachable_set n [n.start]) and
+        i = ref 0 in
+    while (!i < String.length s) do
+        let c = (String.make 1 s.[!i]) in
+        sts := eps_reachable_set n (List.fold_left (fun a ss -> Utils.list_union (succ n ss c) a) [] !sts);
+        i := !i + 1;
+    done;
+    List.exists (fun st -> List.mem st n.accepting) !sts
+
 (* |accepted| -- returns the shortest word accepted by dfa m *)
 let accepted n =
     let queue = ref (List.rev_map (fun s -> (s,"")) (eps_reachable_set n [n.start])) and
