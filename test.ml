@@ -42,10 +42,13 @@ let generate_random_dfa n =
 
 (* Output intended to be saved to CSV *)
 let equiv_tester () = 
-    Printf.printf "# States,Total Equiv,Total Hopcroft,Total Symmetric,Equivalence,Hopcroft,Symmetric\n";
-    let cumul_time_1 = ref 0. and
-        cumul_time_2 = ref 0. and
-        cumul_time_3 = ref 0. in
+    Printf.printf "# States,Total Equiv,Total Hopcroft,Total Symmetric,Equivalence,Hopcroft,Symmetric,Total Equiv Same,Total Hopcroft Same,Total Symmetric Same,Equivalence,Hopcroft,Symmetric\n";
+    let cumul_time_spivey = ref 0. and
+        cumul_time_hopcroft = ref 0. and
+        cumul_time_symmetric = ref 0. and
+        cumul_time_spivey_same = ref 0. and
+        cumul_time_hopcroft_same = ref 0. and
+        cumul_time_symmetric_same = ref 0. in
     let s = ref 1 in
     while !s <= 20 do
         let i = ref 0 in
@@ -56,23 +59,46 @@ let equiv_tester () =
             (* case 1: Spivey equiv *)
             let start_1 = Sys.time () in
             let res_1 = Dfa.spivey_equiv d1 d2 in
-            cumul_time_1 := (Sys.time () -. start_1) +. !cumul_time_1;
+            cumul_time_spivey := (Sys.time () -. start_1) +. !cumul_time_spivey;
 
             (* case 2: Hopcroft equiv *)
             let start_2 = Sys.time () in
             let res_2 = Dfa.hopcroft_equiv d1 d2 in
-            cumul_time_2  := (Sys.time () -. start_2) +. !cumul_time_2;
+            cumul_time_hopcroft  := (Sys.time () -. start_2) +. !cumul_time_hopcroft;
 
             (* case 3: Symmetric equiv *)
             let start_3 = Sys.time () in
             let res_3 = Dfa.symmetric_equiv d1 d2 in
-            cumul_time_3 := (Sys.time () -. start_3) +. !cumul_time_3;
+            cumul_time_symmetric := (Sys.time () -. start_3) +. !cumul_time_symmetric;
 
             (* Sanity check that our results are the same *)
             if res_1 <> res_2 || res_2 <> res_3 then (print_string "Failed\n"; exit 1);
+
+            let d1 = generate_random_dfa !s in
+            (* d2 = generate_random_dfa !s in *)
+
+            (* case 1: Spivey equiv *)
+            let start_11 = Sys.time () in
+            let res_11 = Dfa.spivey_equiv d1 d1 in
+            cumul_time_spivey_same := (Sys.time () -. start_11) +. !cumul_time_spivey_same;
+
+            (* case 2: Hopcroft equiv *)
+            let start_12 = Sys.time () in
+            let res_12 = Dfa.hopcroft_equiv d1 d1 in
+            cumul_time_hopcroft_same  := (Sys.time () -. start_12) +. !cumul_time_hopcroft_same;
+
+            (* case 3: Symmetric equiv *)
+            let start_13 = Sys.time () in
+            let res_13 = Dfa.symmetric_equiv d1 d1 in
+            cumul_time_symmetric_same := (Sys.time () -. start_13) +. !cumul_time_symmetric_same;
+
+            (* Sanity check that our results are the same *)
+            if res_11 <> res_12 || res_12 <> res_13 then (print_string "Failed\n"; exit 1);
+
             i := !i + 1
         done;
-        Printf.printf "%i,%f,%f,%f,%f,%f,%f\n" !s !cumul_time_1 !cumul_time_2 !cumul_time_3 (!cumul_time_1 /. 100.) (!cumul_time_2 /. 100.) (!cumul_time_3 /. 100.);
+        Printf.printf "%i,%f,%f,%f,%f,%f,%f" !s !cumul_time_spivey !cumul_time_hopcroft !cumul_time_symmetric (!cumul_time_spivey /. 100.) (!cumul_time_hopcroft /. 100.) (!cumul_time_symmetric /. 100.);
+        Printf.printf "%i,%f,%f,%f,%f,%f,%f\n" !s !cumul_time_spivey_same !cumul_time_hopcroft_same !cumul_time_symmetric_same (!cumul_time_spivey_same /. 100.) (!cumul_time_hopcroft_same /. 100.) (!cumul_time_symmetric_same /. 100.);
         s := !s + 1
     done;  
 

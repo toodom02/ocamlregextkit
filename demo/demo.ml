@@ -44,6 +44,10 @@ let main () =
     if (Dfa.spivey_equiv dfa1 dfa2 <> Dfa.symmetric_equiv dfa1 dfa2) then exit 1;
     if (Dfa.spivey_equiv dfa1 dfa2 <> Dfa.hopcroft_equiv dfa1 dfa2) then exit 1;
 
+    (* Test that minimisation works as expected *)
+    if not (Dfa.is_equiv dfa1 (Dfa.myhill_min dfa1)) then exit 1;
+    if not (Dfa.is_equiv dfa2 (Dfa.myhill_min dfa2)) then exit 1;
+
     if (Option.is_none accepted1 && Option.is_none accepted2) then (
         print_string "Input regex are equal\n";
         exit 0;

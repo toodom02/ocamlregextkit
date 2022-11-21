@@ -27,9 +27,9 @@ val compliment : dfa -> dfa
     @return the successor state of DFA [m] after reading word [w] from state [s] *)
 val succ : dfa -> state -> string -> state
 
-(** [pred m s] 
-    @return a list of states that preceed the state [s] in DFA [m] *)
-val pred : dfa -> state -> state list
+(** [pred m s w] 
+    @return some predecessor state of DFA [m] before reading word [w] from state [s], or None if there is no such state *)
+val pred : dfa -> state -> string -> state option
 
 (** [prune m] 
     @return a reduction of DFA [m] by removing unreachable states *)
@@ -70,6 +70,10 @@ val symmetric_equiv : dfa -> dfa -> bool
 (** [is_equiv m1 m2] synonym for [hopcroft_equiv m1 m2]
     @return true iff the two DFAs [m1] and [m2] are equivalent *)
 val is_equiv : dfa -> dfa -> bool
+
+(** [myhill_min m]
+    @return minimisation of DFA [m], by Myhill-Nerode theorem *)
+val myhill_min : dfa -> dfa
 
 (** [nfa_to_dfa_subset m] 
     @return the NFA equivalent to DFA [m], by the subset construction *)

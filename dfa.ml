@@ -3,12 +3,13 @@ type dfa = {
     states: state list; alphabet: string list; transitions: (state * string * state) list; start: state; accepting: state list
 }
 
+let rec print_state = function
+        | State n -> print_string "[ "; List.iter (fun s -> print_int s; print_char ' ') n; print_string "]"
+        | ProductState (l,r) -> print_string "( "; print_state l; print_string " , "; print_state r; print_string " )"
+
 (* |print| -- prints out dfa representation *)
 let print n = 
-    let rec print_state = function
-        | State n -> print_string "[ "; List.iter (fun s -> print_int s; print_char ' ') n; print_string "]"
-        | ProductState (l,r) -> print_string "( "; print_state l; print_string " , "; print_state r; print_string " )";
-    in
+
     print_string "states: "; List.iter (fun ss -> print_state ss) n.states; print_newline ();
     print_string "alphabet: "; List.iter (fun a -> print_string a; print_char ' ') n.alphabet; print_newline ();
     print_string "start: "; print_state n.start; print_newline ();
@@ -38,13 +39,11 @@ let succ m state symbol =
         ) m.transitions in
     if Option.is_none postState then sinkState m.start else Option.get postState
 
-(* |pred| -- returns the set of states preceeding state in dfa m *)
-let pred m state = 
-    let pred = ref [] in
-    List.iter (fun (s,a,t) ->
-        if t = state then pred := Utils.add_unique s !pred
-    ) m.transitions;
-    !pred
+(* |pred| -- returns the state preceeding state in dfa m before reading symbol *)
+let pred m state symbol = 
+    List.find_map (fun (s,a,t) ->
+        if (t = state && a = symbol) then Some(s) else None
+    ) m.transitions
 
 (* |prune| -- reduces input dfa by pruning unreachable states *)
 let prune n = 
@@ -288,6 +287,84 @@ let symmetric_equiv m1 m2 =
 
 (* |is_equiv| -- synonym for hopcroft_equiv *)
 let is_equiv = hopcroft_equiv
+
+(* |myhill_min| -- returns minimised DFA by myhill nerode *)
+let myhill_min m =
+    let allpairs = 
+        let rec find_pairs xss yss =
+            match xss, yss with
+                  ([],_) -> []
+                | (_,[]) -> []
+                | (x::xs,ys) -> List.rev_append (List.rev_map (fun y -> (x, y)) ys) (find_pairs xs (List.tl ys))
+        in
+        find_pairs m.states m.states
+    in
+    let marked = ref (List.filter (fun (p,q) ->
+            (List.mem p m.accepting && not (List.mem q m.accepting)) || (not (List.mem p m.accepting) && List.mem q m.accepting)
+        ) allpairs) in
+    let unmarked = ref (List.filter (fun ss -> not (List.mem ss !marked)) allpairs) and
+        stop = ref false in
+
+    while (not !stop) do
+        stop := true;
+        let newunmarked = ref [] in
+        List.iter (fun (p,q) ->
+            if (List.exists (fun a -> List.mem (succ m p a, succ m q a) !marked || List.mem (succ m q a, succ m p a) !marked) m.alphabet)
+            then (marked := (p,q)::!marked; stop := false) else newunmarked := (p,q)::!newunmarked;
+        ) !unmarked;
+        unmarked := !newunmarked
+    done;
+
+    (* unmarked gives us all pairs of indistinguishable states *)
+    (* merge these states! *)
+
+    let rec contains ps p = 
+        if ps = p then true
+        else 
+            match ps with
+                  State _ -> false
+                | ProductState (s,s') -> contains s p || contains s' p
+    in
+
+    let merged_states = 
+        let merged = ref [] and
+            seen = ref [] in
+        List.iter (fun (p,q) ->
+            if (List.mem p !seen && List.mem q !seen) then (
+                let s = List.find (fun ps -> contains ps p) !merged and
+                    s' = List.find (fun ps -> contains ps q) !merged in
+                if (s <> s') then
+                    merged := ProductState(s,s')::(List.filter (fun ps -> ps <> s && ps <> s') !merged)
+            ) else if (List.mem p !seen) then (
+                let s = List.find (fun ps -> contains ps p) !merged in
+                merged := ProductState(s,q)::(List.filter(fun ps -> ps <> s) !merged);
+                seen := q::!seen
+            ) else if (List.mem q !seen) then (
+                let s' = List.find (fun ps -> contains ps q) !merged in
+                merged := ProductState(p,s')::(List.filter(fun ps -> ps <> s') !merged);
+                seen := p::!seen
+            ) else if (p = q) then (
+                merged := p::!merged;
+                seen := p::!seen
+            ) else (
+                merged := ProductState(p,q)::!merged;
+                seen := p::q::!seen
+            )
+        ) !unmarked;
+        !merged
+    in
+
+    let newtrans = List.fold_left (fun acc (s,a,t) -> Utils.add_unique (List.find (fun s' -> contains s' s) merged_states, a, List.find (fun t' -> contains t' t) merged_states) acc) [] m.transitions and
+        newaccepting = List.fold_left (fun acc s -> Utils.add_unique (List.find (fun s' -> contains s' s) merged_states) acc) [] m.accepting and
+        newstart = List.find (fun s -> contains s m.start) merged_states in
+
+    {
+        states = merged_states;
+        alphabet = m.alphabet;
+        transitions = newtrans;
+        start = newstart;
+        accepting = newaccepting;
+    }
 
 (* |powerset| -- returns the powerset of input list *)
 (* produces list of size 2^|s| *)
