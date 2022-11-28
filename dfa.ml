@@ -3,13 +3,12 @@ type dfa = {
     states: state list; alphabet: string list; transitions: (state * string * state) list; start: state; accepting: state list
 }
 
-let rec print_state = function
-        | State n -> print_string "[ "; List.iter (fun s -> print_int s; print_char ' ') n; print_string "]"
-        | ProductState (l,r) -> print_string "( "; print_state l; print_string " , "; print_state r; print_string " )"
-
 (* |print| -- prints out dfa representation *)
 let print n = 
-
+    let rec print_state = function
+          State n -> print_string "[ "; List.iter (fun s -> print_int s; print_char ' ') n; print_string "]"
+        | ProductState (l,r) -> print_string "( "; print_state l; print_string " , "; print_state r; print_string " )"
+    in
     print_string "states: "; List.iter (fun ss -> print_state ss) n.states; print_newline ();
     print_string "alphabet: "; List.iter (fun a -> print_string a; print_char ' ') n.alphabet; print_newline ();
     print_string "start: "; print_state n.start; print_newline ();
@@ -366,6 +365,59 @@ let myhill_min m =
         accepting = newaccepting;
     }
 
+(* |brzozowski_min| -- minimise input DFA by Brzozowski's algorithm *)
+let brzozowski_min m =
+    let reverse_and_determinise d =
+        let get_state s = Option.get (Utils.index s d.states) in
+        let newstart = (List.map (fun s -> get_state s) d.accepting) in
+        let newstates = ref [State newstart] and
+            newtrans = ref [] and
+            stack = ref [newstart] and
+            donestates = ref [newstart] in
+        
+        while (List.length !stack > 0) do
+            let currentstate = List.hd !stack in
+            stack := List.tl !stack;
+            List.iter (fun a ->
+                let nextstate = ref [] in
+                List.iter (fun (s',a',t) ->
+                    if a = a' && List.mem (get_state t) currentstate then (
+                        nextstate := Utils.add_unique (get_state s') !nextstate
+                    )
+                ) d.transitions;
+
+                nextstate := List.sort compare !nextstate;
+
+                if not (List.mem !nextstate !donestates) then (
+                    stack := !nextstate::!stack;
+                    donestates := !nextstate::!donestates;
+                    newstates := Utils.add_unique (State !nextstate) !newstates;
+                );
+
+                newtrans := (State currentstate, a, State !nextstate)::!newtrans
+            ) d.alphabet
+        done;
+
+        let newaccepting = List.filter_map (fun state -> 
+            match state with
+                  State s -> if List.mem (get_state d.start) s then Some(State s) else None
+                | ProductState (_,_) -> None
+            ) !newstates
+        in
+
+        {
+            states = !newstates;
+            alphabet = d.alphabet;
+            transitions = !newtrans;
+            start = State newstart;
+            accepting = newaccepting;
+        }
+    in
+    (* reverse DFA *)
+    let drd = reverse_and_determinise m in
+    (* reverse Drd *)
+    reverse_and_determinise drd
+
 (* |powerset| -- returns the powerset of input list *)
 (* produces list of size 2^|s| *)
 let powerset s =
@@ -461,10 +513,10 @@ let nfa_to_dfa (n: Nfa.nfa) =
                 ) n.transitions
             ) currentstate;
             let epsnext = Nfa.eps_reachable_set n !nextstate in
-            newstates := Utils.add_unique (State epsnext) !newstates;
             if (not (List.mem epsnext !donestates)) then (
                 stack := epsnext::!stack;
                 donestates := epsnext::!donestates;
+                newstates := (State epsnext)::!newstates;
             );
             newtrans := (State currentstate, a, State epsnext)::!newtrans;
         ) n.alphabet

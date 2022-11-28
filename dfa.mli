@@ -75,6 +75,11 @@ val is_equiv : dfa -> dfa -> bool
     @return minimisation of DFA [m], by Myhill-Nerode theorem *)
 val myhill_min : dfa -> dfa
 
+(** [brzozowski_min m]
+    @return minimisation of DFA [m], by Brzozowski's algorithm. 
+    Note that states will be renamed. *)
+val brzozowski_min : dfa -> dfa
+
 (** [nfa_to_dfa_subset m] 
     @return the NFA equivalent to DFA [m], by the subset construction *)
 val nfa_to_dfa_subset : Nfa.nfa -> dfa
