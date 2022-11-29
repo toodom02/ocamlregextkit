@@ -418,6 +418,69 @@ let brzozowski_min m =
     (* reverse Drd *)
     reverse_and_determinise drd
 
+let hopcroft_min m =
+    let p = ref [] in
+    let qnotf = List.filter (fun s -> not (List.mem s m.accepting)) m.states in
+    if List.length qnotf > 0 && List.length m.accepting > 0 then p := [m.accepting; qnotf] 
+    else if List.length m.accepting > 0 then p := [m.accepting]
+    else if List.length qnotf > 0 then p := [qnotf];
+    let w = ref !p in
+
+    while (List.length !w > 0) do
+        let a = List.hd !w in
+        w := List.tl !w;
+        List.iter (fun c ->
+            let x = List.fold_left (fun acc (s,c',t) -> if c = c' && List.mem t a then Utils.add_unique s acc else acc) [] m.transitions in
+            let newp = ref [] in
+            List.iter (fun y ->
+                let xinty = List.filter (fun s -> List.mem s x) y and
+                    ynotx = List.filter (fun s -> not (List.mem s x)) y in
+                if (List.length xinty > 0 && List.length ynotx > 0) then (
+                    newp := xinty::ynotx::!newp;
+                    if (List.mem y !w) then (
+                        w := xinty::ynotx::(List.filter (fun s -> s <> y) !w)
+                    ) else (
+                        if List.length xinty <= List.length ynotx then (
+                            w := xinty::!w
+                        ) else w := ynotx::!w
+                    )
+                ) else newp := y::!newp
+            ) !p;
+            p := !newp
+        ) m.alphabet
+    done;
+
+    let newstates = List.init (List.length !p) (fun s -> State [s]) in
+    let newstart = List.find (fun state ->
+            match state with
+                  State [ss] ->  List.exists (fun s -> s = m.start) (List.nth !p ss)
+                | _ -> false
+        ) newstates and
+        newaccepting = List.filter (fun state -> 
+            match state with
+                  State [ss] -> List.exists (fun s -> List.mem s m.accepting) (List.nth !p ss)
+                | _ -> false
+        ) newstates and
+        newtrans = List.fold_left (fun acc (s,a,t) ->
+            Utils.add_unique (List.find (fun state ->
+                match state with
+                      State [ss] ->  List.exists (fun s' -> s' = s) (List.nth !p ss)
+                    | _ -> false
+            ) newstates, a, List.find (fun state ->
+                match state with
+                      State [ss] ->  List.exists (fun s' -> s' = t) (List.nth !p ss)
+                    | _ -> false
+            ) newstates) acc    
+        ) [] m.transitions in
+
+    {
+        states = newstates;
+        alphabet = m.alphabet;
+        transitions = newtrans;
+        start = newstart;
+        accepting = newaccepting;
+    }
+
 (* |powerset| -- returns the powerset of input list *)
 (* produces list of size 2^|s| *)
 let powerset s =

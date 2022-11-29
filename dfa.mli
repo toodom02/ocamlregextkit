@@ -75,6 +75,11 @@ val is_equiv : dfa -> dfa -> bool
     @return minimisation of DFA [m], by Myhill-Nerode theorem *)
 val myhill_min : dfa -> dfa
 
+(** [hopcroft_min m]
+    @return minimisation of DFA [m], by Hopcroft's algorithm. 
+    Note that states will be renamed. *)
+val hopcroft_min : dfa -> dfa
+
 (** [brzozowski_min m]
     @return minimisation of DFA [m], by Brzozowski's algorithm. 
     Note that states will be renamed. *)
