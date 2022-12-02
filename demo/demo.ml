@@ -6,7 +6,7 @@ let main () =
     Arg.parse [] (fun s -> fns := !fns @ [s]) "";
     if List.length !fns <> 2 then (
       print_string "Usage: demo \"<regex>\" \"<regex>\"\n";
-      exit 2;
+      exit 2
     );
 
     (* Parse strings as REs *)
@@ -41,8 +41,8 @@ let main () =
         accepted2 = Dfa.accepted snd_and_not_fst in
 
     (* Test that our equivalence functions all give the same result *)
-    if (Dfa.spivey_equiv dfa1 dfa2 <> Dfa.symmetric_equiv dfa1 dfa2) then exit 1;
-    if (Dfa.spivey_equiv dfa1 dfa2 <> Dfa.hopcroft_equiv dfa1 dfa2) then exit 1;
+    if (Dfa.closure_equiv dfa1 dfa2 <> Dfa.symmetric_equiv dfa1 dfa2) then exit 1;
+    if (Dfa.closure_equiv dfa1 dfa2 <> Dfa.hopcroft_equiv dfa1 dfa2) then exit 1;
 
     (* Test that minimisation works as expected *)
     let myhillmin1 = Dfa.myhill_min dfa1 and
@@ -64,7 +64,7 @@ let main () =
 
     if (Option.is_none accepted1 && Option.is_none accepted2) then (
         print_string "Input regex are equal\n";
-        exit 0;
+        exit 0
     );
     if (Option.is_some accepted1) then Printf.printf "'%s' exists in the first but not the second\n" (Option.get accepted1);
     if (Option.is_some accepted2) then Printf.printf "'%s' exists in the second but not the first\n" (Option.get accepted2);

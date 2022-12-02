@@ -84,12 +84,7 @@ let rec simplify_re re flag =
         | Empty -> (Empty, false)
 
 (* |simplify| -- simplifies input regex. Repeats until no more changes *)
-let simplify re =
-    let change = ref true and
-        reg = ref re in
-    while !change do
-        let (r, flag) = simplify_re !reg false in
-        change := flag;
-        reg := r;
-    done;
-    !reg
+let rec simplify re =
+    let (r, flag) = simplify_re re false in
+    if flag then simplify r
+    else r

@@ -61,22 +61,19 @@ let eps_reachable_set n ss =
     (* iterate reachable set until no changes *)
     let sts = ref (get_reachable_set ss) in
     let newSts = ref (get_reachable_set !sts) in
-        while (!sts <> !newSts) do
-            sts := !newSts;
-            newSts := get_reachable_set !sts
-        done;
-        List.sort compare !sts
+    while (!sts <> !newSts) do
+        sts := !newSts;
+        newSts := get_reachable_set !sts
+    done;
+    List.sort compare !sts
 
 (* |succ| -- the resulting states of nfa n after reading symbol *)
 let succ n state symbol =
-    let initial_reachable = eps_reachable_set n [state] and
-        succs = ref [] in
-    List.iter (fun ss ->
-        List.iter (fun (s,a,t) -> 
-            if (ss = s && a = symbol) then succs := Utils.add_unique t !succs;
-        ) n.transitions;
-    ) initial_reachable;
-    eps_reachable_set n !succs
+    let initial_reachable = eps_reachable_set n [state] in    
+    let succs = List.fold_left (fun acc (s,a,t) -> 
+        if a = symbol && List.mem s initial_reachable then Utils.add_unique t acc else acc
+    ) [] n.transitions in
+    eps_reachable_set n succs
 
 (* |pred| -- returns the set of states preceeding state in nfa n *)
 let pred n state =

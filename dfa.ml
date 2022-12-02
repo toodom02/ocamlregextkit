@@ -4,16 +4,16 @@ type dfa = {
 }
 
 (* |print| -- prints out dfa representation *)
-let print n = 
+let print m = 
     let rec print_state = function
           State n -> print_string "[ "; List.iter (fun s -> print_int s; print_char ' ') n; print_string "]"
         | ProductState (l,r) -> print_string "( "; print_state l; print_string " , "; print_state r; print_string " )"
     in
-    print_string "states: "; List.iter (fun ss -> print_state ss) n.states; print_newline ();
-    print_string "alphabet: "; List.iter (fun a -> print_string a; print_char ' ') n.alphabet; print_newline ();
-    print_string "start: "; print_state n.start; print_newline ();
-    print_string "accepting: "; List.iter (fun ss -> print_state ss) n.accepting; print_newline ();
-    print_string "transitions: "; print_newline (); List.iter (fun (ss,a,tt) -> print_string "    "; print_state ss; print_string ("\t--"^a^"-->\t"); print_state tt; print_newline ()) n.transitions
+    print_string "states: "; List.iter (fun ss -> print_state ss) m.states; print_newline ();
+    print_string "alphabet: "; List.iter (fun a -> print_string a; print_char ' ') m.alphabet; print_newline ();
+    print_string "start: "; print_state m.start; print_newline ();
+    print_string "accepting: "; List.iter (fun ss -> print_state ss) m.accepting; print_newline ();
+    print_string "transitions: "; print_newline (); List.iter (fun (ss,a,tt) -> print_string "    "; print_state ss; print_string ("\t--"^a^"-->\t"); print_state tt; print_newline ()) m.transitions
 
 (* |compliment| -- returns the compliment of input dfa *)
 let compliment m = 
@@ -40,25 +40,25 @@ let succ m state symbol =
 
 (* |pred| -- returns the state preceeding state in dfa m before reading symbol *)
 let pred m state symbol = 
-    List.find_map (fun (s,a,t) ->
+    List.filter_map (fun (s,a,t) ->
         if (t = state && a = symbol) then Some(s) else None
     ) m.transitions
 
 (* |prune| -- reduces input dfa by pruning unreachable states *)
-let prune n = 
-    let marked = Utils.reachable_states n.start n.transitions in
+let prune m = 
+    let marked = Utils.reachable_states m.start m.transitions in
     {
-        states = List.filter (fun s -> List.mem s marked) n.states;
-        alphabet = n.alphabet;
-        start = n.start;
-        transitions = List.filter (fun (s,_,_) -> List.mem s marked) n.transitions;
-        accepting = List.filter (fun s -> List.mem s marked) n.accepting
+        states = List.filter (fun s -> List.mem s marked) m.states;
+        alphabet = m.alphabet;
+        start = m.start;
+        transitions = List.filter (fun (s,_,_) -> List.mem s marked) m.transitions;
+        accepting = List.filter (fun s -> List.mem s marked) m.accepting
     }
 
 (* |is_empty| -- returns true iff dfa has no reachable accepting states *)
-let is_empty n =
-    let marked = Utils.reachable_states n.start n.transitions in
-    not (List.exists (fun m -> List.mem m n.accepting) marked)
+let is_empty m =
+    let marked = Utils.reachable_states m.start m.transitions in
+    not (List.exists (fun s -> List.mem s m.accepting) marked)
 
 (* |accepts| -- returns true iff string s is accepted by the dfa m *)
 let accepts m s =
@@ -167,8 +167,8 @@ let disjoin_dfas m1 m2 =
         accepting = List.rev_map (fun s -> negate_state s) m2.accepting;
     })
 
-(* |spivey_equiv| -- returns true iff input DFAs are equivalent, by equivalence closure *)
-let spivey_equiv m1 m2 =
+(* |closure_equiv| -- returns true iff input DFAs are equivalent, by equivalence closure *)
+let closure_equiv m1 m2 =
     let (m1', m2') = disjoin_dfas m1 m2 in
     let merged_states = m1'.states @ m2'.states in
 
@@ -289,6 +289,8 @@ let is_equiv = hopcroft_equiv
 
 (* |myhill_min| -- returns minimised DFA by myhill nerode *)
 let myhill_min m =
+    let m' = prune m in
+
     let allpairs = 
         let rec find_pairs xss yss =
             match xss, yss with
@@ -296,10 +298,10 @@ let myhill_min m =
                 | (_,[]) -> []
                 | (x::xs,ys) -> List.rev_append (List.rev_map (fun y -> (x, y)) ys) (find_pairs xs (List.tl ys))
         in
-        find_pairs m.states m.states
+        find_pairs m'.states m'.states
     in
     let marked = ref (List.filter (fun (p,q) ->
-            (List.mem p m.accepting && not (List.mem q m.accepting)) || (not (List.mem p m.accepting) && List.mem q m.accepting)
+            (List.mem p m'.accepting && not (List.mem q m'.accepting)) || (not (List.mem p m'.accepting) && List.mem q m'.accepting)
         ) allpairs) in
     let unmarked = ref (List.filter (fun ss -> not (List.mem ss !marked)) allpairs) and
         stop = ref false in
@@ -308,7 +310,7 @@ let myhill_min m =
         stop := true;
         let newunmarked = ref [] in
         List.iter (fun (p,q) ->
-            if (List.exists (fun a -> List.mem (succ m p a, succ m q a) !marked || List.mem (succ m q a, succ m p a) !marked) m.alphabet)
+            if (List.exists (fun a -> List.mem (succ m p a, succ m q a) !marked || List.mem (succ m q a, succ m p a) !marked) m'.alphabet)
             then (marked := (p,q)::!marked; stop := false) else newunmarked := (p,q)::!newunmarked;
         ) !unmarked;
         unmarked := !newunmarked
@@ -353,13 +355,13 @@ let myhill_min m =
         !merged
     in
 
-    let newtrans = List.fold_left (fun acc (s,a,t) -> Utils.add_unique (List.find (fun s' -> contains s' s) merged_states, a, List.find (fun t' -> contains t' t) merged_states) acc) [] m.transitions and
-        newaccepting = List.fold_left (fun acc s -> Utils.add_unique (List.find (fun s' -> contains s' s) merged_states) acc) [] m.accepting and
-        newstart = List.find (fun s -> contains s m.start) merged_states in
+    let newtrans = List.fold_left (fun acc (s,a,t) -> Utils.add_unique (List.find (fun s' -> contains s' s) merged_states, a, List.find (fun t' -> contains t' t) merged_states) acc) [] m'.transitions and
+        newaccepting = List.fold_left (fun acc s -> Utils.add_unique (List.find (fun s' -> contains s' s) merged_states) acc) [] m'.accepting and
+        newstart = List.find (fun s -> contains s m'.start) merged_states in
 
     {
         states = merged_states;
-        alphabet = m.alphabet;
+        alphabet = m'.alphabet;
         transitions = newtrans;
         start = newstart;
         accepting = newaccepting;
@@ -419,10 +421,12 @@ let brzozowski_min m =
     reverse_and_determinise drd
 
 let hopcroft_min m =
+    let m' = prune m in
+
     let p = ref [] in
-    let qnotf = List.filter (fun s -> not (List.mem s m.accepting)) m.states in
-    if List.length qnotf > 0 && List.length m.accepting > 0 then p := [m.accepting; qnotf] 
-    else if List.length m.accepting > 0 then p := [m.accepting]
+    let qnotf = List.filter (fun s -> not (List.mem s m'.accepting)) m'.states in
+    if List.length qnotf > 0 && List.length m'.accepting > 0 then p := [m'.accepting; qnotf] 
+    else if List.length m'.accepting > 0 then p := [m'.accepting]
     else if List.length qnotf > 0 then p := [qnotf];
     let w = ref !p in
 
@@ -430,7 +434,7 @@ let hopcroft_min m =
         let a = List.hd !w in
         w := List.tl !w;
         List.iter (fun c ->
-            let x = List.fold_left (fun acc (s,c',t) -> if c = c' && List.mem t a then Utils.add_unique s acc else acc) [] m.transitions in
+            let x = List.fold_left (fun acc (s,c',t) -> if c = c' && List.mem t a then Utils.add_unique s acc else acc) [] m'.transitions in
             let newp = ref [] in
             List.iter (fun y ->
                 let xinty = List.filter (fun s -> List.mem s x) y and
@@ -447,18 +451,18 @@ let hopcroft_min m =
                 ) else newp := y::!newp
             ) !p;
             p := !newp
-        ) m.alphabet
+        ) m'.alphabet
     done;
 
     let newstates = List.init (List.length !p) (fun s -> State [s]) in
     let newstart = List.find (fun state ->
             match state with
-                  State [ss] ->  List.exists (fun s -> s = m.start) (List.nth !p ss)
+                  State [ss] ->  List.exists (fun s -> s = m'.start) (List.nth !p ss)
                 | _ -> false
         ) newstates and
         newaccepting = List.filter (fun state -> 
             match state with
-                  State [ss] -> List.exists (fun s -> List.mem s m.accepting) (List.nth !p ss)
+                  State [ss] -> List.exists (fun s -> List.mem s m'.accepting) (List.nth !p ss)
                 | _ -> false
         ) newstates and
         newtrans = List.fold_left (fun acc (s,a,t) ->
@@ -471,11 +475,11 @@ let hopcroft_min m =
                       State [ss] ->  List.exists (fun s' -> s' = t) (List.nth !p ss)
                     | _ -> false
             ) newstates) acc    
-        ) [] m.transitions in
+        ) [] m'.transitions in
 
     {
         states = newstates;
-        alphabet = m.alphabet;
+        alphabet = m'.alphabet;
         transitions = newtrans;
         start = newstart;
         accepting = newaccepting;

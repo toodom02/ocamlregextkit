@@ -123,12 +123,12 @@
 </ul>
 </div>
 
-<pre><span id="VALpred"><span class="keyword">val</span> pred</span> : <code class="type"><a href="Dfa.html#TYPEdfa">dfa</a> -&gt; <a href="Dfa.html#TYPEstate">state</a> -&gt; string -&gt; <a href="Dfa.html#TYPEstate">state</a> option</code></pre><div class="info ">
+<pre><span id="VALpred"><span class="keyword">val</span> pred</span> : <code class="type"><a href="Dfa.html#TYPEdfa">dfa</a> -&gt; <a href="Dfa.html#TYPEstate">state</a> -&gt; string -&gt; <a href="Dfa.html#TYPEstate">state</a> list</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">pred m s w</code></p>
 </div>
 <ul class="info-attributes">
-<li><b>Returns</b> some predecessor state of DFA <code class="code">m</code> before reading word <code class="code">w</code> from state <code class="code">s</code>, or None if there is no such state</li>
+<li><b>Returns</b> the set of predecessor states of DFA <code class="code">m</code> before reading word <code class="code">w</code> from state <code class="code">s</code></li>
 </ul>
 </div>
 
@@ -186,9 +186,9 @@
 </ul>
 </div>
 
-<pre><span id="VALspivey_equiv"><span class="keyword">val</span> spivey_equiv</span> : <code class="type"><a href="Dfa.html#TYPEdfa">dfa</a> -&gt; <a href="Dfa.html#TYPEdfa">dfa</a> -&gt; bool</code></pre><div class="info ">
+<pre><span id="VALclosure_equiv"><span class="keyword">val</span> closure_equiv</span> : <code class="type"><a href="Dfa.html#TYPEdfa">dfa</a> -&gt; <a href="Dfa.html#TYPEdfa">dfa</a> -&gt; bool</code></pre><div class="info ">
 <div class="info-desc">
-<p><code class="code">spivey_equiv m1 m2</code></p>
+<p><code class="code">closure_equiv m1 m2</code></p>
 </div>
 <ul class="info-attributes">
 <li><b>Returns</b> true iff the two DFAs <code class="code">m1</code> and <code class="code">m2</code> are equivalent, by equivalence closure</li>
