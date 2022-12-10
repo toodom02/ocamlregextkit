@@ -1,10 +1,6 @@
-type re = 
-      Literal of string     (* a ∈ Σ *)
-    | Epsilon               (* ε *)
-    | Empty                 (* ∅ *)
-    | Union of re * re      (* E + R *)
-    | Concat of re * re     (* E·R *)
-    | Star of re            (* E* *)
+open Tree
+
+exception Syntax_error of string
 
 (* |print| -- prints string representation of regex ast *)
 let print re = 
@@ -88,3 +84,12 @@ let rec simplify re =
     let (r, flag) = simplify_re re false in
     if flag then simplify r
     else r
+
+let parse s =
+    let lexbuf = Lexing.from_string s in
+    try
+        Parser.regex Lexer.token lexbuf
+    with 
+        Parsing.Parse_error -> 
+            let tok = Lexing.lexeme lexbuf in
+            raise (Syntax_error ("Syntax Error at token "^tok))

@@ -25,6 +25,9 @@ let compliment m =
         accepting = List.filter (fun ss -> not (List.mem ss m.accepting)) m.states;  
     }
 
+(* |reachable_states| -- returns the set of reachable states in dfa m *)
+let reachable_states m = Utils.reachable_states m.start m.transitions
+
 (* |succ| -- the resulting state of dfa m after reading symbol *)
 let succ m state symbol = 
     let rec sinkState = function
@@ -46,7 +49,7 @@ let pred m state symbol =
 
 (* |prune| -- reduces input dfa by pruning unreachable states *)
 let prune m = 
-    let marked = Utils.reachable_states m.start m.transitions in
+    let marked = reachable_states m in
     {
         states = List.filter (fun s -> List.mem s marked) m.states;
         alphabet = m.alphabet;
@@ -57,7 +60,7 @@ let prune m =
 
 (* |is_empty| -- returns true iff dfa has no reachable accepting states *)
 let is_empty m =
-    let marked = Utils.reachable_states m.start m.transitions in
+    let marked = reachable_states m in
     not (List.exists (fun s -> List.mem s m.accepting) marked)
 
 (* |accepts| -- returns true iff string s is accepted by the dfa m *)
@@ -310,7 +313,10 @@ let myhill_min m =
         stop := true;
         let newunmarked = ref [] in
         List.iter (fun (p,q) ->
-            if (List.exists (fun a -> List.mem (succ m p a, succ m q a) !marked || List.mem (succ m q a, succ m p a) !marked) m'.alphabet)
+            if (List.exists (fun a -> 
+                let succp = succ m p a and succq = succ m q a in
+                List.mem (succp, succq) !marked || List.mem (succq, succp) !marked
+            ) m'.alphabet)
             then (marked := (p,q)::!marked; stop := false) else newunmarked := (p,q)::!newunmarked;
         ) !unmarked;
         unmarked := !newunmarked

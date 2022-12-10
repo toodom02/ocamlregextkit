@@ -1,4 +1,4 @@
-open Re
+open Tree
 
 type state = int
 type nfa = {
@@ -67,6 +67,9 @@ let eps_reachable_set n ss =
     done;
     List.sort compare !sts
 
+(* |reachable_states| -- returns the set of reachable states in nfa n *)
+let reachable_states n = Utils.reachable_states n.start n.transitions
+
 (* |succ| -- the resulting states of nfa n after reading symbol *)
 let succ n state symbol =
     let initial_reachable = eps_reachable_set n [state] in    
@@ -89,7 +92,7 @@ let pred n state =
 
 (* |prune| -- reduces input nfa by pruning unreachable states *)
 let prune n = 
-    let marked = Utils.reachable_states n.start n.transitions in
+    let marked = reachable_states n in
     {
         states = List.filter (fun s -> List.mem s marked) n.states;
         alphabet = n.alphabet;
@@ -100,7 +103,7 @@ let prune n =
 
 (* |is_empty| -- returns true iff nfa has no reachable accepting states *)
 let is_empty n =
-    let marked = Utils.reachable_states n.start n.transitions in
+    let marked = reachable_states n in
     not (List.exists (fun m -> List.mem m n.accepting) marked)
 
 (* |accepts| -- returns true iff string s is accepted by the nfa n. Can take a long time *)

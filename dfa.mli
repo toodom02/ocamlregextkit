@@ -23,6 +23,10 @@ val create : 'a list -> string list -> ('a * string * 'a) list -> 'a -> 'a list 
     @return the compliment of DFA [m] *)
 val compliment : dfa -> dfa
 
+(** [reachable_states m]
+    @return the set of reachable (connected) states in the DFA [m] *)
+    val reachable_states : dfa -> state list
+
 (** [succ m s w] 
     @return the successor state of DFA [m] after reading word [w] from state [s] *)
 val succ : dfa -> state -> string -> state

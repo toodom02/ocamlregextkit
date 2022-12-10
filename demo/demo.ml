@@ -1,5 +1,32 @@
 (* Demo program that compares two input regex *)
 
+(* |test_dfa_pred_succ| -- Tests DFAs pred and succ methods by checking that for each state, the predecessors of a successor contains itself *)
+let test_dfa_pred_succ (m: Dfa.dfa) =
+    if List.exists (fun s ->
+        List.exists (fun a ->
+            let succ = Dfa.succ m s a in
+            not (List.mem s (Dfa.pred m succ a))
+        ) m.alphabet
+    ) m.states then exit 1
+
+(* |test_dfa_complete| -- Tests that DFA is complete, i.e. each state has a single transition for each letter *)
+let test_dfa_complete (m: Dfa.dfa) =
+    if not (List.for_all (fun s ->
+        List.for_all (fun a ->
+            let ts = List.find_all (fun (s',a',_) -> s = s' && a = a') m.transitions in
+            List.length ts = 1
+        ) m.alphabet
+    ) m.states) then exit 1
+
+(* |test_nfa_pred_succ| -- Tests NFAs pred and succ methods by checking that for each state, the successor of a predecessor contains itself *)
+let test_nfa_pred_succ (n: Nfa.nfa) =
+    if List.exists (fun s ->
+        let pred = Nfa.pred n s in
+        List.exists (fun ss ->
+            not (List.exists (fun a -> List.mem s (Nfa.succ n ss a)) n.alphabet)
+        ) pred
+    ) n.states then exit 1
+
 let main () = 
     (* Get CLI args *)
     let fns = ref [] in
@@ -10,8 +37,8 @@ let main () =
     );
 
     (* Parse strings as REs *)
-    let re1 = Ast.parse (List.hd !fns) and
-        re2 = Ast.parse (List.nth !fns 1) in
+    let re1 = Re.parse (List.hd !fns) and
+        re2 = Re.parse (List.nth !fns 1) in
 
     (* Reduce REs *)
     let re1' = Re.simplify re1 and
@@ -39,6 +66,18 @@ let main () =
     (* Find shortest unique strings *)
     let accepted1 = Dfa.accepted fst_and_not_snd and
         accepted2 = Dfa.accepted snd_and_not_fst in
+
+    (* Testing DFA invariants *)
+    test_dfa_pred_succ dfa1; test_dfa_pred_succ comp1;
+    test_dfa_pred_succ dfa2; test_dfa_pred_succ comp2;
+    test_dfa_pred_succ fst_and_not_snd; test_dfa_pred_succ snd_and_not_fst;
+    test_dfa_complete dfa1; test_dfa_complete comp1;
+    test_dfa_complete dfa2; test_dfa_complete comp2;
+    test_dfa_complete fst_and_not_snd; test_dfa_complete snd_and_not_fst;
+
+    (* Testing NFA invariants *)
+    test_nfa_pred_succ nfa1; test_nfa_pred_succ nfa2;
+    test_nfa_pred_succ nfa1'; test_nfa_pred_succ nfa2';
 
     (* Test that our equivalence functions all give the same result *)
     if (Dfa.closure_equiv dfa1 dfa2 <> Dfa.symmetric_equiv dfa1 dfa2) then exit 1;

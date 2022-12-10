@@ -16,11 +16,15 @@ val create : 'a list -> string list -> ('a * string * 'a) list -> 'a -> 'a list 
 
 (** [re_to_nfa r] 
     @return an NFA constructed from the RE [r] *)
-val re_to_nfa : Re.re -> nfa
+val re_to_nfa : Tree.re -> nfa
 
 (** [eps_reachable_set n ss] 
     @return the set of all epsilon reachable states in the NFA [n] from the set of states [ss] *)
 val eps_reachable_set : nfa -> state list -> state list
+
+(** [reachable_states n]
+    @return the set of reachable (connected) states in the NFA [n] *)
+val reachable_states : nfa -> state list
 
 (** [succ n s w] 
     @return a list of successor states of NFA [n] after reading word [w] from state [s] *)

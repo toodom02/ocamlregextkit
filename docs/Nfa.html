@@ -12,11 +12,10 @@
 <link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
-<link title="Ast" rel="Chapter" href="Ast.html">
 <link title="Dfa" rel="Chapter" href="Dfa.html">
 <link title="Nfa" rel="Chapter" href="Nfa.html">
 <link title="Re" rel="Chapter" href="Re.html">
-<link title="Utils" rel="Chapter" href="Utils.html"><title>Regex Toolkit : Nfa</title>
+<link title="Tree" rel="Chapter" href="Tree.html"><title>Regex Toolkit : Nfa</title>
 </head>
 <body>
 <div class="navbar"><a class="pre" href="Dfa.html" title="Dfa">Previous</a>
@@ -89,7 +88,7 @@
 </ul>
 </div>
 
-<pre><span id="VALre_to_nfa"><span class="keyword">val</span> re_to_nfa</span> : <code class="type"><a href="Re.html#TYPEre">Re.re</a> -&gt; <a href="Nfa.html#TYPEnfa">nfa</a></code></pre><div class="info ">
+<pre><span id="VALre_to_nfa"><span class="keyword">val</span> re_to_nfa</span> : <code class="type"><a href="Tree.html#TYPEre">Tree.re</a> -&gt; <a href="Nfa.html#TYPEnfa">nfa</a></code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">re_to_nfa r</code></p>
 </div>
@@ -104,6 +103,15 @@
 </div>
 <ul class="info-attributes">
 <li><b>Returns</b> the set of all epsilon reachable states in the NFA <code class="code">n</code> from the set of states <code class="code">ss</code></li>
+</ul>
+</div>
+
+<pre><span id="VALreachable_states"><span class="keyword">val</span> reachable_states</span> : <code class="type"><a href="Nfa.html#TYPEnfa">nfa</a> -&gt; <a href="Nfa.html#TYPEstate">state</a> list</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">reachable_states n</code></p>
+</div>
+<ul class="info-attributes">
+<li><b>Returns</b> the set of reachable (connected) states in the NFA <code class="code">n</code></li>
 </ul>
 </div>
 
