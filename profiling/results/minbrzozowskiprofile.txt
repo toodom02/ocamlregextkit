@@ -1,0 +1,235 @@
+Note: Nodes accounting for less than 1.00% of their parent have been ignored.
+
+1 State
+----------------------------
+[ 283.36K cycles in 1 calls ]   - 74.23% : 2nd reverse and determinise
+[  76.07K cycles in 2 calls ]   |   - 26.85% : Find new states
+[  13.47K cycles in 2 calls ]   |   -  4.75% : Find new transitions
+[  12.40K cycles in 1 calls ]   |   -  4.37% : Find new accepting states
+[  75.66K cycles in 1 calls ]   - 19.82% : 1st reverse and determinise
+[  16.78K cycles in 2 calls ]   |   - 22.18% : Find new transitions
+[   5.45K cycles in 1 calls ]   |   -  7.21% : Find new accepting states
+[   4.46K cycles in 2 calls ]   |   -  5.89% : Find new states
+
+====================================
+
+2 States
+----------------------------
+[  50.10K cycles in 1 calls ]   - 48.15% : 1st reverse and determinise
+[   9.41K cycles in 2 calls ]   |   - 18.77% : Find new transitions
+[   3.33K cycles in 1 calls ]   |   -  6.64% : Find new accepting states
+[   3.07K cycles in 2 calls ]   |   -  6.13% : Find new states
+[  34.25K cycles in 1 calls ]   - 32.92% : 2nd reverse and determinise
+[   4.33K cycles in 2 calls ]   |   - 12.65% : Find new transitions
+[   4.32K cycles in 2 calls ]   |   - 12.62% : Find new states
+[   2.76K cycles in 1 calls ]   |   -  8.05% : Find new accepting states
+
+====================================
+
+3 States
+----------------------------
+[  76.37K cycles in 1 calls ]   - 56.49% : 1st reverse and determinise
+[  14.45K cycles in 2 calls ]   |   - 18.92% : Find new transitions
+[   4.63K cycles in 1 calls ]   |   -  6.07% : Find new accepting states
+[   3.64K cycles in 2 calls ]   |   -  4.77% : Find new states
+[  42.24K cycles in 1 calls ]   - 31.24% : 2nd reverse and determinise
+[   5.44K cycles in 2 calls ]   |   - 12.87% : Find new transitions
+[   3.21K cycles in 1 calls ]   |   -  7.60% : Find new accepting states
+[   2.13K cycles in 2 calls ]   |   -  5.04% : Find new states
+
+====================================
+
+4 States
+----------------------------
+[  58.83K cycles in 1 calls ]   - 51.46% : 1st reverse and determinise
+[  12.96K cycles in 2 calls ]   |   - 22.04% : Find new transitions
+[   3.50K cycles in 1 calls ]   |   -  5.95% : Find new accepting states
+[   2.92K cycles in 2 calls ]   |   -  4.97% : Find new states
+[  38.31K cycles in 1 calls ]   - 33.51% : 2nd reverse and determinise
+[   7.37K cycles in 2 calls ]   |   - 19.25% : Find new transitions
+[   2.47K cycles in 1 calls ]   |   -  6.44% : Find new accepting states
+[   2.23K cycles in 2 calls ]   |   -  5.81% : Find new states
+
+====================================
+
+5 States
+----------------------------
+[ 551.23K cycles in  1 calls ]   - 50.99% : 1st reverse and determinise
+[ 204.70K cycles in 18 calls ]   |   - 37.13% : Find new transitions
+[  55.43K cycles in 18 calls ]   |   - 10.06% : Find new states
+[  13.07K cycles in  1 calls ]   |   -  2.37% : Find new accepting states
+[ 489.91K cycles in  1 calls ]   - 45.32% : 2nd reverse and determinise
+[ 302.97K cycles in  8 calls ]   |   - 61.84% : Find new transitions
+[  22.29K cycles in  8 calls ]   |   -  4.55% : Find new states
+[  12.72K cycles in  1 calls ]   |   -  2.60% : Find new accepting states
+
+====================================
+
+6 States
+----------------------------
+[  55.99K cycles in 1 calls ]   - 57.31% : 1st reverse and determinise
+[  20.63K cycles in 2 calls ]   |   - 36.85% : Find new transitions
+[   2.92K cycles in 1 calls ]   |   -  5.21% : Find new accepting states
+[   2.47K cycles in 2 calls ]   |   -  4.41% : Find new states
+[  28.85K cycles in 1 calls ]   - 29.53% : 2nd reverse and determinise
+[   5.73K cycles in 2 calls ]   |   - 19.85% : Find new transitions
+[   2.05K cycles in 1 calls ]   |   -  7.12% : Find new accepting states
+[   1.64K cycles in 2 calls ]   |   -  5.69% : Find new states
+
+====================================
+
+7 States
+----------------------------
+[  82.72K cycles in 1 calls ]   - 66.41% : 1st reverse and determinise
+[  29.03K cycles in 4 calls ]   |   - 35.10% : Find new transitions
+[   5.14K cycles in 4 calls ]   |   -  6.21% : Find new states
+[   3.34K cycles in 1 calls ]   |   -  4.03% : Find new accepting states
+[  30.81K cycles in 1 calls ]   - 24.74% : 2nd reverse and determinise
+[   6.95K cycles in 2 calls ]   |   - 22.55% : Find new transitions
+[   2.21K cycles in 1 calls ]   |   -  7.16% : Find new accepting states
+[   1.38K cycles in 2 calls ]   |   -  4.47% : Find new states
+
+====================================
+
+8 States
+----------------------------
+[ 454.66K cycles in  1 calls ]   - 70.05% : 1st reverse and determinise
+[ 265.33K cycles in 26 calls ]   |   - 58.36% : Find new transitions
+[  55.77K cycles in 26 calls ]   |   - 12.27% : Find new states
+[   7.35K cycles in  1 calls ]   |   -  1.62% : Find new accepting states
+[ 183.68K cycles in  1 calls ]   - 28.30% : 2nd reverse and determinise
+[ 109.54K cycles in  6 calls ]   |   - 59.64% : Find new transitions
+[   8.24K cycles in  6 calls ]   |   -  4.48% : Find new states
+[   6.78K cycles in  1 calls ]   |   -  3.69% : Find new accepting states
+
+====================================
+
+9 States
+----------------------------
+[  44.85K cycles in 1 calls ]   - 55.51% : 1st reverse and determinise
+[  15.12K cycles in 2 calls ]   |   - 33.71% : Find new transitions
+[   2.47K cycles in 1 calls ]   |   -  5.51% : Find new accepting states
+[   2.02K cycles in 2 calls ]   |   -  4.50% : Find new states
+[  25.06K cycles in 1 calls ]   - 31.02% : 2nd reverse and determinise
+[   3.30K cycles in 2 calls ]   |   - 13.17% : Find new transitions
+[   2.05K cycles in 1 calls ]   |   -  8.20% : Find new accepting states
+[   1.36K cycles in 2 calls ]   |   -  5.42% : Find new states
+
+====================================
+
+10 States
+-----------------------------
+[  28.40M cycles in   1 calls ]   - 76.92% : 2nd reverse and determinise
+[  26.72M cycles in  18 calls ]   |   - 94.09% : Find new transitions
+[   8.51M cycles in   1 calls ]   - 23.04% : 1st reverse and determinise
+[   4.14M cycles in 228 calls ]   |   - 48.66% : Find new transitions
+[   2.68M cycles in 228 calls ]   |   - 31.51% : Find new states
+[  91.75K cycles in   1 calls ]   |   -  1.08% : Find new accepting states
+
+====================================
+
+11 States
+-----------------------------
+[  85.48K cycles in 1 calls ]   - 67.30% : 1st reverse and determinise
+[  47.40K cycles in 4 calls ]   |   - 55.44% : Find new transitions
+[   4.02K cycles in 4 calls ]   |   -  4.70% : Find new states
+[   3.42K cycles in 1 calls ]   |   -  4.00% : Find new accepting states
+[  28.98K cycles in 1 calls ]   - 22.82% : 2nd reverse and determinise
+[   3.83K cycles in 2 calls ]   |   - 13.23% : Find new transitions
+[   2.14K cycles in 1 calls ]   |   -  7.38% : Find new accepting states
+[   1.42K cycles in 2 calls ]   |   -  4.89% : Find new states
+
+====================================
+
+12 States
+-----------------------------
+[   8.94M cycles in   1 calls ]   - 63.43% : 2nd reverse and determinise
+[   8.30M cycles in  14 calls ]   |   - 92.77% : Find new transitions
+[   5.14M cycles in   1 calls ]   - 36.48% : 1st reverse and determinise
+[   3.41M cycles in 148 calls ]   |   - 66.22% : Find new transitions
+[ 770.46K cycles in 148 calls ]   |   - 14.98% : Find new states
+
+====================================
+
+13 States
+-----------------------------
+[ 128.01M cycles in   1 calls ]   - 88.20% : 2nd reverse and determinise
+[ 124.69M cycles in  22 calls ]   |   - 97.41% : Find new transitions
+[  17.11M cycles in   1 calls ]   - 11.79% : 1st reverse and determinise
+[   8.82M cycles in 388 calls ]   |   - 51.53% : Find new transitions
+[   5.66M cycles in 388 calls ]   |   - 33.08% : Find new states
+
+====================================
+
+14 States
+-----------------------------
+[ 173.98M cycles in   1 calls ]   - 85.41% : 2nd reverse and determinise
+[ 168.98M cycles in  22 calls ]   |   - 97.12% : Find new transitions
+[  29.70M cycles in   1 calls ]   - 14.58% : 1st reverse and determinise
+[  14.43M cycles in 494 calls ]   |   - 48.58% : Find new transitions
+[  11.09M cycles in 494 calls ]   |   - 37.34% : Find new states
+
+====================================
+
+15 States
+-----------------------------
+[ 112.27K cycles in 1 calls ]   - 58.81% : 1st reverse and determinise
+[  61.58K cycles in 2 calls ]   |   - 54.85% : Find new transitions
+[   5.26K cycles in 1 calls ]   |   -  4.69% : Find new accepting states
+[   3.48K cycles in 2 calls ]   |   -  3.10% : Find new states
+[  52.16K cycles in 1 calls ]   - 27.32% : 2nd reverse and determinise
+[   6.25K cycles in 2 calls ]   |   - 11.98% : Find new transitions
+[   3.72K cycles in 1 calls ]   |   -  7.14% : Find new accepting states
+[   2.70K cycles in 2 calls ]   |   -  5.17% : Find new states
+
+====================================
+
+16 States
+-----------------------------
+[   9.25G cycles in    1 calls ]   - 94.63% : 2nd reverse and determinise
+[   9.14G cycles in   26 calls ]   |   - 98.86% : Find new transitions
+[ 524.45M cycles in    1 calls ]   -  5.37% : 1st reverse and determinise
+[ 374.36M cycles in 3630 calls ]   |   - 71.38% : Find new states
+[ 111.46M cycles in 3630 calls ]   |   - 21.25% : Find new transitions
+
+====================================
+
+17 States
+-----------------------------
+[  90.81M cycles in   1 calls ]   - 85.94% : 2nd reverse and determinise
+[  87.68M cycles in  30 calls ]   |   - 96.56% : Find new transitions
+[  14.85M cycles in   1 calls ]   - 14.05% : 1st reverse and determinise
+[   9.92M cycles in 354 calls ]   |   - 66.81% : Find new transitions
+[   3.03M cycles in 354 calls ]   |   - 20.44% : Find new states
+
+====================================
+
+18 States
+-----------------------------
+[   2.79G cycles in    1 calls ]   - 94.54% : 2nd reverse and determinise
+[   2.76G cycles in   26 calls ]   |   - 98.81% : Find new transitions
+[ 161.49M cycles in    1 calls ]   -  5.46% : 1st reverse and determinise
+[  85.99M cycles in 1750 calls ]   |   - 53.25% : Find new states
+[  61.00M cycles in 1750 calls ]   |   - 37.77% : Find new transitions
+
+====================================
+
+19 States
+-----------------------------
+[   3.51G cycles in    1 calls ]   - 90.25% : 2nd reverse and determinise
+[   3.45G cycles in   26 calls ]   |   - 98.45% : Find new transitions
+[ 378.50M cycles in    1 calls ]   -  9.75% : 1st reverse and determinise
+[ 229.58M cycles in 2072 calls ]   |   - 60.65% : Find new states
+[ 119.71M cycles in 2072 calls ]   |   - 31.63% : Find new transitions
+
+====================================
+
+20 States
+-----------------------------
+[ 662.45M cycles in   1 calls ]   - 82.14% : 2nd reverse and determinise
+[ 645.58M cycles in  26 calls ]   |   - 97.45% : Find new transitions
+[ 144.02M cycles in   1 calls ]   - 17.86% : 1st reverse and determinise
+[  71.95M cycles in 892 calls ]   |   - 49.96% : Find new transitions
+[  54.30M cycles in 892 calls ]   |   - 37.71% : Find new states
+
+====================================

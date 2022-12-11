@@ -1,0 +1,169 @@
+Note: Nodes accounting for less than 1.00% of their parent have been ignored.
+
+1 State
+----------------------------
+[ 378.98K cycles in 1 calls ]   - 39.99% : main loop
+[ 323.45K cycles in 3 calls ]   |   - 85.35% : calculate equiv closure
+[ 264.14K cycles in 2 calls ]   |   |   - 81.66% : calculate transitive closure
+[   8.74K cycles in 2 calls ]   |   |   -  2.70% : calculate reflexive closure
+[   5.25K cycles in 2 calls ]   |   |   -  1.62% : calculate symmetric closure
+[  11.05K cycles in 1 calls ]   |   -  2.92% : calculate delta
+[  20.44K cycles in 1 calls ]   -  2.16% : disjoin DFAs
+[  10.95K cycles in 1 calls ]   -  1.16% : calculate E
+
+====================================
+
+2 States
+----------------------------
+[ 859.56K cycles in 1 calls ]   - 53.62% : main loop
+[ 795.24K cycles in 3 calls ]   |   - 92.52% : calculate equiv closure
+[ 739.74K cycles in 2 calls ]   |   |   - 93.02% : calculate transitive closure
+[  13.29K cycles in 1 calls ]   |   -  1.55% : calculate delta
+[  27.63K cycles in 1 calls ]   -  1.72% : disjoin DFAs
+[  18.55K cycles in 1 calls ]   -  1.16% : calculate E
+
+====================================
+
+3 States
+----------------------------
+[   1.48M cycles in 1 calls ]   - 71.68% : main loop
+[   1.44M cycles in 3 calls ]   |   - 96.98% : calculate equiv closure
+[   1.40M cycles in 2 calls ]   |   |   - 97.47% : calculate transitive closure
+
+====================================
+
+4 States
+----------------------------
+[  16.93M cycles in 1 calls ]   - 96.29% : main loop
+[  16.70M cycles in 9 calls ]   |   - 98.60% : calculate equiv closure
+[  16.52M cycles in 8 calls ]   |   |   - 98.95% : calculate transitive closure
+
+====================================
+
+5 States
+----------------------------
+[  27.98M cycles in 1 calls ]   - 98.26% : main loop
+[  27.76M cycles in 9 calls ]   |   - 99.21% : calculate equiv closure
+[  27.57M cycles in 8 calls ]   |   |   - 99.33% : calculate transitive closure
+
+====================================
+
+6 States
+----------------------------
+[  38.46M cycles in  1 calls ]   - 98.74% : main loop
+[  38.23M cycles in 11 calls ]   |   - 99.40% : calculate equiv closure
+[  38.06M cycles in 10 calls ]   |   |   - 99.55% : calculate transitive closure
+
+====================================
+
+7 States
+----------------------------
+[  42.42M cycles in  1 calls ]   - 99.00% : main loop
+[  42.28M cycles in 13 calls ]   |   - 99.67% : calculate equiv closure
+[  42.18M cycles in 12 calls ]   |   |   - 99.77% : calculate transitive closure
+
+====================================
+
+8 States
+----------------------------
+[  90.04M cycles in  1 calls ]   - 99.61% : main loop
+[  89.80M cycles in 17 calls ]   |   - 99.73% : calculate equiv closure
+[  89.64M cycles in 16 calls ]   |   |   - 99.83% : calculate transitive closure
+
+====================================
+
+9 States
+----------------------------
+[ 141.75M cycles in  1 calls ]   - 99.77% : main loop
+[ 141.48M cycles in 19 calls ]   |   - 99.81% : calculate equiv closure
+[ 141.31M cycles in 18 calls ]   |   |   - 99.88% : calculate transitive closure
+
+====================================
+
+10 States
+-----------------------------
+[ 178.13M cycles in  1 calls ]   - 99.73% : main loop
+[ 177.88M cycles in 17 calls ]   |   - 99.86% : calculate equiv closure
+[ 177.69M cycles in 16 calls ]   |   |   - 99.89% : calculate transitive closure
+
+====================================
+
+11 States
+-----------------------------
+[ 157.10M cycles in  1 calls ]   - 99.78% : main loop
+[ 156.93M cycles in 11 calls ]   |   - 99.89% : calculate equiv closure
+[ 156.83M cycles in 10 calls ]   |   |   - 99.94% : calculate transitive closure
+
+====================================
+
+12 States
+-----------------------------
+[ 438.81M cycles in  1 calls ]   - 99.89% : main loop
+[ 438.47M cycles in 23 calls ]   |   - 99.92% : calculate equiv closure
+[ 438.31M cycles in 22 calls ]   |   |   - 99.96% : calculate transitive closure
+
+====================================
+
+13 States
+-----------------------------
+[ 638.71M cycles in  1 calls ]   - 99.91% : main loop
+[ 638.31M cycles in 23 calls ]   |   - 99.94% : calculate equiv closure
+[ 638.11M cycles in 22 calls ]   |   |   - 99.97% : calculate transitive closure
+
+====================================
+
+14 States
+-----------------------------
+[ 771.12M cycles in  1 calls ]   - 99.95% : main loop
+[ 770.71M cycles in 23 calls ]   |   - 99.95% : calculate equiv closure
+[ 770.51M cycles in 22 calls ]   |   |   - 99.97% : calculate transitive closure
+
+====================================
+
+15 States
+-----------------------------
+[   1.06G cycles in  1 calls ]   - 99.95% : main loop
+[   1.06G cycles in 25 calls ]   |   - 99.96% : calculate equiv closure
+[   1.06G cycles in 24 calls ]   |   |   - 99.98% : calculate transitive closure
+
+====================================
+
+16 States
+-----------------------------
+[   1.19G cycles in  1 calls ]   - 99.94% : main loop
+[   1.19G cycles in 21 calls ]   |   - 99.95% : calculate equiv closure
+[   1.19G cycles in 20 calls ]   |   |   - 99.98% : calculate transitive closure
+
+====================================
+
+17 States
+-----------------------------
+[   1.89G cycles in  1 calls ]   - 99.97% : main loop
+[   1.89G cycles in 27 calls ]   |   - 99.97% : calculate equiv closure
+[   1.89G cycles in 26 calls ]   |   |   - 99.98% : calculate transitive closure
+
+====================================
+
+18 States
+-----------------------------
+[   2.83G cycles in  1 calls ]   - 99.97% : main loop
+[   2.83G cycles in 33 calls ]   |   - 99.97% : calculate equiv closure
+[   2.83G cycles in 32 calls ]   |   |   - 99.99% : calculate transitive closure
+
+====================================
+
+19 States
+-----------------------------
+[   3.67G cycles in  1 calls ]   - 99.99% : main loop
+[   3.66G cycles in 35 calls ]   |   - 99.96% : calculate equiv closure
+[   3.66G cycles in 34 calls ]   |   |   - 99.99% : calculate transitive closure
+
+====================================
+
+20 States
+-----------------------------
+[   4.17G cycles in  1 calls ]   - 99.97% : main loop
+[   4.17G cycles in 33 calls ]   |   - 99.97% : calculate equiv closure
+[   4.17G cycles in 32 calls ]   |   |   - 99.99% : calculate transitive closure
+
+====================================

@@ -11,6 +11,7 @@ parser.mli
 lexer.ml
 test
 
-demo/compregex
 demo/demo
 demo/out.txt
+
+profiling/profile

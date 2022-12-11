@@ -1,0 +1,243 @@
+Note: Nodes accounting for less than 1.00% of their parent have been ignored.
+
+1 State
+----------------------------
+[  28.47K cycles in 1 calls ]   - 20.99% : main loop
+[  10.26K cycles in 2 calls ]   |   - 36.05% : Find successors
+[   2.62K cycles in 2 calls ]   |   -  9.21% : Check if state is marked
+[  13.32K cycles in 1 calls ]   -  9.82% : Prune DFA
+[   5.85K cycles in 1 calls ]   -  4.31% : Find new transitions
+[   4.31K cycles in 1 calls ]   -  3.18% : Initialise marked states
+[   4.25K cycles in 1 calls ]   -  3.13% : Find pairs of states
+[   3.32K cycles in 1 calls ]   -  2.45% : Merge states
+[   1.97K cycles in 1 calls ]   -  1.45% : Find new start states
+
+====================================
+
+2 States
+----------------------------
+[  63.31K cycles in 1 calls ]   - 29.01% : main loop
+[  17.93K cycles in 6 calls ]   |   - 28.32% : Find successors
+[  12.45K cycles in 6 calls ]   |   - 19.67% : Check if state is marked
+[  20.84K cycles in 1 calls ]   -  9.55% : Prune DFA
+[  13.71K cycles in 1 calls ]   -  6.28% : Find new transitions
+[  10.99K cycles in 1 calls ]   -  5.04% : Merge states
+[   5.82K cycles in 1 calls ]   -  2.67% : Initialise marked states
+[   5.05K cycles in 1 calls ]   -  2.32% : Find pairs of states
+[   2.31K cycles in 1 calls ]   -  1.06% : Find new start states
+
+====================================
+
+3 States
+----------------------------
+[  64.86K cycles in 1 calls ]   - 31.90% : main loop
+[  20.41K cycles in 6 calls ]   |   - 31.46% : Find successors
+[   5.53K cycles in 6 calls ]   |   -  8.53% : Check if state is marked
+[  21.73K cycles in 1 calls ]   - 10.69% : Prune DFA
+[  10.95K cycles in 1 calls ]   -  5.39% : Merge states
+[  10.02K cycles in 1 calls ]   -  4.93% : Find new transitions
+[   5.76K cycles in 1 calls ]   -  2.84% : Initialise marked states
+[   4.92K cycles in 1 calls ]   -  2.42% : Find pairs of states
+[   2.15K cycles in 1 calls ]   -  1.06% : Find new start states
+
+====================================
+
+4 States
+----------------------------
+[ 210.68K cycles in  1 calls ]   - 50.24% : main loop
+[ 102.12K cycles in 20 calls ]   |   - 48.47% : Find successors
+[  15.79K cycles in 20 calls ]   |   -  7.50% : Check if state is marked
+[  37.27K cycles in  1 calls ]   -  8.89% : Prune DFA
+[  29.71K cycles in  1 calls ]   -  7.09% : Merge states
+[  18.58K cycles in  1 calls ]   -  4.43% : Find new transitions
+[   9.17K cycles in  1 calls ]   -  2.19% : Initialise marked states
+[   6.83K cycles in  1 calls ]   -  1.63% : Find pairs of states
+
+====================================
+
+5 States
+----------------------------
+[ 239.79K cycles in  1 calls ]   - 45.11% : main loop
+[ 108.33K cycles in 20 calls ]   |   - 45.18% : Find successors
+[  29.12K cycles in 20 calls ]   |   - 12.14% : Check if state is marked
+[  59.09K cycles in  1 calls ]   - 11.12% : Merge states
+[  48.96K cycles in  1 calls ]   -  9.21% : Prune DFA
+[  26.09K cycles in  1 calls ]   -  4.91% : Find new transitions
+[  25.73K cycles in  1 calls ]   -  4.84% : Initialise marked states
+[   8.74K cycles in  1 calls ]   -  1.64% : Find pairs of states
+
+====================================
+
+6 States
+----------------------------
+[ 500.44K cycles in  1 calls ]   - 57.82% : main loop
+[ 291.94K cycles in 30 calls ]   |   - 58.34% : Find successors
+[  44.56K cycles in 30 calls ]   |   -  8.90% : Check if state is marked
+[  84.59K cycles in  1 calls ]   -  9.77% : Prune DFA
+[  54.95K cycles in  1 calls ]   -  6.35% : Merge states
+[  36.29K cycles in  1 calls ]   -  4.19% : Find new transitions
+[  20.73K cycles in  1 calls ]   -  2.39% : Find pairs of states
+[  12.49K cycles in  1 calls ]   -  1.44% : Initialise marked states
+
+====================================
+
+7 States
+----------------------------
+[ 596.86K cycles in  1 calls ]   - 58.53% : main loop
+[ 318.07K cycles in 42 calls ]   |   - 53.29% : Find successors
+[  64.04K cycles in 42 calls ]   |   - 10.73% : Check if state is marked
+[ 123.16K cycles in  1 calls ]   - 12.08% : Prune DFA
+[  78.77K cycles in  1 calls ]   -  7.72% : Merge states
+[  42.50K cycles in  1 calls ]   -  4.17% : Find new transitions
+[  23.01K cycles in  1 calls ]   -  2.26% : Initialise marked states
+[  12.94K cycles in  1 calls ]   -  1.27% : Find pairs of states
+
+====================================
+
+8 States
+----------------------------
+[ 534.11K cycles in  1 calls ]   - 66.89% : main loop
+[ 223.91K cycles in 56 calls ]   |   - 41.92% : Find successors
+[  73.96K cycles in 56 calls ]   |   - 13.85% : Check if state is marked
+[  90.27K cycles in  1 calls ]   - 11.30% : Prune DFA
+[  50.81K cycles in  1 calls ]   -  6.36% : Merge states
+[  27.40K cycles in  1 calls ]   -  3.43% : Find new transitions
+[  11.60K cycles in  1 calls ]   -  1.45% : Initialise marked states
+[  11.10K cycles in  1 calls ]   -  1.39% : Find pairs of states
+
+====================================
+
+9 States
+----------------------------
+[   2.17M cycles in  1 calls ]   - 91.37% : main loop
+[   1.17M cycles in 72 calls ]   |   - 54.00% : Find successors
+[ 703.72K cycles in 72 calls ]   |   - 32.49% : Check if state is marked
+[  64.63K cycles in  1 calls ]   -  2.73% : Prune DFA
+[  24.46K cycles in  1 calls ]   -  1.03% : Find new transitions
+[  24.05K cycles in  1 calls ]   -  1.01% : Initialise marked states
+
+====================================
+
+10 States
+-----------------------------
+[ 186.63K cycles in  1 calls ]   - 35.05% : main loop
+[  98.86K cycles in 42 calls ]   |   - 52.97% : Find successors
+[  23.76K cycles in 42 calls ]   |   - 12.73% : Check if state is marked
+[  43.64K cycles in  1 calls ]   -  8.19% : Prune DFA
+[  27.38K cycles in  1 calls ]   -  5.14% : Merge states
+[  15.02K cycles in  1 calls ]   -  2.82% : Find new transitions
+[   6.07K cycles in  1 calls ]   -  1.14% : Find pairs of states
+[   6.02K cycles in  1 calls ]   -  1.13% : Initialise marked states
+
+====================================
+
+11 States
+-----------------------------
+[   1.11M cycles in   1 calls ]   - 82.39% : main loop
+[ 576.37K cycles in 133 calls ]   |   - 51.91% : Check if state is marked
+[ 326.39K cycles in 133 calls ]   |   - 29.40% : Find successors
+[  66.13K cycles in   1 calls ]   -  4.91% : Prune DFA
+[  57.25K cycles in   1 calls ]   -  4.25% : Initialise marked states
+[  47.66K cycles in   1 calls ]   -  3.54% : Find new transitions
+
+====================================
+
+12 States
+-----------------------------
+[ 814.27K cycles in   1 calls ]   - 79.99% : main loop
+[ 340.75K cycles in 118 calls ]   |   - 41.85% : Check if state is marked
+[ 290.72K cycles in 118 calls ]   |   - 35.70% : Find successors
+[  84.96K cycles in   1 calls ]   -  8.35% : Prune DFA
+[  35.22K cycles in   1 calls ]   -  3.46% : Initialise marked states
+[  26.46K cycles in   1 calls ]   -  2.60% : Find new transitions
+
+====================================
+
+13 States
+-----------------------------
+[   2.96M cycles in   1 calls ]   - 82.43% : main loop
+[   1.63M cycles in 223 calls ]   |   - 55.15% : Check if state is marked
+[ 873.32K cycles in 223 calls ]   |   - 29.55% : Find successors
+[ 282.94K cycles in   1 calls ]   -  7.89% : Find new transitions
+[ 119.38K cycles in   1 calls ]   -  3.33% : Prune DFA
+[  90.50K cycles in   1 calls ]   -  2.52% : Initialise marked states
+
+====================================
+
+14 States
+-----------------------------
+[ 869.16K cycles in   1 calls ]   - 66.44% : main loop
+[ 511.74K cycles in 182 calls ]   |   - 58.88% : Find successors
+[  84.77K cycles in 182 calls ]   |   -  9.75% : Check if state is marked
+[ 147.73K cycles in   1 calls ]   - 11.29% : Merge states
+[ 139.32K cycles in   1 calls ]   - 10.65% : Prune DFA
+[  46.40K cycles in   1 calls ]   -  3.55% : Find new transitions
+[  44.81K cycles in   1 calls ]   -  3.43% : Initialise marked states
+
+====================================
+
+15 States
+-----------------------------
+[   1.14M cycles in   1 calls ]   - 83.98% : main loop
+[ 497.12K cycles in 121 calls ]   |   - 43.55% : Find successors
+[ 405.67K cycles in 121 calls ]   |   - 35.54% : Check if state is marked
+[  75.99K cycles in   1 calls ]   -  5.59% : Prune DFA
+[  36.64K cycles in   1 calls ]   -  2.70% : Find new transitions
+[  34.31K cycles in   1 calls ]   -  2.52% : Initialise marked states
+
+====================================
+
+16 States
+-----------------------------
+[   3.11M cycles in   1 calls ]   - 78.43% : main loop
+[   2.08M cycles in 199 calls ]   |   - 66.75% : Check if state is marked
+[ 642.62K cycles in 199 calls ]   |   - 20.67% : Find successors
+[ 375.25K cycles in   1 calls ]   -  9.47% : Prune DFA
+[ 317.23K cycles in   1 calls ]   -  8.00% : Initialise marked states
+[  65.92K cycles in   1 calls ]   -  1.66% : Find new transitions
+
+====================================
+
+17 States
+-----------------------------
+[   6.72M cycles in   1 calls ]   - 92.02% : main loop
+[   4.28M cycles in 497 calls ]   |   - 63.65% : Check if state is marked
+[   1.62M cycles in 497 calls ]   |   - 24.12% : Find successors
+[ 207.24K cycles in   1 calls ]   -  2.84% : Prune DFA
+[ 186.68K cycles in   1 calls ]   -  2.56% : Initialise marked states
+[  89.04K cycles in   1 calls ]   -  1.22% : Find new transitions
+
+====================================
+
+18 States
+-----------------------------
+[   3.59M cycles in   1 calls ]   - 81.50% : main loop
+[   2.40M cycles in 239 calls ]   |   - 66.76% : Check if state is marked
+[ 817.09K cycles in 239 calls ]   |   - 22.74% : Find successors
+[ 493.12K cycles in   1 calls ]   - 11.18% : Initialise marked states
+[ 155.49K cycles in   1 calls ]   -  3.53% : Prune DFA
+[  74.94K cycles in   1 calls ]   -  1.70% : Find new transitions
+
+====================================
+
+19 States
+-----------------------------
+[   7.49M cycles in   1 calls ]   - 88.12% : main loop
+[   5.46M cycles in 397 calls ]   |   - 72.92% : Check if state is marked
+[   1.39M cycles in 397 calls ]   |   - 18.57% : Find successors
+[ 589.78K cycles in   1 calls ]   -  6.94% : Initialise marked states
+[ 207.27K cycles in   1 calls ]   -  2.44% : Prune DFA
+[ 106.30K cycles in   1 calls ]   -  1.25% : Find new transitions
+
+====================================
+
+20 States
+-----------------------------
+[   3.94M cycles in   1 calls ]   - 80.83% : main loop
+[   2.41M cycles in 276 calls ]   |   - 61.08% : Check if state is marked
+[   1.03M cycles in 276 calls ]   |   - 26.27% : Find successors
+[ 307.84K cycles in   1 calls ]   -  6.32% : Initialise marked states
+[ 253.02K cycles in   1 calls ]   -  5.19% : Find new transitions
+[ 245.23K cycles in   1 calls ]   -  5.03% : Prune DFA
+
+====================================
