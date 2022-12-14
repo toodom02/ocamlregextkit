@@ -5,7 +5,7 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  164.67K cycles in 1 calls ]   - 48.66% : Unioning DFAs
 [   67.08K cycles in 1 calls ]   - 19.82% : Intersecting DFAs
 [   34.80K cycles in 1 calls ]   - 10.28% : Checking emptiness
-[    8.02K cycles in 1 calls ]   -  2.37% : Complimenting DFAs
+[    8.02K cycles in 1 calls ]   -  2.37% : Complementing DFAs
 
 ====================================
 

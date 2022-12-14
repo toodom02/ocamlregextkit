@@ -25,7 +25,7 @@
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;create&nbsp;:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">'</span>a&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="keywordsign">'</span>a&nbsp;*&nbsp;string&nbsp;*&nbsp;<span class="keywordsign">'</span>a)&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Dfa</span>.dfa<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;compliment&nbsp;:&nbsp;<span class="constructor">Dfa</span>.dfa&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Dfa</span>.dfa<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;complement&nbsp;:&nbsp;<span class="constructor">Dfa</span>.dfa&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Dfa</span>.dfa<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;reachable_states&nbsp;:&nbsp;<span class="constructor">Dfa</span>.dfa&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Dfa</span>.state&nbsp;list<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;succ&nbsp;:&nbsp;<span class="constructor">Dfa</span>.dfa&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Dfa</span>.state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Dfa</span>.state<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;pred&nbsp;:&nbsp;<span class="constructor">Dfa</span>.dfa&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Dfa</span>.state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Dfa</span>.state&nbsp;list<br>
@@ -42,7 +42,7 @@
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;myhill_min&nbsp;:&nbsp;<span class="constructor">Dfa</span>.dfa&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Dfa</span>.dfa<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;hopcroft_min&nbsp;:&nbsp;<span class="constructor">Dfa</span>.dfa&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Dfa</span>.dfa<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;brzozowski_min&nbsp;:&nbsp;<span class="constructor">Dfa</span>.dfa&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Dfa</span>.dfa<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;nfa_to_dfa_subset&nbsp;:&nbsp;<span class="constructor">Nfa</span>.nfa&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Dfa</span>.dfa<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;minimise&nbsp;:&nbsp;<span class="constructor">Dfa</span>.dfa&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Dfa</span>.dfa<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;nfa_to_dfa&nbsp;:&nbsp;<span class="constructor">Nfa</span>.nfa&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Dfa</span>.dfa<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;print&nbsp;:&nbsp;<span class="constructor">Dfa</span>.dfa&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 <span class="keyword">end</span></code></body></html>

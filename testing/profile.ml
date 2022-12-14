@@ -3,7 +3,6 @@
 open Landmark
 open Dfa
 
-
 let generate_random_dfa n =
     Random.self_init ();
     let states = List.init n Fun.id and
@@ -152,7 +151,7 @@ let profile_closure_equiv (m1:dfa) (m2:dfa) =
     done;
     exit loop
 
-let complimenting = register "Complimenting DFAs"
+let complementing = register "Complementing DFAs"
 let product_intersecting = register "Intersecting DFAs"
 let product_unioning = register "Unioning DFAs"
 let emptiness = register "Checking emptiness"
@@ -160,10 +159,10 @@ let emptiness = register "Checking emptiness"
 let profile_symmetric_equiv m1 m2 =
     start_profiling ();
     enter main;
-    enter complimenting;
-    let comp1 = compliment m1 and
-        comp2 = compliment m2 in
-    exit complimenting;
+    enter complementing;
+    let comp1 = complement m1 and
+        comp2 = complement m2 in
+    exit complementing;
     enter product_intersecting;
     let m1notm2 = product_intersection m1 comp2 and
         m2notm1 = product_intersection comp1 m2 in
@@ -244,7 +243,7 @@ let profile_myhill_min m =
     let allpairs = 
         let rec find_pairs xss yss =
             match xss, yss with
-                    ([],_) -> []
+                  ([],_) -> []
                 | (_,[]) -> []
                 | (x::xs,ys) -> List.rev_append (List.rev_map (fun y -> (x, y)) ys) (find_pairs xs (List.tl ys))
         in
@@ -285,7 +284,7 @@ let profile_myhill_min m =
         if ps = p then true
         else 
             match ps with
-                    State _ -> false
+                  State _ -> false
                 | ProductState (s,s') -> contains s p || contains s' p
     in
 
@@ -383,29 +382,25 @@ let profile_hopcroft_min m =
 
     let newstates = List.init (List.length !p) (fun s -> State [s]) in
     enter newstart;
-    let _ = List.find (fun state ->
-            match state with
-                    State [ss] ->  List.exists (fun s -> s = m'.start) (List.nth !p ss)
-                | _ -> false
+    let _ = List.find (function
+              State [ss] ->  List.exists (fun s -> s = m'.start) (List.nth !p ss)
+            | _ -> false
         ) newstates in
     exit newstart;
     enter newaccept;
-    let _ = List.filter (fun state -> 
-            match state with
-                    State [ss] -> List.exists (fun s -> List.mem s m'.accepting) (List.nth !p ss)
-                | _ -> false
+    let _ = List.filter (function
+              State [ss] -> List.exists (fun s -> List.mem s m'.accepting) (List.nth !p ss)
+            | _ -> false
         ) newstates in
     exit newaccept;
     enter newtransitions;
     let _ = List.fold_left (fun acc (s,a,t) ->
-            Utils.add_unique (List.find (fun state ->
-                match state with
-                        State [ss] ->  List.exists (fun s' -> s' = s) (List.nth !p ss)
-                    | _ -> false
-            ) newstates, a, List.find (fun state ->
-                match state with
-                        State [ss] ->  List.exists (fun s' -> s' = t) (List.nth !p ss)
-                    | _ -> false
+            Utils.add_unique (List.find (function
+                  State [ss] ->  List.exists (fun s' -> s' = s) (List.nth !p ss)
+                | _ -> false
+            ) newstates, a, List.find (function
+                  State [ss] ->  List.exists (fun s' -> s' = t) (List.nth !p ss)
+                | _ -> false
             ) newstates) acc    
         ) [] m'.transitions in
     exit newtransitions;
@@ -454,10 +449,9 @@ let profile_brzozowski_min m =
         done;
 
         enter newaccept;
-        let newaccepting = List.filter_map (fun state -> 
-            match state with
-                    State s -> if List.mem (get_state d.start) s then Some(State s) else None
-                | ProductState (_,_) -> None
+        let newaccepting = List.filter_map (function
+                  State s -> if List.mem (get_state d.start) s then Some(State s) else None
+                | _ -> None
             ) !newstates
         in
         exit newaccept;

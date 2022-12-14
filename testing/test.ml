@@ -17,6 +17,15 @@ let test_nfa_pred_succ n =
         ) pred
     ) n.states then exit 1
 
+(* |test_dfa_total| -- Tests that DFA is total, i.e. each state has exactly one transition for each letter *)
+let test_dfa_total (m: Dfa.dfa) =
+    if not (List.for_all (fun s ->
+        List.for_all (fun a ->
+            let ts = List.find_all (fun (s',a',_) -> s = s' && a = a') m.transitions in
+            List.length ts = 1
+        ) m.alphabet
+    ) m.states) then exit 1
+
 (* |generate_random_dfa| -- Generates a randomised DFA of n states, with each state having transitions to random states and 10% chance of final state *)
 let generate_random_dfa n =
     Random.self_init ();
@@ -107,7 +116,7 @@ let min_tester () =
     let s = ref 1 in
     while !s <= 20 do
         let i = ref 0 in
-        while !i < 100 do
+        while !i < 1000 do
             let d = generate_random_dfa !s in
 
             test_dfa_pred_succ d;
@@ -134,10 +143,10 @@ let min_tester () =
 
             i := !i + 1
         done;
-        Printf.printf "%i,%f,%f,%f,%f,%f,%f\n" !s !cumul_time_myhill !cumul_time_hopcroft !cumul_time_brzozowski (!cumul_time_myhill /. 100.) (!cumul_time_hopcroft /. 100.) (!cumul_time_brzozowski /. 100.);
+        Printf.printf "%i,%f,%f,%f,%f,%f,%f\n" !s !cumul_time_myhill !cumul_time_hopcroft !cumul_time_brzozowski (!cumul_time_myhill /. 1000.) (!cumul_time_hopcroft /. 1000.) (!cumul_time_brzozowski /. 1000.);
         s := !s + 1
     done;  
 
     exit 0
 
-let test = equiv_tester ()
+let test = min_tester ()

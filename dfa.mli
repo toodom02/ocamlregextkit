@@ -19,13 +19,13 @@ type dfa = {
 *)
 val create : 'a list -> string list -> ('a * string * 'a) list -> 'a -> 'a list -> dfa
 
-(** [compliment m] 
-    @return the compliment of DFA [m] *)
-val compliment : dfa -> dfa
+(** [complement m] 
+    @return the complement of DFA [m] *)
+val complement : dfa -> dfa
 
 (** [reachable_states m]
     @return the set of reachable (connected) states in the DFA [m] *)
-    val reachable_states : dfa -> state list
+val reachable_states : dfa -> state list
 
 (** [succ m s w] 
     @return the successor state of DFA [m] after reading word [w] from state [s] *)
@@ -89,9 +89,9 @@ val hopcroft_min : dfa -> dfa
     Note that states will be renamed. *)
 val brzozowski_min : dfa -> dfa
 
-(** [nfa_to_dfa_subset m] 
-    @return the NFA equivalent to DFA [m], by the subset construction *)
-val nfa_to_dfa_subset : Nfa.nfa -> dfa
+(** [minimise m] synonym for [hopcroft_min m]
+    @return minimisation of DFA [m] *)
+val minimise : dfa -> dfa
 
 (** [nfa_to_dfa m] 
     @return the NFA equivalent to DFA [m], by an optimised subset construction *)

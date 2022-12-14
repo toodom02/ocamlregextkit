@@ -9,8 +9,8 @@ let test_dfa_pred_succ (m: Dfa.dfa) =
         ) m.alphabet
     ) m.states then exit 1
 
-(* |test_dfa_complete| -- Tests that DFA is complete, i.e. each state has a single transition for each letter *)
-let test_dfa_complete (m: Dfa.dfa) =
+(* |test_dfa_total| -- Tests that DFA is total, i.e. each state has exactly one transition for each letter *)
+let test_dfa_total (m: Dfa.dfa) =
     if not (List.for_all (fun s ->
         List.for_all (fun a ->
             let ts = List.find_all (fun (s',a',_) -> s = s' && a = a') m.transitions in
@@ -55,9 +55,9 @@ let main () =
     let dfa1 = Dfa.nfa_to_dfa nfa1' and
         dfa2 = Dfa.nfa_to_dfa nfa2' in
 
-    (* Compliment DFAs *)
-    let comp1 = Dfa.compliment dfa1 and
-        comp2 = Dfa.compliment dfa2 in
+    (* Complement DFAs *)
+    let comp1 = Dfa.complement dfa1 and
+        comp2 = Dfa.complement dfa2 in
 
     (* Intersect DFAs *)
     let fst_and_not_snd = Dfa.product_intersection dfa1 comp2 and
@@ -71,9 +71,9 @@ let main () =
     test_dfa_pred_succ dfa1; test_dfa_pred_succ comp1;
     test_dfa_pred_succ dfa2; test_dfa_pred_succ comp2;
     test_dfa_pred_succ fst_and_not_snd; test_dfa_pred_succ snd_and_not_fst;
-    test_dfa_complete dfa1; test_dfa_complete comp1;
-    test_dfa_complete dfa2; test_dfa_complete comp2;
-    test_dfa_complete fst_and_not_snd; test_dfa_complete snd_and_not_fst;
+    test_dfa_total dfa1; test_dfa_total comp1;
+    test_dfa_total dfa2; test_dfa_total comp2;
+    test_dfa_total fst_and_not_snd; test_dfa_total snd_and_not_fst;
 
     (* Testing NFA invariants *)
     test_nfa_pred_succ nfa1; test_nfa_pred_succ nfa2;

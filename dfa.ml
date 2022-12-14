@@ -15,8 +15,8 @@ let print m =
     print_string "accepting: "; List.iter (fun ss -> print_state ss) m.accepting; print_newline ();
     print_string "transitions: "; print_newline (); List.iter (fun (ss,a,tt) -> print_string "    "; print_state ss; print_string ("\t--"^a^"-->\t"); print_state tt; print_newline ()) m.transitions
 
-(* |compliment| -- returns the compliment of input dfa *)
-let compliment m = 
+(* |complement| -- returns the complement of input dfa *)
+let complement m = 
     {
         states = m.states;
         alphabet = m.alphabet;
@@ -31,7 +31,7 @@ let reachable_states m = Utils.reachable_states m.start m.transitions
 (* |succ| -- the resulting state of dfa m after reading symbol *)
 let succ m state symbol = 
     let rec sinkState = function
-        | State _ -> State []
+          State _ -> State []
         | ProductState (l,r) -> ProductState (sinkState l,sinkState r)
     in
 
@@ -65,10 +65,9 @@ let is_empty m =
 
 (* |accepts| -- returns true iff string s is accepted by the dfa m *)
 let accepts m s =
-    let rec does_accept state str =
-        match str with
-            | "" -> List.mem state m.accepting
-            | _ -> does_accept (succ m state (String.make 1 str.[0])) (String.sub str 1 ((String.length str) - 1))
+    let rec does_accept state = function
+          "" -> List.mem state m.accepting
+        | str -> does_accept (succ m state (String.make 1 str.[0])) (String.sub str 1 ((String.length str) - 1))
     in
     does_accept m.start s
 
@@ -90,18 +89,17 @@ let accepted m =
     done;
     !shortest
 
-(* |find_product_trans| -- returns { ((l,r),a,(l',r')) : (l,a,l') ∧ (r,a,r') }*)
+(* |find_product_trans| -- returns { ((l,r),a,(l',r')) : (l,a,l') ∧ (r,a,r') } *)
 let find_product_trans m1 m2 cartStates alphabet = 
     let newTrans = ref [] in
-    List.iter (fun state ->
-        match state with
-            | ProductState (l,r) -> 
-                List.iter (fun a -> 
-                    let lRes = succ m1 l a and
-                        rRes = succ m2 r a in
-                            newTrans := (ProductState (l,r), a, ProductState (lRes,rRes))::!newTrans;
-                ) alphabet
-            | State _ -> ()
+    List.iter (function
+          ProductState (l,r) -> 
+            List.iter (fun a -> 
+                let lRes = succ m1 l a and
+                    rRes = succ m2 r a in
+                newTrans := (ProductState (l,r), a, ProductState (lRes,rRes))::!newTrans;
+            ) alphabet
+        | _ -> ()
     ) cartStates;
     !newTrans
 
@@ -109,15 +107,13 @@ let cross_product a b =
     List.concat (List.rev_map (fun e1 -> List.rev_map (fun e2 -> ProductState (e1,e2)) b) a)
 
 (* |product_intersection| -- returns the intersection of two input dfas, using the product construction *)
-(* exponential blowup here! *)
 let product_intersection m1 m2 =
     let cartesianStates = cross_product m1.states m2.states in
     let unionAlphabet = Utils.list_union m1.alphabet m2.alphabet in
     let cartTrans = find_product_trans m1 m2 cartesianStates unionAlphabet and
-        cartAccepting = List.filter (fun state -> 
-            match state with
-                | ProductState (l,r) -> List.mem l m1.accepting && List.mem r m2.accepting
-                | State _ -> false
+        cartAccepting = List.filter (function
+              ProductState (l,r) -> List.mem l m1.accepting && List.mem r m2.accepting
+            | _ -> false
         ) cartesianStates in
     {
         states = cartesianStates;
@@ -128,15 +124,13 @@ let product_intersection m1 m2 =
     }
 
 (* |product_union| -- returns the union of two input dfas, using the product construction *)
-(* exponential blowup here! *)
 let product_union m1 m2 =
     let cartesianStates = cross_product m1.states m2.states in
     let unionAlphabet = Utils.list_union m1.alphabet m2.alphabet in
     let cartTrans = find_product_trans m1 m2 cartesianStates unionAlphabet and
-        cartAccepting = List.filter (fun state -> 
-            match state with
-                | ProductState (l,r) -> List.mem l m1.accepting || List.mem r m2.accepting
-                | State _ -> false
+        cartAccepting = List.filter (function
+              ProductState (l,r) -> List.mem l m1.accepting || List.mem r m2.accepting
+            | _ -> false
         ) cartesianStates in
     {
         states = cartesianStates;
@@ -146,15 +140,17 @@ let product_union m1 m2 =
         accepting = cartAccepting;
     }
 
+(* |disjoin_dfas| -- returns a tuple of disjoint DFAs, over the same alphabet *)
+(* NB: Transition functions may no longer be Total *)
 let disjoin_dfas m1 m2 =
+    (* need to merge alphabets and disjoin our DFAs by renaming states in m2, by negative numbers *)
     let rec negate_state = function
-            State xs -> State (List.rev_map (fun x -> -x-1) xs)
-          | ProductState (s1,s2) -> ProductState (negate_state s1, negate_state s2)
+          State xs -> State (List.rev_map (fun x -> -x-1) xs)
+        | ProductState (s1,s2) -> ProductState (negate_state s1, negate_state s2)
     in
 
     let merged_alphabet = Utils.list_union m1.alphabet m2.alphabet in
 
-    (* need to merge alphabets and disjoin our DFAs by renaming states in m2, by negative numbers *)
     ({
         states = m1.states;
         alphabet = merged_alphabet;
@@ -280,8 +276,8 @@ let hopcroft_equiv m1 m2 =
     ) !merged_states
 
 let symmetric_equiv m1 m2 =
-    let comp1 = compliment m1 and
-        comp2 = compliment m2 in
+    let comp1 = complement m1 and
+        comp2 = complement m2 in
     let m1notm2 = product_intersection m1 comp2 and
         m2notm1 = product_intersection comp1 m2 in
     let emp = product_union m1notm2 m2notm1 in
@@ -406,10 +402,9 @@ let brzozowski_min m =
             ) d.alphabet
         done;
 
-        let newaccepting = List.filter_map (fun state -> 
-            match state with
+        let newaccepting = List.filter_map (function
                   State s -> if List.mem (get_state d.start) s then Some(State s) else None
-                | ProductState (_,_) -> None
+                | _ -> None
             ) !newstates
         in
 
@@ -426,6 +421,7 @@ let brzozowski_min m =
     (* reverse Drd *)
     reverse_and_determinise drd
 
+(* |hopcroft_min| -- minimise input DFA by Hopcroft's algorithm *)
 let hopcroft_min m =
     let m' = prune m in
 
@@ -461,25 +457,21 @@ let hopcroft_min m =
     done;
 
     let newstates = List.init (List.length !p) (fun s -> State [s]) in
-    let newstart = List.find (fun state ->
-            match state with
-                  State [ss] ->  List.exists (fun s -> s = m'.start) (List.nth !p ss)
-                | _ -> false
+    let newstart = List.find (function
+              State [ss] -> List.exists (fun s -> s = m'.start) (List.nth !p ss)
+            | _ -> false
         ) newstates and
-        newaccepting = List.filter (fun state -> 
-            match state with
-                  State [ss] -> List.exists (fun s -> List.mem s m'.accepting) (List.nth !p ss)
-                | _ -> false
+        newaccepting = List.filter (function
+              State [ss] -> List.exists (fun s -> List.mem s m'.accepting) (List.nth !p ss)
+            | _ -> false
         ) newstates and
         newtrans = List.fold_left (fun acc (s,a,t) ->
-            Utils.add_unique (List.find (fun state ->
-                match state with
-                      State [ss] ->  List.exists (fun s' -> s' = s) (List.nth !p ss)
-                    | _ -> false
-            ) newstates, a, List.find (fun state ->
-                match state with
-                      State [ss] ->  List.exists (fun s' -> s' = t) (List.nth !p ss)
-                    | _ -> false
+            Utils.add_unique (List.find (function
+                  State [ss] -> List.exists (fun s' -> s' = s) (List.nth !p ss)
+                | _ -> false
+            ) newstates, a, List.find (function
+                  State [ss] -> List.exists (fun s' -> s' = t) (List.nth !p ss)
+                | _ -> false
             ) newstates) acc    
         ) [] m'.transitions in
 
@@ -491,83 +483,10 @@ let hopcroft_min m =
         accepting = newaccepting;
     }
 
-(* |powerset| -- returns the powerset of input list *)
-(* produces list of size 2^|s| *)
-let powerset s =
-    let prepend l x = List.fold_left (fun a b -> (x::b)::a) [] l in 
-    let fold_func a b = List.rev_append (prepend a b) a in 
-        List.fold_left fold_func [[]] (List.rev s)
-
-(* |find_dfa_trans| -- returns a list of transitions for the dfa *)
-(* this is where all the time is spent... *)
-let find_dfa_trans newstates (n: Nfa.nfa) = 
-    let newtrans = ref [] in
-    List.iter (fun state ->
-        match state with
-            | State ss -> 
-                    List.iter (fun a ->
-                        let temptrans = ref [] in
-                        List.iter (fun t ->
-                            if List.exists (fun s -> List.mem (s,a,t) n.transitions) ss then (
-                                temptrans := Utils.add_unique t !temptrans;
-                            );
-                        ) n.states;
-                        newtrans := (State ss, a, State !temptrans) :: !newtrans;
-                    ) n.alphabet
-            | ProductState _ -> ()
-    ) newstates;
-    
-    (* add states epsilon reachable from these *)
-    List.rev_map (fun state -> 
-        match state with 
-            | (State ss, a, State tt) -> 
-                let reachable = Nfa.eps_reachable_set n tt in (State ss, a, State reachable) 
-            | (ss,a,tt) -> (ss,a,tt) (* This function should never be called for anything other than (State ss, a, State tt) *)
-    ) !newtrans
+(* |minimise| -- synonym for hopcroft_min *)
+let minimise = hopcroft_min
 
 (* |nfa_to_dfa| -- converts nfa to dfa by the subset construction *)
-(* exponential blowup here! *)
-let nfa_to_dfa_subset (n: Nfa.nfa) = 
-    let newstates = List.rev_map (fun s -> State s) (powerset n.states) in
-    let newtrans = find_dfa_trans newstates n and
-        newaccepting = List.filter (fun state -> 
-            match state with
-                | State ss -> (List.exists (fun s -> List.mem s n.accepting) ss)
-                | _ -> false
-        ) newstates in
-    {
-        states = newstates;
-        alphabet = n.alphabet;
-        transitions = newtrans;
-        start = State (Nfa.eps_reachable_set n [n.start]);
-        accepting = newaccepting;
-    }
-
-(* 
-
-An improved algorithm for nfa-dfa conversion:
-
-start = eps_closure(n.start)
-transitions = []
-stack = [start]
-seenstates = [start]
-
-while stack not empty:
-    currentstate = stack.pop
-    for a in n.alphabet:
-        nextstate = []
-        for s in currentstate:
-            for (s',a',t) in n.transitions:
-                if s' = s && a' = a then 
-                    nextstate = t::nextstate
-        
-        if eps_closure(nextstate) not in seenstates:
-            stack.add(eps_closure(nextstate))
-            seenstates = eps_closure(nextstate)::seenstates
-        transitions = (currentstate, a, eps_closure(nextstate))::transitions
-
-*)
-
 let nfa_to_dfa (n: Nfa.nfa) =
     let newstart = Nfa.eps_reachable_set n [n.start] in
     let newtrans = ref [] and
@@ -595,10 +514,9 @@ let nfa_to_dfa (n: Nfa.nfa) =
         ) n.alphabet
     done;
 
-    let newaccepting = List.filter (fun state ->
-        match state with
-              State s -> List.exists (fun s' -> List.mem s' n.accepting) s
-            | _ -> false
+    let newaccepting = List.filter (function
+          State s -> List.exists (fun s' -> List.mem s' n.accepting) s
+        | _ -> false
     ) !newstates in
         
     {

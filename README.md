@@ -45,6 +45,11 @@ make test
 
 This will run a set of test cases, which checks correctness of basic parsing, equivalence, and difference of two regular expressions.
 
+## Testing
+
+The `testing` directory contains code to profile and run timing tests for equivalence and minimisation of DFAs.
+
+Run `make profile` or `make test` to compile and execute the respective function.
 
 ## Make Targets
 
@@ -52,4 +57,3 @@ This will run a set of test cases, which checks correctness of basic parsing, eq
  - `make depend` Generates list of dependencies
  - `make clean` Removes any built binaries and generated files
  - `make docs` Generates documentation for toolkit
- - `make test` Compiles and runs the test defined in `test.ml`
