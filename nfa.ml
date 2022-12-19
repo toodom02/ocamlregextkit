@@ -107,12 +107,10 @@ let is_empty n =
 
 (* |accepts| -- returns true iff string s is accepted by the nfa n. Can take a long time *)
 let accepts n s =
-    let sts = ref (eps_reachable_set n [n.start]) and
-        i = ref 0 in
-    while (!i < String.length s) do
-        let c = (String.make 1 s.[!i]) in
+    let sts = ref (eps_reachable_set n [n.start]) in
+    for i = 0 to String.length s - 1 do
+        let c = (String.make 1 s.[i]) in
         sts := eps_reachable_set n (List.fold_left (fun a ss -> Utils.list_union (succ n ss c) a) [] !sts);
-        i := !i + 1;
     done;
     List.exists (fun st -> List.mem st n.accepting) !sts
 
@@ -167,7 +165,7 @@ let create qs alph tran init fin =
         if not ((a = "ε" || List.mem a alph) && List.mem s qs && List.mem t qs) then raise (Invalid_argument "NFA Transition not valid")
     ) tran;
 
-    let newstates = List.init (List.length qs) (fun i -> i) in
+    let newstates = List.init (List.length qs) Fun.id in
     let newinit = Option.get (Utils.index init qs)
     and newtran = 
         List.rev_map (fun (s,a,t) ->

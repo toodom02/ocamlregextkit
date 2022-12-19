@@ -11,7 +11,7 @@
 %nonassoc           LPAR RPAR
 %nonassoc           IDENT EPSILON EMPTY
 
-%type <Tree.re>      regex
+%type <Tree.re>     regex
 %start              regex
 
 %%

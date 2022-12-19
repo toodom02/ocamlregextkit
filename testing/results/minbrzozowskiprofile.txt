@@ -11,8 +11,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   5.45K cycles in 1 calls ]   |   -  7.21% : Find new accepting states
 [   4.46K cycles in 2 calls ]   |   -  5.89% : Find new states
 
-====================================
-
 2 States
 ----------------------------
 [  50.10K cycles in 1 calls ]   - 48.15% : 1st reverse and determinise
@@ -23,8 +21,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   4.33K cycles in 2 calls ]   |   - 12.65% : Find new transitions
 [   4.32K cycles in 2 calls ]   |   - 12.62% : Find new states
 [   2.76K cycles in 1 calls ]   |   -  8.05% : Find new accepting states
-
-====================================
 
 3 States
 ----------------------------
@@ -37,8 +33,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   3.21K cycles in 1 calls ]   |   -  7.60% : Find new accepting states
 [   2.13K cycles in 2 calls ]   |   -  5.04% : Find new states
 
-====================================
-
 4 States
 ----------------------------
 [  58.83K cycles in 1 calls ]   - 51.46% : 1st reverse and determinise
@@ -49,8 +43,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   7.37K cycles in 2 calls ]   |   - 19.25% : Find new transitions
 [   2.47K cycles in 1 calls ]   |   -  6.44% : Find new accepting states
 [   2.23K cycles in 2 calls ]   |   -  5.81% : Find new states
-
-====================================
 
 5 States
 ----------------------------
@@ -63,8 +55,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  22.29K cycles in  8 calls ]   |   -  4.55% : Find new states
 [  12.72K cycles in  1 calls ]   |   -  2.60% : Find new accepting states
 
-====================================
-
 6 States
 ----------------------------
 [  55.99K cycles in 1 calls ]   - 57.31% : 1st reverse and determinise
@@ -75,8 +65,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   5.73K cycles in 2 calls ]   |   - 19.85% : Find new transitions
 [   2.05K cycles in 1 calls ]   |   -  7.12% : Find new accepting states
 [   1.64K cycles in 2 calls ]   |   -  5.69% : Find new states
-
-====================================
 
 7 States
 ----------------------------
@@ -89,8 +77,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   2.21K cycles in 1 calls ]   |   -  7.16% : Find new accepting states
 [   1.38K cycles in 2 calls ]   |   -  4.47% : Find new states
 
-====================================
-
 8 States
 ----------------------------
 [ 454.66K cycles in  1 calls ]   - 70.05% : 1st reverse and determinise
@@ -101,8 +87,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [ 109.54K cycles in  6 calls ]   |   - 59.64% : Find new transitions
 [   8.24K cycles in  6 calls ]   |   -  4.48% : Find new states
 [   6.78K cycles in  1 calls ]   |   -  3.69% : Find new accepting states
-
-====================================
 
 9 States
 ----------------------------
@@ -115,8 +99,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   2.05K cycles in 1 calls ]   |   -  8.20% : Find new accepting states
 [   1.36K cycles in 2 calls ]   |   -  5.42% : Find new states
 
-====================================
-
 10 States
 -----------------------------
 [  28.40M cycles in   1 calls ]   - 76.92% : 2nd reverse and determinise
@@ -125,8 +107,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   4.14M cycles in 228 calls ]   |   - 48.66% : Find new transitions
 [   2.68M cycles in 228 calls ]   |   - 31.51% : Find new states
 [  91.75K cycles in   1 calls ]   |   -  1.08% : Find new accepting states
-
-====================================
 
 11 States
 -----------------------------
@@ -139,8 +119,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   2.14K cycles in 1 calls ]   |   -  7.38% : Find new accepting states
 [   1.42K cycles in 2 calls ]   |   -  4.89% : Find new states
 
-====================================
-
 12 States
 -----------------------------
 [   8.94M cycles in   1 calls ]   - 63.43% : 2nd reverse and determinise
@@ -148,8 +126,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   5.14M cycles in   1 calls ]   - 36.48% : 1st reverse and determinise
 [   3.41M cycles in 148 calls ]   |   - 66.22% : Find new transitions
 [ 770.46K cycles in 148 calls ]   |   - 14.98% : Find new states
-
-====================================
 
 13 States
 -----------------------------
@@ -159,8 +135,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   8.82M cycles in 388 calls ]   |   - 51.53% : Find new transitions
 [   5.66M cycles in 388 calls ]   |   - 33.08% : Find new states
 
-====================================
-
 14 States
 -----------------------------
 [ 173.98M cycles in   1 calls ]   - 85.41% : 2nd reverse and determinise
@@ -168,8 +142,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  29.70M cycles in   1 calls ]   - 14.58% : 1st reverse and determinise
 [  14.43M cycles in 494 calls ]   |   - 48.58% : Find new transitions
 [  11.09M cycles in 494 calls ]   |   - 37.34% : Find new states
-
-====================================
 
 15 States
 -----------------------------
@@ -182,8 +154,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   3.72K cycles in 1 calls ]   |   -  7.14% : Find new accepting states
 [   2.70K cycles in 2 calls ]   |   -  5.17% : Find new states
 
-====================================
-
 16 States
 -----------------------------
 [   9.25G cycles in    1 calls ]   - 94.63% : 2nd reverse and determinise
@@ -191,8 +161,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [ 524.45M cycles in    1 calls ]   -  5.37% : 1st reverse and determinise
 [ 374.36M cycles in 3630 calls ]   |   - 71.38% : Find new states
 [ 111.46M cycles in 3630 calls ]   |   - 21.25% : Find new transitions
-
-====================================
 
 17 States
 -----------------------------
@@ -202,8 +170,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   9.92M cycles in 354 calls ]   |   - 66.81% : Find new transitions
 [   3.03M cycles in 354 calls ]   |   - 20.44% : Find new states
 
-====================================
-
 18 States
 -----------------------------
 [   2.79G cycles in    1 calls ]   - 94.54% : 2nd reverse and determinise
@@ -211,8 +177,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [ 161.49M cycles in    1 calls ]   -  5.46% : 1st reverse and determinise
 [  85.99M cycles in 1750 calls ]   |   - 53.25% : Find new states
 [  61.00M cycles in 1750 calls ]   |   - 37.77% : Find new transitions
-
-====================================
 
 19 States
 -----------------------------
@@ -222,8 +186,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [ 229.58M cycles in 2072 calls ]   |   - 60.65% : Find new states
 [ 119.71M cycles in 2072 calls ]   |   - 31.63% : Find new transitions
 
-====================================
-
 20 States
 -----------------------------
 [ 662.45M cycles in   1 calls ]   - 82.14% : 2nd reverse and determinise
@@ -231,5 +193,3 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [ 144.02M cycles in   1 calls ]   - 17.86% : 1st reverse and determinise
 [  71.95M cycles in 892 calls ]   |   - 49.96% : Find new transitions
 [  54.30M cycles in 892 calls ]   |   - 37.71% : Find new states
-
-====================================

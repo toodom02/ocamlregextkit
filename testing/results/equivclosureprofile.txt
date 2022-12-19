@@ -2,168 +2,160 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 
 1 State
 ----------------------------
-[ 378.98K cycles in 1 calls ]   - 39.99% : main loop
-[ 323.45K cycles in 3 calls ]   |   - 85.35% : calculate equiv closure
-[ 264.14K cycles in 2 calls ]   |   |   - 81.66% : calculate transitive closure
-[   8.74K cycles in 2 calls ]   |   |   -  2.70% : calculate reflexive closure
-[   5.25K cycles in 2 calls ]   |   |   -  1.62% : calculate symmetric closure
-[  11.05K cycles in 1 calls ]   |   -  2.92% : calculate delta
-[  20.44K cycles in 1 calls ]   -  2.16% : disjoin DFAs
-[  10.95K cycles in 1 calls ]   -  1.16% : calculate E
-
-====================================
+[  28.05K cycles in 1 calls ]   - 41.20% : main loop
+[   5.03K cycles in 1 calls ]   |   - 17.95% : calculate delta
+[   4.08K cycles in 1 calls ]   |   - 14.56% : calculate equiv closure
+[  10.68K cycles in 1 calls ]   - 15.69% : disjoin DFAs
+[   6.21K cycles in 1 calls ]   -  9.12% : calculate E
 
 2 States
 ----------------------------
-[ 859.56K cycles in 1 calls ]   - 53.62% : main loop
-[ 795.24K cycles in 3 calls ]   |   - 92.52% : calculate equiv closure
-[ 739.74K cycles in 2 calls ]   |   |   - 93.02% : calculate transitive closure
-[  13.29K cycles in 1 calls ]   |   -  1.55% : calculate delta
-[  27.63K cycles in 1 calls ]   -  1.72% : disjoin DFAs
-[  18.55K cycles in 1 calls ]   -  1.16% : calculate E
-
-====================================
+[  45.13K cycles in 1 calls ]   - 52.21% : main loop
+[   8.59K cycles in 2 calls ]   |   - 19.03% : calculate equiv closure
+[   8.15K cycles in 2 calls ]   |   - 18.07% : calculate delta
+[   9.55K cycles in 1 calls ]   - 11.04% : calculate E
+[   8.33K cycles in 1 calls ]   -  9.63% : disjoin DFAs
 
 3 States
 ----------------------------
-[   1.48M cycles in 1 calls ]   - 71.68% : main loop
-[   1.44M cycles in 3 calls ]   |   - 96.98% : calculate equiv closure
-[   1.40M cycles in 2 calls ]   |   |   - 97.47% : calculate transitive closure
-
-====================================
+[  57.28K cycles in 1 calls ]   - 56.24% : main loop
+[  16.88K cycles in 3 calls ]   |   - 29.48% : calculate equiv closure
+[  10.80K cycles in 3 calls ]   |   - 18.86% : calculate delta
+[  10.94K cycles in 1 calls ]   - 10.75% : disjoin DFAs
+[   8.99K cycles in 1 calls ]   -  8.83% : calculate E
 
 4 States
 ----------------------------
-[  16.93M cycles in 1 calls ]   - 96.29% : main loop
-[  16.70M cycles in 9 calls ]   |   - 98.60% : calculate equiv closure
-[  16.52M cycles in 8 calls ]   |   |   - 98.95% : calculate transitive closure
-
-====================================
+[  76.15K cycles in 1 calls ]   - 19.05% : main loop
+[  15.95K cycles in 3 calls ]   |   - 20.95% : calculate equiv closure
+[  13.31K cycles in 3 calls ]   |   - 17.48% : calculate delta
+[  58.18K cycles in 1 calls ]   - 14.55% : calculate E
+[  18.52K cycles in 1 calls ]   -  4.63% : disjoin DFAs
 
 5 States
 ----------------------------
-[  27.98M cycles in 1 calls ]   - 98.26% : main loop
-[  27.76M cycles in 9 calls ]   |   - 99.21% : calculate equiv closure
-[  27.57M cycles in 8 calls ]   |   |   - 99.33% : calculate transitive closure
-
-====================================
+[ 121.01K cycles in 1 calls ]   - 63.21% : main loop
+[  31.39K cycles in 4 calls ]   |   - 25.94% : calculate equiv closure
+[  23.27K cycles in 4 calls ]   |   - 19.23% : calculate delta
+[  20.12K cycles in 1 calls ]   - 10.51% : calculate E
+[  15.55K cycles in 1 calls ]   -  8.12% : disjoin DFAs
 
 6 States
 ----------------------------
-[  38.46M cycles in  1 calls ]   - 98.74% : main loop
-[  38.23M cycles in 11 calls ]   |   - 99.40% : calculate equiv closure
-[  38.06M cycles in 10 calls ]   |   |   - 99.55% : calculate transitive closure
-
-====================================
+[  81.22K cycles in 1 calls ]   - 46.59% : main loop
+[  18.82K cycles in 3 calls ]   |   - 23.17% : calculate delta
+[  17.30K cycles in 3 calls ]   |   - 21.31% : calculate equiv closure
+[  47.98K cycles in 1 calls ]   - 27.53% : calculate E
+[  18.60K cycles in 1 calls ]   - 10.67% : disjoin DFAs
 
 7 States
 ----------------------------
-[  42.42M cycles in  1 calls ]   - 99.00% : main loop
-[  42.28M cycles in 13 calls ]   |   - 99.67% : calculate equiv closure
-[  42.18M cycles in 12 calls ]   |   |   - 99.77% : calculate transitive closure
-
-====================================
+[ 313.28K cycles in 1 calls ]   - 77.59% : main loop
+[ 162.15K cycles in 5 calls ]   |   - 51.76% : calculate equiv closure
+[  34.25K cycles in 5 calls ]   |   - 10.93% : calculate delta
+[  29.26K cycles in 1 calls ]   -  7.25% : calculate E
+[  19.18K cycles in 1 calls ]   -  4.75% : disjoin DFAs
 
 8 States
 ----------------------------
-[  90.04M cycles in  1 calls ]   - 99.61% : main loop
-[  89.80M cycles in 17 calls ]   |   - 99.73% : calculate equiv closure
-[  89.64M cycles in 16 calls ]   |   |   - 99.83% : calculate transitive closure
-
-====================================
+[  64.14K cycles in 1 calls ]   - 50.87% : main loop
+[  10.04K cycles in 2 calls ]   |   - 15.66% : calculate delta
+[   9.36K cycles in 2 calls ]   |   - 14.59% : calculate equiv closure
+[  26.08K cycles in 1 calls ]   - 20.68% : calculate E
+[  16.17K cycles in 1 calls ]   - 12.83% : disjoin DFAs
 
 9 States
 ----------------------------
-[ 141.75M cycles in  1 calls ]   - 99.77% : main loop
-[ 141.48M cycles in 19 calls ]   |   - 99.81% : calculate equiv closure
-[ 141.31M cycles in 18 calls ]   |   |   - 99.88% : calculate transitive closure
-
-====================================
+[ 203.89K cycles in 1 calls ]   - 69.95% : main loop
+[  60.21K cycles in 7 calls ]   |   - 29.53% : calculate equiv closure
+[  33.52K cycles in 7 calls ]   |   - 16.44% : calculate delta
+[  55.64K cycles in 1 calls ]   - 19.09% : calculate E
+[  11.78K cycles in 1 calls ]   -  4.04% : disjoin DFAs
 
 10 States
 -----------------------------
-[ 178.13M cycles in  1 calls ]   - 99.73% : main loop
-[ 177.88M cycles in 17 calls ]   |   - 99.86% : calculate equiv closure
-[ 177.69M cycles in 16 calls ]   |   |   - 99.89% : calculate transitive closure
-
-====================================
+[  69.63K cycles in 1 calls ]   - 53.10% : main loop
+[  13.14K cycles in 3 calls ]   |   - 18.87% : calculate delta
+[  13.08K cycles in 3 calls ]   |   - 18.78% : calculate equiv closure
+[  31.09K cycles in 1 calls ]   - 23.71% : calculate E
+[  13.14K cycles in 1 calls ]   - 10.02% : disjoin DFAs
 
 11 States
 -----------------------------
-[ 157.10M cycles in  1 calls ]   - 99.78% : main loop
-[ 156.93M cycles in 11 calls ]   |   - 99.89% : calculate equiv closure
-[ 156.83M cycles in 10 calls ]   |   |   - 99.94% : calculate transitive closure
-
-====================================
+[ 147.96K cycles in 1 calls ]   - 69.46% : main loop
+[  34.31K cycles in 6 calls ]   |   - 23.19% : calculate equiv closure
+[  26.42K cycles in 6 calls ]   |   - 17.86% : calculate delta
+[  36.42K cycles in 1 calls ]   - 17.10% : calculate E
+[  13.80K cycles in 1 calls ]   -  6.48% : disjoin DFAs
 
 12 States
 -----------------------------
-[ 438.81M cycles in  1 calls ]   - 99.89% : main loop
-[ 438.47M cycles in 23 calls ]   |   - 99.92% : calculate equiv closure
-[ 438.31M cycles in 22 calls ]   |   |   - 99.96% : calculate transitive closure
-
-====================================
+[ 316.85K cycles in 1 calls ]   - 73.12% : main loop
+[  79.52K cycles in 9 calls ]   |   - 25.10% : calculate equiv closure
+[  44.41K cycles in 9 calls ]   |   - 14.02% : calculate delta
+[  80.81K cycles in 1 calls ]   - 18.65% : calculate E
+[  17.56K cycles in 1 calls ]   -  4.05% : disjoin DFAs
 
 13 States
 -----------------------------
-[ 638.71M cycles in  1 calls ]   - 99.91% : main loop
-[ 638.31M cycles in 23 calls ]   |   - 99.94% : calculate equiv closure
-[ 638.11M cycles in 22 calls ]   |   |   - 99.97% : calculate transitive closure
-
-====================================
+[ 426.38K cycles in  1 calls ]   - 77.03% : main loop
+[ 126.77K cycles in 12 calls ]   |   - 29.73% : calculate equiv closure
+[  62.08K cycles in 12 calls ]   |   - 14.56% : calculate delta
+[  90.26K cycles in  1 calls ]   - 16.31% : calculate E
+[  17.10K cycles in  1 calls ]   -  3.09% : disjoin DFAs
 
 14 States
 -----------------------------
-[ 771.12M cycles in  1 calls ]   - 99.95% : main loop
-[ 770.71M cycles in 23 calls ]   |   - 99.95% : calculate equiv closure
-[ 770.51M cycles in 22 calls ]   |   |   - 99.97% : calculate transitive closure
-
-====================================
+[ 212.68K cycles in 1 calls ]   - 62.36% : main loop
+[  34.61K cycles in 6 calls ]   |   - 16.27% : calculate equiv closure
+[  29.91K cycles in 6 calls ]   |   - 14.06% : calculate delta
+[  93.95K cycles in 1 calls ]   - 27.55% : calculate E
+[  15.64K cycles in 1 calls ]   -  4.59% : disjoin DFAs
 
 15 States
 -----------------------------
-[   1.06G cycles in  1 calls ]   - 99.95% : main loop
-[   1.06G cycles in 25 calls ]   |   - 99.96% : calculate equiv closure
-[   1.06G cycles in 24 calls ]   |   |   - 99.98% : calculate transitive closure
-
-====================================
+[ 581.18K cycles in  1 calls ]   - 80.61% : main loop
+[ 157.50K cycles in 14 calls ]   |   - 27.10% : calculate equiv closure
+[  72.55K cycles in 14 calls ]   |   - 12.48% : calculate delta
+[ 106.21K cycles in  1 calls ]   - 14.73% : calculate E
+[  17.86K cycles in  1 calls ]   -  2.48% : disjoin DFAs
 
 16 States
 -----------------------------
-[   1.19G cycles in  1 calls ]   - 99.94% : main loop
-[   1.19G cycles in 21 calls ]   |   - 99.95% : calculate equiv closure
-[   1.19G cycles in 20 calls ]   |   |   - 99.98% : calculate transitive closure
-
-====================================
+[ 868.59K cycles in  1 calls ]   - 80.82% : main loop
+[ 217.96K cycles in 16 calls ]   |   - 25.09% : calculate equiv closure
+[  98.37K cycles in 16 calls ]   |   - 11.32% : calculate delta
+[ 163.29K cycles in  1 calls ]   - 15.19% : calculate E
+[  18.86K cycles in  1 calls ]   -  1.75% : disjoin DFAs
 
 17 States
 -----------------------------
-[   1.89G cycles in  1 calls ]   - 99.97% : main loop
-[   1.89G cycles in 27 calls ]   |   - 99.97% : calculate equiv closure
-[   1.89G cycles in 26 calls ]   |   |   - 99.98% : calculate transitive closure
-
-====================================
+[ 544.87K cycles in  1 calls ]   - 81.49% : main loop
+[ 113.42K cycles in 11 calls ]   |   - 20.82% : calculate equiv closure
+[  67.50K cycles in 11 calls ]   |   - 12.39% : calculate delta
+[  84.40K cycles in  1 calls ]   - 12.62% : calculate E
+[  21.30K cycles in  1 calls ]   -  3.19% : disjoin DFAs
 
 18 States
 -----------------------------
-[   2.83G cycles in  1 calls ]   - 99.97% : main loop
-[   2.83G cycles in 33 calls ]   |   - 99.97% : calculate equiv closure
-[   2.83G cycles in 32 calls ]   |   |   - 99.99% : calculate transitive closure
-
-====================================
+[ 791.26K cycles in  1 calls ]   - 69.11% : main loop
+[ 210.60K cycles in 14 calls ]   |   - 26.62% : calculate equiv closure
+[ 100.02K cycles in 14 calls ]   |   - 12.64% : calculate delta
+[ 317.95K cycles in  1 calls ]   - 27.77% : calculate E
+[  19.06K cycles in  1 calls ]   -  1.66% : disjoin DFAs
 
 19 States
 -----------------------------
-[   3.67G cycles in  1 calls ]   - 99.99% : main loop
-[   3.66G cycles in 35 calls ]   |   - 99.96% : calculate equiv closure
-[   3.66G cycles in 34 calls ]   |   |   - 99.99% : calculate transitive closure
-
-====================================
+[ 735.95K cycles in  1 calls ]   - 64.92% : main loop
+[ 147.69K cycles in 12 calls ]   |   - 20.07% : calculate equiv closure
+[  86.18K cycles in 12 calls ]   |   - 11.71% : calculate delta
+[ 350.34K cycles in  1 calls ]   - 30.91% : calculate E
+[  27.30K cycles in  1 calls ]   -  2.41% : disjoin DFAs
 
 20 States
 -----------------------------
-[   4.17G cycles in  1 calls ]   - 99.97% : main loop
-[   4.17G cycles in 33 calls ]   |   - 99.97% : calculate equiv closure
-[   4.17G cycles in 32 calls ]   |   |   - 99.99% : calculate transitive closure
-
-====================================
+[   1.02M cycles in  1 calls ]   - 74.75% : main loop
+[ 232.30K cycles in 16 calls ]   |   - 22.75% : calculate equiv closure
+[ 102.63K cycles in 16 calls ]   |   - 10.05% : calculate delta
+[ 308.07K cycles in  1 calls ]   - 22.55% : calculate E
+[  21.20K cycles in  1 calls ]   -  1.55% : disjoin DFAs

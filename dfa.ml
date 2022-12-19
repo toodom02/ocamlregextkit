@@ -169,57 +169,11 @@ let disjoin_dfas m1 m2 =
 (* |closure_equiv| -- returns true iff input DFAs are equivalent, by equivalence closure *)
 let closure_equiv m1 m2 =
     let (m1', m2') = disjoin_dfas m1 m2 in
-    let merged_states = m1'.states @ m2'.states in
 
-    (* Find Reflex, Symmetric, & Transitive closure (Warshall's algo) *)
-    let equiv_closure qs =
-        if List.length qs = 0 then [] else
-        let symclosure = List.fold_left (fun a (q1,q2) -> (q2,q1)::a) qs qs in
-        let reflexclosure = List.fold_left (fun a s -> (s,s)::a) symclosure merged_states in
-
-        let tranclosure = 
-            (* adjacency matrix *)
-            let res = ref (List.map (fun q -> List.map (fun q' -> if (List.exists (fun (q1,q2) -> q1 = q && q2 = q') reflexclosure) then 1 else 0) merged_states) merged_states) in
-
-            List.iteri (fun k _ ->
-                List.iteri (fun i _ ->
-                    List.iteri (fun j _ ->
-                        if (List.nth (List.nth !res i) j) <> 1 then
-                            (* if res[i][k] = 1 and res[k][j] = 1 *)
-                            if (List.nth (List.nth !res i) k) = 1 && (List.nth (List.nth !res k) j) = 1 then
-                                (* set res[i][j] to 1 *)
-                                res := List.mapi (fun ind xs -> List.mapi (fun ind' x -> if (ind = i && ind' = j) then 1 else x) xs) !res;
-                    ) merged_states;
-                ) merged_states;
-            ) merged_states;
-
-            (* convert back into a list of relations *)
-            let rel = ref [] in
-            List.iteri (fun i xs ->
-                List.iteri (fun j x -> 
-                    if x = 1 then rel := (List.nth merged_states i, List.nth merged_states j)::!rel
-                ) xs;
-            ) !res;
-            !rel
-        in
-        tranclosure
-    in
-
-    let delta (u,v) = 
-        let res = ref [] and
-            union_trans = m1'.transitions @ m2'.transitions in
-        List.iter (fun a -> 
-            let deltu = ref u and
-                deltv = ref v in
-            List.iter (fun (s,a',t) ->
-                if (a = a') then (
-                    if (s = u) then deltu := t
-                    else if (s = v) then deltv := t
-                )
-            ) union_trans;
-            res := (!deltu, !deltv)::!res;
-        ) m1'.alphabet;
-        !res
+    let delta (u,v) =
+        List.fold_left (fun acc a ->
+            (succ m1' u a, succ m2' v a)::acc
+        ) [] m1'.alphabet
     in
 
     let e = List.concat (List.rev_map (fun e1 -> List.filter_map (fun e2 -> 
@@ -229,17 +183,22 @@ let closure_equiv m1 m2 =
         ) m2'.states) m1'.states) in
     
     let flag = ref false and
-        q = ref [] and
+        qclose = ref [] and
         w = ref [(m1'.start, m2'.start)] in
     while (List.length !w > 0 && not !flag) do
-        let uv = List.hd !w in
+        let (u,v) = List.hd !w in
         w := List.tl !w;
 
-        if not (List.mem uv e) then (
+        if not (List.mem (u,v) e) then (
             flag := true;
-        ) else if not (List.mem uv (equiv_closure !q)) then (
-            q := uv::!q;
-            w := (delta uv) @ !w
+        ) else if not (List.mem (u,v) (!qclose)) then (
+            let new_equiv_relations = List.fold_left (fun acc (i,j) ->
+                if (i = v && j <> u) then (j,u)::(u,j)::acc
+                else if (i = u && j <> v) then (j,v)::(v,j)::acc
+                else acc
+            ) [(v,v);(u,u);(v,u);(u,v)] !qclose in
+            qclose := Utils.list_union !qclose new_equiv_relations;
+            w := (delta (u,v)) @ !w
         )
     done;
     not !flag
@@ -257,8 +216,8 @@ let hopcroft_equiv m1 m2 =
         stack := List.tl !stack;
         List.iter (fun a ->
             let succ1 = succ m1' q1 a and succ2 = succ m2' q2 a in
-            let r1 = List.find (fun s -> List.mem succ1 s) !merged_states and
-                r2 = List.find (fun s -> List.mem succ2 s) !merged_states in
+            let r1 = List.find (List.mem succ1) !merged_states and
+                r2 = List.find (List.mem succ2) !merged_states in
             if (r1 <> r2) then (
                 stack := (succ1, succ2)::!stack;
                 merged_states := List.filter_map (fun s -> 
@@ -321,12 +280,12 @@ let myhill_min m =
     (* unmarked gives us all pairs of indistinguishable states *)
     (* merge these states! *)
 
-    let rec contains ps p = 
+    let rec contains p ps = 
         if ps = p then true
         else 
             match ps with
                   State _ -> false
-                | ProductState (s,s') -> contains s p || contains s' p
+                | ProductState (s,s') -> contains p s || contains p s'
     in
 
     let merged_states = 
@@ -334,17 +293,17 @@ let myhill_min m =
             seen = ref [] in
         List.iter (fun (p,q) ->
             if (List.mem p !seen && List.mem q !seen) then (
-                let s = List.find (fun ps -> contains ps p) !merged and
-                    s' = List.find (fun ps -> contains ps q) !merged in
+                let s = List.find (contains p) !merged and
+                    s' = List.find (contains q) !merged in
                 if (s <> s') then
                     merged := ProductState(s,s')::(List.filter (fun ps -> ps <> s && ps <> s') !merged)
             ) else if (List.mem p !seen) then (
-                let s = List.find (fun ps -> contains ps p) !merged in
-                merged := ProductState(s,q)::(List.filter(fun ps -> ps <> s) !merged);
+                let s = List.find (contains p) !merged in
+                merged := ProductState(s,q)::(List.filter((<>) s) !merged);
                 seen := q::!seen
             ) else if (List.mem q !seen) then (
-                let s' = List.find (fun ps -> contains ps q) !merged in
-                merged := ProductState(p,s')::(List.filter(fun ps -> ps <> s') !merged);
+                let s' = List.find (contains q) !merged in
+                merged := ProductState(p,s')::(List.filter((<>) s') !merged);
                 seen := p::!seen
             ) else if (p = q) then (
                 merged := p::!merged;
@@ -357,9 +316,9 @@ let myhill_min m =
         !merged
     in
 
-    let newtrans = List.fold_left (fun acc (s,a,t) -> Utils.add_unique (List.find (fun s' -> contains s' s) merged_states, a, List.find (fun t' -> contains t' t) merged_states) acc) [] m'.transitions and
-        newaccepting = List.fold_left (fun acc s -> Utils.add_unique (List.find (fun s' -> contains s' s) merged_states) acc) [] m'.accepting and
-        newstart = List.find (fun s -> contains s m'.start) merged_states in
+    let newtrans = List.fold_left (fun acc (s,a,t) -> Utils.add_unique (List.find (contains s) merged_states, a, List.find (contains t) merged_states) acc) [] m'.transitions and
+        newaccepting = List.fold_left (fun acc s -> Utils.add_unique (List.find (contains s) merged_states) acc) [] m'.accepting and
+        newstart = List.find (contains m'.start) merged_states in
 
     {
         states = merged_states;
@@ -373,7 +332,7 @@ let myhill_min m =
 let brzozowski_min m =
     let reverse_and_determinise d =
         let get_state s = Option.get (Utils.index s d.states) in
-        let newstart = (List.map (fun s -> get_state s) d.accepting) in
+        let newstart = (List.map get_state d.accepting) in
         let newstates = ref [State newstart] and
             newtrans = ref [] and
             stack = ref [newstart] and
@@ -444,7 +403,7 @@ let hopcroft_min m =
                 if (List.length xinty > 0 && List.length ynotx > 0) then (
                     newp := xinty::ynotx::!newp;
                     if (List.mem y !w) then (
-                        w := xinty::ynotx::(List.filter (fun s -> s <> y) !w)
+                        w := xinty::ynotx::(List.filter ((<>) y) !w)
                     ) else (
                         if List.length xinty <= List.length ynotx then (
                             w := xinty::!w
@@ -458,7 +417,7 @@ let hopcroft_min m =
 
     let newstates = List.init (List.length !p) (fun s -> State [s]) in
     let newstart = List.find (function
-              State [ss] -> List.exists (fun s -> s = m'.start) (List.nth !p ss)
+              State [ss] -> List.exists ((=) m'.start) (List.nth !p ss)
             | _ -> false
         ) newstates and
         newaccepting = List.filter (function
@@ -467,10 +426,10 @@ let hopcroft_min m =
         ) newstates and
         newtrans = List.fold_left (fun acc (s,a,t) ->
             Utils.add_unique (List.find (function
-                  State [ss] -> List.exists (fun s' -> s' = s) (List.nth !p ss)
+                  State [ss] -> List.exists ((=) s) (List.nth !p ss)
                 | _ -> false
             ) newstates, a, List.find (function
-                  State [ss] -> List.exists (fun s' -> s' = t) (List.nth !p ss)
+                  State [ss] -> List.exists ((=) t) (List.nth !p ss)
                 | _ -> false
             ) newstates) acc    
         ) [] m'.transitions in

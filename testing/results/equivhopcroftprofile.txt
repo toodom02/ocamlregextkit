@@ -8,8 +8,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  14.65K cycles in 1 calls ]   - 15.08% : disjoin DFAs
 [   4.97K cycles in 1 calls ]   -  5.12% : Check equivalence
 
-====================================
-
 2 States
 ----------------------------
 [  77.89K cycles in 1 calls ]   - 54.87% : main loop
@@ -18,9 +16,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   6.54K cycles in 1 calls ]   |   -  8.40% : Merge states
 [  11.82K cycles in 1 calls ]   -  8.33% : disjoin DFAs
 [   5.11K cycles in 1 calls ]   -  3.60% : Check equivalence
-
-
-====================================
 
 3 States
 ----------------------------
@@ -31,9 +26,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  27.32K cycles in 1 calls ]   -  8.36% : disjoin DFAs
 [   8.45K cycles in 1 calls ]   -  2.59% : Check equivalence
 
-
-====================================
-
 4 States
 ----------------------------
 [ 424.14K cycles in 1 calls ]   - 81.98% : main loop
@@ -42,9 +34,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  24.88K cycles in 3 calls ]   |   -  5.87% : Merge states
 [  19.39K cycles in 1 calls ]   -  3.75% : disjoin DFAs
 [  12.47K cycles in 1 calls ]   -  2.41% : Check equivalence
-
-
-====================================
 
 5 States
 ----------------------------
@@ -55,9 +44,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  24.05K cycles in 1 calls ]   - 10.53% : disjoin DFAs
 [   9.62K cycles in 1 calls ]   -  4.21% : Check equivalence
 
-
-====================================
-
 6 States
 ----------------------------
 [ 181.51K cycles in  1 calls ]   - 69.06% : main loop
@@ -66,9 +52,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  31.22K cycles in  5 calls ]   |   - 17.20% : Merge states
 [  22.85K cycles in  1 calls ]   -  8.69% : disjoin DFAs
 [  12.04K cycles in  1 calls ]   -  4.58% : Check equivalence
-
-
-====================================
 
 7 States
 ----------------------------
@@ -79,9 +62,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  17.16K cycles in 1 calls ]   - 11.74% : disjoin DFAs
 [   9.39K cycles in 1 calls ]   -  6.42% : Check equivalence
 
-
-====================================
-
 8 States
 ----------------------------
 [ 299.21K cycles in  1 calls ]   - 73.64% : main loop
@@ -90,9 +70,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  41.07K cycles in  6 calls ]   |   - 13.73% : Merge states
 [  55.41K cycles in  1 calls ]   - 13.64% : disjoin DFAs
 [  13.95K cycles in  1 calls ]   -  3.43% : Check equivalence
-
-
-====================================
 
 9 States
 ----------------------------
@@ -103,9 +80,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  16.52K cycles in  1 calls ]   -  7.92% : Check equivalence
 [  13.30K cycles in  1 calls ]   -  6.37% : disjoin DFAs
 
-
-====================================
-
 10 States
 -----------------------------
 [ 139.14K cycles in  1 calls ]   - 72.73% : main loop
@@ -114,9 +88,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  26.96K cycles in  6 calls ]   |   - 19.38% : Merge states
 [  13.91K cycles in  1 calls ]   -  7.27% : disjoin DFAs
 [  10.66K cycles in  1 calls ]   -  5.57% : Check equivalence
-
-
-====================================
 
 11 States
 -----------------------------
@@ -127,9 +98,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  15.16K cycles in  1 calls ]   -  6.96% : Check equivalence
 [  14.51K cycles in  1 calls ]   -  6.66% : disjoin DFAs
 
-
-====================================
-
 12 States
 -----------------------------
 [ 416.63K cycles in  1 calls ]   - 83.62% : main loop
@@ -138,9 +106,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  66.30K cycles in  9 calls ]   |   - 15.91% : Merge states
 [  22.46K cycles in  1 calls ]   -  4.51% : Check equivalence
 [  21.43K cycles in  1 calls ]   -  4.30% : disjoin DFAs
-
-
-====================================
 
 13 States
 -----------------------------
@@ -151,9 +116,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  15.78K cycles in  1 calls ]   -  5.17% : disjoin DFAs
 [  14.08K cycles in  1 calls ]   -  4.62% : Check equivalence
 
-
-====================================
-
 14 States
 -----------------------------
 [ 142.43K cycles in  1 calls ]   - 73.13% : main loop
@@ -162,9 +124,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  32.15K cycles in  5 calls ]   |   - 22.57% : Merge states
 [  15.62K cycles in  1 calls ]   -  8.02% : disjoin DFAs
 [   7.90K cycles in  1 calls ]   -  4.06% : Check equivalence
-
-
-====================================
 
 15 States
 -----------------------------
@@ -175,9 +134,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  24.43K cycles in  1 calls ]   -  4.58% : disjoin DFAs
 [  19.81K cycles in  1 calls ]   -  3.71% : Check equivalence
 
-
-====================================
-
 16 States
 -----------------------------
 [ 620.05K cycles in  1 calls ]   - 83.93% : main loop
@@ -186,9 +142,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [ 152.66K cycles in 14 calls ]   |   - 24.62% : Merge states
 [  31.61K cycles in  1 calls ]   -  4.28% : Check equivalence
 [  23.30K cycles in  1 calls ]   -  3.15% : disjoin DFAs
-
-
-====================================
 
 17 States
 -----------------------------
@@ -199,9 +152,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  27.11K cycles in  1 calls ]   -  4.84% : disjoin DFAs
 [  22.29K cycles in  1 calls ]   -  3.98% : Check equivalence
 
-
-====================================
-
 18 States
 -----------------------------
 [ 411.21K cycles in  1 calls ]   - 77.59% : main loop
@@ -210,9 +160,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  91.12K cycles in 10 calls ]   |   - 22.16% : Merge states
 [  43.40K cycles in  1 calls ]   -  8.19% : Check equivalence
 [  28.38K cycles in  1 calls ]   -  5.35% : disjoin DFAs
-
-
-====================================
 
 19 States
 -----------------------------
@@ -223,9 +170,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  28.50K cycles in  1 calls ]   -  5.39% : Check equivalence
 [  26.09K cycles in  1 calls ]   -  4.93% : disjoin DFAs
 
-
-====================================
-
 20 States
 -----------------------------
 [ 732.05K cycles in  1 calls ]   - 90.29% : main loop
@@ -234,8 +178,3 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [ 157.75K cycles in 34 calls ]   |   - 21.55% : Find successors
 [  21.99K cycles in  1 calls ]   -  2.71% : Check equivalence
 [  20.98K cycles in  1 calls ]   -  2.59% : disjoin DFAs
-
-
-====================================
-
-21 States

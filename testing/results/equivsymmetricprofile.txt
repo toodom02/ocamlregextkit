@@ -7,15 +7,11 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   34.80K cycles in 1 calls ]   - 10.28% : Checking emptiness
 [    8.02K cycles in 1 calls ]   -  2.37% : Complementing DFAs
 
-====================================
-
 2 States
 ----------------------------
 [  896.56K cycles in 1 calls ]   - 73.40% : Unioning DFAs
 [  153.81K cycles in 1 calls ]   - 12.59% : Checking emptiness
 [  114.04K cycles in 1 calls ]   -  9.34% : Intersecting DFAs
-
-====================================
 
 3 States
 ----------------------------
@@ -23,15 +19,11 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  564.52K cycles in 1 calls ]   -  9.34% : Checking emptiness
 [  361.04K cycles in 1 calls ]   -  5.97% : Intersecting DFAs
 
-====================================
-
 4 States
 ----------------------------
 [   11.84M cycles in 1 calls ]   - 90.74% : Unioning DFAs
 [  894.87K cycles in 1 calls ]   -  6.86% : Checking emptiness
 [  247.23K cycles in 1 calls ]   -  1.89% : Intersecting DFAs
-
-====================================
 
 5 States
 ----------------------------
@@ -39,108 +31,76 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [    3.11M cycles in 1 calls ]   -  8.08% : Checking emptiness
 [  390.18K cycles in 1 calls ]   -  1.01% : Intersecting DFAs
 
-====================================
-
 6 States
 ----------------------------
 [   45.89M cycles in 1 calls ]   - 88.96% : Unioning DFAs
 [    5.27M cycles in 1 calls ]   - 10.21% : Checking emptiness
-
-====================================
 
 7 States
 ----------------------------
 [  129.92M cycles in 1 calls ]   - 86.83% : Unioning DFAs
 [   18.75M cycles in 1 calls ]   - 12.53% : Checking emptiness
 
-====================================
-
 8 States
 ----------------------------
 [  225.13M cycles in 1 calls ]   - 98.83% : Unioning DFAs
-
-====================================
 
 9 States
 ----------------------------
 [  405.83M cycles in 1 calls ]   - 93.62% : Unioning DFAs
 [   26.71M cycles in 1 calls ]   -  6.16% : Checking emptiness
 
-====================================
-
 10 States
 -----------------------------
 [  868.85M cycles in 1 calls ]   - 90.81% : Unioning DFAs
 [   86.06M cycles in 1 calls ]   -  8.99% : Checking emptiness
-
-====================================
 
 11 States
 -----------------------------
 [    1.69G cycles in 1 calls ]   - 93.49% : Unioning DFAs
 [  114.56M cycles in 1 calls ]   -  6.35% : Checking emptiness
 
-====================================
-
 12 States
 -----------------------------
 [    2.03G cycles in 1 calls ]   - 83.08% : Unioning DFAs
 [  411.34M cycles in 1 calls ]   - 16.84% : Checking emptiness
-
-====================================
 
 13 States
 -----------------------------
 [    3.74G cycles in 1 calls ]   - 91.97% : Unioning DFAs
 [  321.79M cycles in 1 calls ]   -  7.92% : Checking emptiness
 
-====================================
-
 14 States
 -----------------------------
 [    4.81G cycles in 1 calls ]   - 93.07% : Unioning DFAs
 [  354.41M cycles in 1 calls ]   -  6.86% : Checking emptiness
-
-====================================
 
 15 States
 -----------------------------
 [    8.82G cycles in 1 calls ]   - 92.58% : Unioning DFAs
 [  701.92M cycles in 1 calls ]   -  7.37% : Checking emptiness
 
-====================================
-
 16 States
 -----------------------------
 [   12.70G cycles in 1 calls ]   - 90.74% : Unioning DFAs
 [    1.29G cycles in 1 calls ]   -  9.23% : Checking emptiness
-
-====================================
 
 17 States
 -----------------------------
 [   16.86G cycles in 1 calls ]   - 87.49% : Unioning DFAs
 [    2.40G cycles in 1 calls ]   - 12.48% : Checking emptiness
 
-====================================
-
 18 States
 -----------------------------
 [   24.84G cycles in 1 calls ]   - 97.63% : Unioning DFAs
 [  597.30M cycles in 1 calls ]   -  2.35% : Checking emptiness
-
-====================================
 
 19 States
 -----------------------------
 [   28.72G cycles in 1 calls ]   - 93.48% : Unioning DFAs
 [    2.00G cycles in 1 calls ]   -  6.49% : Checking emptiness
 
-====================================
-
 20 States
 -----------------------------
 [   41.79G cycles in 1 calls ]   - 90.58% : Unioning DFAs
 [    4.34G cycles in 1 calls ]   -  9.40% : Checking emptiness
-
-====================================

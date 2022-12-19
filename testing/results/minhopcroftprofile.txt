@@ -12,8 +12,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   3.96K cycles in 1 calls ]   -  2.37% : Find new start states
 [   3.69K cycles in 1 calls ]   -  2.21% : Find new accepting states
 
-====================================
-
 2 States
 ----------------------------
 [ 100.88K cycles in 1 calls ]   - 37.38% : main loop
@@ -25,8 +23,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   8.61K cycles in 1 calls ]   -  3.19% : Initialise partition
 [   4.90K cycles in 1 calls ]   -  1.82% : Find new accepting states
 [   4.84K cycles in 1 calls ]   -  1.79% : Find new start states
-
-====================================
 
 3 States
 ----------------------------
@@ -40,8 +36,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   6.47K cycles in 1 calls ]   -  2.44% : Initialise partition
 [   5.66K cycles in 1 calls ]   -  2.13% : Find new accepting states
 
-====================================
-
 4 States
 ----------------------------
 [  62.81K cycles in 1 calls ]   - 33.15% : main loop
@@ -53,8 +47,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   5.33K cycles in 1 calls ]   -  2.82% : Initialise partition
 [   3.73K cycles in 1 calls ]   -  1.97% : Find new start states
 [   3.71K cycles in 1 calls ]   -  1.96% : Find new accepting states
-
-====================================
 
 5 States
 ----------------------------
@@ -68,8 +60,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   3.82K cycles in 1 calls ]   -  1.62% : Find new accepting states
 [   3.52K cycles in 1 calls ]   -  1.50% : Find new start states
 
-====================================
-
 6 States
 ----------------------------
 [ 112.58K cycles in 1 calls ]   - 31.43% : main loop
@@ -81,8 +71,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   7.99K cycles in 1 calls ]   -  2.23% : Initialise partition
 [   4.78K cycles in 1 calls ]   -  1.33% : Find new accepting states
 [   4.44K cycles in 1 calls ]   -  1.24% : Find new start states
-
-====================================
 
 7 States
 ----------------------------
@@ -96,8 +84,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   3.84K cycles in 1 calls ]   -  1.49% : Find new accepting states
 [   3.80K cycles in 1 calls ]   -  1.47% : Find new start states
 
-====================================
-
 8 States
 ----------------------------
 [ 102.75K cycles in 1 calls ]   - 32.19% : Prune DFA
@@ -109,8 +95,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   6.71K cycles in 1 calls ]   -  2.10% : Initialise partition
 [   3.90K cycles in 1 calls ]   -  1.22% : Find new accepting states
 [   3.43K cycles in 1 calls ]   -  1.07% : Find new start states
-
-====================================
 
 9 States
 ----------------------------
@@ -124,8 +108,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   5.80K cycles in 1 calls ]   -  1.79% : Find new start states
 [   3.86K cycles in 1 calls ]   -  1.19% : Find new accepting states
 
-====================================
-
 10 States
 -----------------------------
 [ 102.81K cycles in 1 calls ]   - 38.34% : Prune DFA
@@ -138,8 +120,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [   3.17K cycles in 1 calls ]   -  1.18% : Find new accepting states
 [   2.69K cycles in 1 calls ]   -  1.00% : Find new start states
 
-====================================
-
 11 States
 -----------------------------
 [ 540.82K cycles in   1 calls ]   - 59.17% : main loop
@@ -149,8 +129,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [ 203.27K cycles in   1 calls ]   - 22.24% : Prune DFA
 [  86.17K cycles in   1 calls ]   -  9.43% : Find new transitions
 
-====================================
-
 12 States
 -----------------------------
 [ 774.82K cycles in   1 calls ]   - 70.35% : main loop
@@ -159,8 +137,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  76.94K cycles in  20 calls ]   |   -  9.93% : Calculate X
 [ 135.47K cycles in   1 calls ]   - 12.30% : Find new transitions
 [ 124.47K cycles in   1 calls ]   - 11.30% : Prune DFA
-
-====================================
 
 13 States
 -----------------------------
@@ -172,8 +148,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  34.65K cycles in 1 calls ]   - 12.06% : Find new transitions
 [   5.60K cycles in 1 calls ]   -  1.95% : Initialise partition
 
-====================================
-
 14 States
 -----------------------------
 [ 874.10K cycles in   1 calls ]   - 60.69% : main loop
@@ -184,8 +158,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [ 163.26K cycles in   1 calls ]   - 11.34% : Find new transitions
 [ 116.63K cycles in   1 calls ]   -  8.10% : Prune DFA
 
-====================================
-
 15 States
 -----------------------------
 [   2.48M cycles in   1 calls ]   - 81.77% : main loop
@@ -194,8 +166,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [ 264.08K cycles in  24 calls ]   |   - 10.65% : Calculate X
 [ 269.18K cycles in   1 calls ]   -  8.87% : Find new transitions
 [ 183.62K cycles in   1 calls ]   -  6.05% : Prune DFA
-
-====================================
 
 16 States
 -----------------------------
@@ -207,8 +177,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  45.06K cycles in 1 calls ]   - 12.75% : Find new transitions
 [   5.69K cycles in 1 calls ]   -  1.61% : Initialise partition
 
-====================================
-
 17 States
 -----------------------------
 [   1.61M cycles in   1 calls ]   - 77.96% : main loop
@@ -217,8 +185,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [ 125.91K cycles in  30 calls ]   |   -  7.83% : Calculate X
 [ 200.34K cycles in   1 calls ]   -  9.72% : Find new transitions
 [ 196.70K cycles in   1 calls ]   -  9.54% : Prune DFA
-
-====================================
 
 18 States
 -----------------------------
@@ -229,8 +195,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  95.57K cycles in   1 calls ]   - 14.03% : Prune DFA
 [  64.67K cycles in   1 calls ]   -  9.50% : Find new transitions
 
-====================================
-
 19 States
 -----------------------------
 [ 413.62K cycles in   1 calls ]   - 54.90% : main loop
@@ -239,8 +203,6 @@ Note: Nodes accounting for less than 1.00% of their parent have been ignored.
 [  53.22K cycles in 105 calls ]   |   - 12.87% : Refine Partition
 [ 202.79K cycles in   1 calls ]   - 26.92% : Prune DFA
 [  90.24K cycles in   1 calls ]   - 11.98% : Find new transitions
-
-====================================
 
 20 States
 -----------------------------

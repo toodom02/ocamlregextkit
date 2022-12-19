@@ -8,16 +8,33 @@ let generate_random_dfa n =
     let states = List.init n Fun.id and
         alphabet = ["a";"b"] in
     let initial = List.hd states and
-        final = List.filter (fun _ -> (Random.float 1. < 0.1)) states and
-        transition = 
-            let tran = ref [] in
-            List.iter (fun s ->
-                List.iter (fun a ->
-                    tran := (s,a,List.nth states (Random.int (List.length states)))::!tran
-                ) alphabet;
-            ) states;
-            !tran
-        in
+        final = List.filter (fun _ -> (Random.float 1. < 0.1)) states in
+    let transition = 
+        let tran = ref [] and
+            connected = ref [initial] and
+            unconnected = ref (List.tl states) in
+        (* create connected graph *)
+        while (List.length !unconnected > 0) do
+            let dest = List.hd !unconnected in
+            unconnected := List.tl !unconnected;
+            let eligable_states = List.filter (fun s -> not (List.for_all (fun a -> List.exists (fun (s',a',_) -> s'=s && a'=a) !tran) alphabet)) !connected in
+            let randconnected = List.nth eligable_states (Random.int (List.length eligable_states)) in
+            let eligable_letters = List.filter (fun a -> not (List.exists (fun (s,a',t) -> s = randconnected && a = a') !tran)) alphabet in
+            let randletter = List.nth eligable_letters (Random.int (List.length eligable_letters)) in
+            tran := (randconnected, randletter, dest)::!tran;
+            connected := dest::!connected;
+        done;
+        (* fill in remaining transitions *)
+        List.iter (fun s ->
+            List.iter (fun a ->
+                if not (List.exists (fun (s',a',_) -> s = s' && a = a') !tran) then (
+                    let randomstate = List.nth states (Random.int (List.length states)) in
+                    tran := (s,a,randomstate)::!tran
+                )
+            ) alphabet;
+        ) states;
+        !tran
+    in
     create states alphabet transition initial final
 
 
@@ -50,73 +67,22 @@ let disjoin = register "disjoin DFAs"
 let loop = register "main loop"
 let calce = register "calculate E"
 let equivclosure = register "calculate equiv closure"
-let symclose = register "calculate symmetric closure"
-let refclose = register "calculate reflexive closure"
-let tranclose = register "calculate transitive closure"
 let calcdelta = register "calculate delta"
 
 
 let profile_closure_equiv (m1:dfa) (m2:dfa) =
     start_profiling ();
-
+    enter main;
     enter disjoin;
     let (m1', m2') = disjoin_dfas m1 m2 in
     exit disjoin;
-    let merged_states = m1'.states @ m2'.states in
 
-    (* Find Reflex, Symmetric, & Transitive closure (Warshall's algo) *)
-    let equiv_closure qs =
-        if List.length qs = 0 then [] else (
-        enter symclose;
-        let symclosure = List.fold_left (fun a (q1,q2) -> (q2,q1)::a) qs qs in
-        exit symclose; enter refclose;
-        let reflexclosure = List.fold_left (fun a s -> (s,s)::a) symclosure merged_states in
-        exit refclose; enter tranclose;
-        let tranclosure = 
-            (* adjacency matrix *)
-            let res = ref (List.map (fun q -> List.map (fun q' -> if (List.exists (fun (q1,q2) -> q1 = q && q2 = q') reflexclosure) then 1 else 0) merged_states) merged_states) in
-
-            List.iteri (fun k _ ->
-                List.iteri (fun i _ ->
-                    List.iteri (fun j _ ->
-                        if (List.nth (List.nth !res i) j) <> 1 then
-                            (* if res[i][k] = 1 and res[k][j] = 1 *)
-                            if (List.nth (List.nth !res i) k) = 1 && (List.nth (List.nth !res k) j) = 1 then
-                                (* set res[i][j] to 1 *)
-                                res := List.mapi (fun ind xs -> List.mapi (fun ind' x -> if (ind = i && ind' = j) then 1 else x) xs) !res;
-                    ) merged_states;
-                ) merged_states;
-            ) merged_states;
-
-            (* convert back into a list of relations *)
-            let rel = ref [] in
-            List.iteri (fun i xs ->
-                List.iteri (fun j x -> 
-                    if x = 1 then rel := (List.nth merged_states i, List.nth merged_states j)::!rel
-                ) xs;
-            ) !res;
-            !rel
-        in
-        exit tranclose;
-        tranclosure
-        )
-    in
-
-    let delta (u,v) = 
-        let res = ref [] and
-            union_trans = m1'.transitions @ m2'.transitions in
-        List.iter (fun a -> 
-            let deltu = ref u and
-                deltv = ref v in
-            List.iter (fun (s,a',t) ->
-                if (a = a') then (
-                    if (s = u) then deltu := t
-                    else if (s = v) then deltv := t
-                )
-            ) union_trans;
-            res := (!deltu, !deltv)::!res;
-        ) m1'.alphabet;
-        !res
+    let delta (u,v) =
+        List.fold_left (fun acc a ->
+            let (_,_,du) = List.find (fun (s,a',_) -> a = a' && s = u) m1'.transitions and
+                (_,_,dv) = List.find (fun (s,a',_) -> a = a' && s = v) m2'.transitions in
+            (du,dv)::acc
+        ) [] m1'.alphabet
     in
 
     enter calce;
@@ -128,28 +94,32 @@ let profile_closure_equiv (m1:dfa) (m2:dfa) =
     exit calce;
     
     let flag = ref false and
-        q = ref [] and
+        qclose = ref [] and
         w = ref [(m1'.start, m2'.start)] in
     enter loop;
     while (List.length !w > 0 && not !flag) do
-        let uv = List.hd !w in
+        let (u,v) = List.hd !w in
         w := List.tl !w;
 
-        if not (List.mem uv e) then (
+        if not (List.mem (u,v) e) then (
             flag := true;
-        ) else (
+        ) else if not (List.mem (u,v) (!qclose)) then (
             enter equivclosure;
-            let clos = equiv_closure !q in
+            let new_equiv_relations = List.fold_left (fun acc (i,j) ->
+                if (i = v && j <> u) then (j,u)::(u,j)::acc
+                else if (i = u && j <> v) then (j,v)::(v,j)::acc
+                else acc
+            ) [(v,v);(u,u);(v,u);(u,v)] !qclose in
+            qclose := Utils.list_union !qclose new_equiv_relations;
             exit equivclosure;
-            if not (List.mem uv clos) then (
-            q := uv::!q;
             enter calcdelta;
-            let newdelt = delta uv in
+            let newdelt = delta (u,v) in
             exit calcdelta;
             w := (newdelt) @ !w
-        ))
+        )
     done;
-    exit loop
+    exit loop;
+    exit main
 
 let complementing = register "Complementing DFAs"
 let product_intersecting = register "Intersecting DFAs"
@@ -481,7 +451,7 @@ let main () =
         ] (function s -> ()) "ERROR";
 
     let dfa1 = generate_random_dfa !size in
-    profile_hopcroft_min dfa1;
+    profile_closure_equiv dfa1 dfa1;
     Printf.printf "\n====================================\n\n%i States\n" (!size+1)
 
 let profile = main ()
