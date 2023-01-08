@@ -7,6 +7,9 @@ profile: profile.cmo
 			./profile -a $$number >> out.txt 2>&1; \
 		done
 
+profile.cmo: profile.ml
+		ocamlfind ocamlc -I .. -package landmarks -linkpkg -c $< 
+
 test: test.cmo
 		ocamlc ../regextkit.cma $^ -o $@
 		./test > test.csv
@@ -15,6 +18,6 @@ clean: force
 	rm -f profile test *.cma *.cmo *.cmi *.o out.txt
 
 %.cmo : %.ml
-	ocamlfind ocamlc -I .. -package landmarks -linkpkg -c $< 
+	ocamlc -I .. -c $< 
 
 force:

@@ -97,5 +97,9 @@ val minimise : dfa -> dfa
     @return the NFA equivalent to DFA [m], by an optimised subset construction *)
 val nfa_to_dfa : Nfa.nfa -> dfa
 
-(** [print n] prints a string representation of the DFA [n] *)
+(** [print m] prints a string representation of the DFA [m] *)
 val print : dfa -> unit
+
+(** [export_graphviz m] 
+    @return a representation of the DFA [m] in the DOT language for Graphviz*)
+val export_graphviz : dfa -> string

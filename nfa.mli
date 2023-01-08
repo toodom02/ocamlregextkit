@@ -56,3 +56,7 @@ val merge_alphabets : nfa -> nfa -> (nfa * nfa)
 
 (** [print n] prints a string representation of the NFA [n] *)
 val print : nfa -> unit
+
+(** [export_graphviz n] 
+    @return a representation of the NFA [n] in the DOT language for Graphviz*)
+val export_graphviz : nfa -> string

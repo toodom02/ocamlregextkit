@@ -3,17 +3,32 @@ type dfa = {
     states: state list; alphabet: string list; transitions: (state * string * state) list; start: state; accepting: state list
 }
 
+let rec stringify_state = function
+      State n -> "[ " ^ (List.fold_left (fun acc s -> acc ^ string_of_int s ^ " ") "" n) ^ "]"
+    | ProductState (l,r) -> "(" ^ stringify_state l ^ " , " ^ stringify_state r ^ ")"
+
 (* |print| -- prints out dfa representation *)
 let print m = 
-    let rec print_state = function
-          State n -> print_string "[ "; List.iter (fun s -> print_int s; print_char ' ') n; print_string "]"
-        | ProductState (l,r) -> print_string "( "; print_state l; print_string " , "; print_state r; print_string " )"
-    in
-    print_string "states: "; List.iter (fun ss -> print_state ss) m.states; print_newline ();
+    print_string "states: "; List.iter (fun s -> print_string (stringify_state s)) m.states; print_newline ();
     print_string "alphabet: "; List.iter (fun a -> print_string a; print_char ' ') m.alphabet; print_newline ();
-    print_string "start: "; print_state m.start; print_newline ();
-    print_string "accepting: "; List.iter (fun ss -> print_state ss) m.accepting; print_newline ();
-    print_string "transitions: "; print_newline (); List.iter (fun (ss,a,tt) -> print_string "    "; print_state ss; print_string ("\t--"^a^"-->\t"); print_state tt; print_newline ()) m.transitions
+    print_string "start: "; print_string (stringify_state m.start); print_newline ();
+    print_string "accepting: "; List.iter (fun s -> print_string (stringify_state s)) m.accepting; print_newline ();
+    print_string "transitions: "; print_newline (); List.iter (fun (s,a,t) -> print_string "    "; print_string (stringify_state s); print_string ("\t--"^a^"-->\t"); print_string (stringify_state t); print_newline ()) m.transitions
+
+(* |export_graphviz| -- exports the dfa in the DOT language for Graphviz *)
+let export_graphviz d =
+    Printf.sprintf "digraph G {\n n0 [label=\"\", shape=none, height=0, width=0, ]\n%s\nn0 -> %s;\n%s\n}"
+
+    (List.fold_left (fun a s -> 
+            let shape = if List.mem s d.accepting then "doublecircle" else "circle" in
+            Printf.sprintf "%s\"%s\" [shape=%s, ];\n" a (stringify_state s) shape
+        ) "" d.states)
+        
+    (stringify_state d.start)
+
+    (List.fold_left (fun acc (s,a,t) ->
+            Printf.sprintf "%s\"%s\" -> \"%s\" [label=\"%s\", ];\n" acc (stringify_state s) (stringify_state t) a
+    ) "" d.transitions)
 
 (* |complement| -- returns the complement of input dfa *)
 let complement m = 
