@@ -5,7 +5,7 @@ description:
   "Provides data structures and algorithms for Regular Expressions, Deterministic Finite Automata, and Non-Deterministic Finite Automata"
 maintainer: ["Dominic Too"]
 authors: ["Dominic Too"]
-license: "LICENSE"
+license: "AGPL-3.0-or-later"
 tags: [
   "automata"
   "regular expressions"

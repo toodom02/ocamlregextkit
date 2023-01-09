@@ -11,7 +11,7 @@
 
 (maintainers "Dominic Too")
 
-(license LICENSE)
+(license AGPL-3.0-or-later)
 
 (documentation https://toodom02.github.io/ocamlregextkit/)
 

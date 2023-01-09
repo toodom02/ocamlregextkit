@@ -28,7 +28,6 @@ let export_graphviz d =
             Printf.sprintf "%s\"%s\" -> \"%s\" [label=\"%s\", ];\n" acc (string_of_int s) (string_of_int t) a
     ) "" d.transitions)
 
-
 let counter = ref 0;;
 
 (* |construct_rec_nfa| -- recursively builds NFA for given re *)
