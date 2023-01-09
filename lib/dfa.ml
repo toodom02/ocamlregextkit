@@ -534,7 +534,7 @@ let create qs alph tran init fin =
             sink = State [List.length qs] in
         List.iter (fun a ->
             List.iter (fun q ->
-                if not (List.exists (fun (s,a',t) -> s = q && a = a') newtran) then missing := (q,a,sink)::!missing
+                if not (List.exists (fun (s,a',_) -> s = q && a = a') newtran) then missing := (q,a,sink)::!missing
             ) newstates;
         ) alph;
         !missing

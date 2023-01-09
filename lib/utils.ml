@@ -28,7 +28,7 @@ let index x xs =
 (* |reachable_states| -- returns the set of states reachable from the given state *)
 let reachable_states start transitions = 
     let rec find_reachable_states marked =
-        let newmarked = List.fold_left (fun acc (s,a,t) -> if (List.mem s marked) then add_unique t acc else acc) marked transitions in
+        let newmarked = List.fold_left (fun acc (s,_,t) -> if (List.mem s marked) then add_unique t acc else acc) marked transitions in
         if marked <> newmarked then find_reachable_states newmarked
         else newmarked
     in

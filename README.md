@@ -1,18 +1,22 @@
 # A Regular Expression Toolkit
 
-Regex-Toolkit is a library providing simple interface to operations on regular expressions, NFAs, and DFAs.
+OCamlregextkit is a library providing simple interface to operations on regular expressions, NFAs, and DFAs.
 
-Written in OCaml.
+Written in OCaml, using the Dune build system.
 
 ## Installation
 
-Requires OCaml v4.14.0 or greater. 
+Requires 
+- OCaml v4.14.0 or greater
+- Dune v3.4 or greater
 
 See [OCaml docs](https://ocaml.org/docs/up-and-running) for installation instructions.
 
 ## Documentation
 
-Find documentation for the toolkit [here](https://toodom02.github.io/regex-toolkit/)
+Find documentation for the toolkit [here](https://toodom02.github.io/ocamlregextkit/)
+
+Note: all modules are packaged into a single module `Regextkit`
 
 ## Demo
 
@@ -28,13 +32,13 @@ make
 
 ```bash
 cd demo
-make demo
+make
 ```
 
 ### Run the demo
 
 ```bash
-./demo "<regex>" "<regex>"
+dune exec ./demo.exe "<regex>" "<regex>"
 ```
 
 To test the demo, run
@@ -53,7 +57,6 @@ Run `make profile` or `make test` to compile and execute the respective function
 
 ## Make Targets
 
- - `make` Builds binaries
- - `make depend` Generates list of dependencies
- - `make clean` Removes any built binaries and generated files
- - `make docs` Generates documentation for toolkit
+ - `make` Builds the library with dune
+ - `make clean` Removes dune's build directory
+ - `make doc` Generates documentation for the toolkit

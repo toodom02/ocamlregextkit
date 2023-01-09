@@ -1,7 +1,8 @@
-(* Code to profile equivalence and minimisation functions *)
+(* Code to profile equivalence and minimisation functions for DFAs *)
+(* includes lots of duplicated code in order to profile segments *)
 
 open Landmark
-open Dfa
+open Regextkit.Dfa
 
 let generate_random_dfa n =
     Random.self_init ();
@@ -19,7 +20,7 @@ let generate_random_dfa n =
             unconnected := List.tl !unconnected;
             let eligable_states = List.filter (fun s -> not (List.for_all (fun a -> List.exists (fun (s',a',_) -> s'=s && a'=a) !tran) alphabet)) !connected in
             let randconnected = List.nth eligable_states (Random.int (List.length eligable_states)) in
-            let eligable_letters = List.filter (fun a -> not (List.exists (fun (s,a',t) -> s = randconnected && a = a') !tran)) alphabet in
+            let eligable_letters = List.filter (fun a -> not (List.exists (fun (s,a',_) -> s = randconnected && a = a') !tran)) alphabet in
             let randletter = List.nth eligable_letters (Random.int (List.length eligable_letters)) in
             tran := (randconnected, randletter, dest)::!tran;
             connected := dest::!connected;
@@ -37,6 +38,13 @@ let generate_random_dfa n =
     in
     create states alphabet transition initial final
 
+let add_unique e l = 
+    if List.mem e l then l else e::l
+
+let rec list_union l1 l2 = 
+    match l2 with
+          [] -> l1
+        | x::xs -> list_union (add_unique x l1) xs
 
 let disjoin_dfas m1 m2 =
     let rec negate_state = function
@@ -44,7 +52,7 @@ let disjoin_dfas m1 m2 =
           | ProductState (s1,s2) -> ProductState (negate_state s1, negate_state s2)
     in
 
-    let merged_alphabet = Utils.list_union m1.alphabet m2.alphabet in
+    let merged_alphabet = list_union m1.alphabet m2.alphabet in
 
     (* need to merge alphabets and disjoin our DFAs by renaming states in m2, by negative numbers *)
     ({
@@ -70,7 +78,7 @@ let equivclosure = register "calculate equiv closure"
 let calcdelta = register "calculate delta"
 
 
-let profile_closure_equiv (m1:dfa) (m2:dfa) =
+let _profile_closure_equiv (m1:dfa) (m2:dfa) =
     start_profiling ();
     enter main;
     enter disjoin;
@@ -110,7 +118,7 @@ let profile_closure_equiv (m1:dfa) (m2:dfa) =
                 else if (i = u && j <> v) then (j,v)::(v,j)::acc
                 else acc
             ) [(v,v);(u,u);(v,u);(u,v)] !qclose in
-            qclose := Utils.list_union !qclose new_equiv_relations;
+            qclose := list_union !qclose new_equiv_relations;
             exit equivclosure;
             enter calcdelta;
             let newdelt = delta (u,v) in
@@ -126,7 +134,7 @@ let product_intersecting = register "Intersecting DFAs"
 let product_unioning = register "Unioning DFAs"
 let emptiness = register "Checking emptiness"
 
-let profile_symmetric_equiv m1 m2 =
+let _profile_symmetric_equiv m1 m2 =
     start_profiling ();
     enter main;
     enter complementing;
@@ -150,7 +158,7 @@ let mergestates = register "Merge states"
 let checkequivalent = register "Check equivalence"
 let finding = register "Find merged state"
 
-let profile_hopcroft_equiv m1 m2 =
+let _profile_hopcroft_equiv m1 m2 =
     start_profiling ();
     enter main;
     enter disjoin;
@@ -203,7 +211,7 @@ let newstart = register "Find new start states"
 let checkmarked = register "Check if state is marked"
 let initialmarked = register "Initialise marked states"
 
-let profile_myhill_min m =
+let _profile_myhill_min m =
     start_profiling ();
     enter main;
     enter prunedfa;
@@ -289,9 +297,9 @@ let profile_myhill_min m =
     exit mergestates;
 
     enter newtransitions;
-    let _ = List.fold_left (fun acc (s,a,t) -> Utils.add_unique (List.find (fun s' -> contains s' s) merged_states, a, List.find (fun t' -> contains t' t) merged_states) acc) [] m'.transitions in
+    let _ = List.fold_left (fun acc (s,a,t) -> add_unique (List.find (fun s' -> contains s' s) merged_states, a, List.find (fun t' -> contains t' t) merged_states) acc) [] m'.transitions in
     exit newtransitions; enter newaccept;
-    let _ = List.fold_left (fun acc s -> Utils.add_unique (List.find (fun s' -> contains s' s) merged_states) acc) [] m'.accepting in
+    let _ = List.fold_left (fun acc s -> add_unique (List.find (fun s' -> contains s' s) merged_states) acc) [] m'.accepting in
     exit newaccept; enter newstart;
     let _ = List.find (fun s -> contains s m'.start) merged_states in
     exit newstart;
@@ -302,7 +310,7 @@ let partitionR = register "Partition R"
 let refinePartition = register "Refine Partition"
 let calculateX = register "Calculate X"
 
-let profile_hopcroft_min m =
+let _profile_hopcroft_min m =
     start_profiling ();
     enter main;
     enter prunedfa;
@@ -324,7 +332,7 @@ let profile_hopcroft_min m =
         w := List.tl !w;
         List.iter (fun c ->
             enter calculateX;
-            let x = List.fold_left (fun acc (s,c',t) -> if c = c' && List.mem t a then Utils.add_unique s acc else acc) [] m'.transitions in
+            let x = List.fold_left (fun acc (s,c',t) -> if c = c' && List.mem t a then add_unique s acc else acc) [] m'.transitions in
             exit calculateX;
             let newp = ref [] in
             List.iter (fun y ->
@@ -365,7 +373,7 @@ let profile_hopcroft_min m =
     exit newaccept;
     enter newtransitions;
     let _ = List.fold_left (fun acc (s,a,t) ->
-            Utils.add_unique (List.find (function
+            add_unique (List.find (function
                   State [ss] ->  List.exists (fun s' -> s' = s) (List.nth !p ss)
                 | _ -> false
             ) newstates, a, List.find (function
@@ -380,11 +388,19 @@ let firstrevanddet = register "1st reverse and determinise"
 let revanddet = register "2nd reverse and determinise"
 let newstats = register "Find new states"
 
-let profile_brzozowski_min m =
+let index x xs = 
+    let rec aux ls c =
+        match ls with
+              [] -> None
+            | y::ys -> if (x = y) then Some(c) else aux ys (c+1)
+    in
+    aux xs 0
+
+let _profile_brzozowski_min m =
     start_profiling ();
     enter main;
     let reverse_and_determinise d =
-        let get_state s = Option.get (Utils.index s d.states) in
+        let get_state s = Option.get (index s d.states) in
         let newstart = (List.map (fun s -> get_state s) d.accepting) in
         let newstates = ref [State newstart] and
             newtrans = ref [] and
@@ -399,7 +415,7 @@ let profile_brzozowski_min m =
                 enter newtransitions;
                 List.iter (fun (s',a',t) ->
                     if a = a' && List.mem (get_state t) currentstate then (
-                        nextstate := Utils.add_unique (get_state s') !nextstate
+                        nextstate := add_unique (get_state s') !nextstate
                     )
                 ) d.transitions;
                 exit newtransitions;
@@ -410,7 +426,7 @@ let profile_brzozowski_min m =
                 if not (List.mem !nextstate !donestates) then (
                     stack := !nextstate::!stack;
                     donestates := !nextstate::!donestates;
-                    newstates := Utils.add_unique (State !nextstate) !newstates;
+                    newstates := add_unique (State !nextstate) !newstates;
                 );
                 exit newstats;
 
@@ -448,10 +464,10 @@ let main () =
     let size = ref 0 in
     Arg.parse [
         ("-a",Arg.Int (function i -> size:=i),"");
-        ] (function s -> ()) "ERROR";
+        ] (fun _ -> ()) "ERROR";
 
     let dfa1 = generate_random_dfa !size in
-    profile_closure_equiv dfa1 dfa1;
+    _profile_closure_equiv dfa1 dfa1;
     Printf.printf "\n====================================\n\n%i States\n" (!size+1)
 
-let profile = main ()
+let () = main ()

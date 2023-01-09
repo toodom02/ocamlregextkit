@@ -30,7 +30,6 @@ let export_graphviz d =
 
 
 let counter = ref 0;;
-let alphabet: string list ref = ref [];;
 
 (* |construct_rec_nfa| -- recursively builds NFA for given re *)
 let rec construct_rec_nfa = function

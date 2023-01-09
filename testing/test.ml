@@ -1,6 +1,7 @@
+open Regextkit
 
 (* |test_dfa_pred_succ| -- Tests DFAs pred and succ methods by checking that for each state, the predecessors of a successor contains itself *)
-let test_dfa_pred_succ m =
+let _test_dfa_pred_succ (m: Dfa.dfa) =
     if List.exists (fun s ->
         List.exists (fun a ->
             let succ = Dfa.succ m s a in
@@ -9,7 +10,7 @@ let test_dfa_pred_succ m =
     ) m.states then exit 1
 
 (* |test_nfa_pred_succ| -- Tests NFAs pred and succ methods by checking that for each state, the successor of a predecessor contains itself *)
-let test_nfa_pred_succ n =
+let _test_nfa_pred_succ (n: Nfa.nfa) =
     if List.exists (fun s ->
         let pred = Nfa.pred n s in
         List.exists (fun ss ->
@@ -18,7 +19,7 @@ let test_nfa_pred_succ n =
     ) n.states then exit 1
 
 (* |test_dfa_total| -- Tests that DFA is total, i.e. each state has exactly one transition for each letter *)
-let test_dfa_total (m: Dfa.dfa) =
+let _test_dfa_total (m: Dfa.dfa) =
     if not (List.for_all (fun s ->
         List.for_all (fun a ->
             let ts = List.find_all (fun (s',a',_) -> s = s' && a = a') m.transitions in
@@ -43,7 +44,7 @@ let generate_random_dfa n =
             unconnected := List.tl !unconnected;
             let eligable_states = List.filter (fun s -> not (List.for_all (fun a -> List.exists (fun (s',a',_) -> s'=s && a'=a) !tran) alphabet)) !connected in
             let randconnected = List.nth eligable_states (Random.int (List.length eligable_states)) in
-            let eligable_letters = List.filter (fun a -> not (List.exists (fun (s,a',t) -> s = randconnected && a = a') !tran)) alphabet in
+            let eligable_letters = List.filter (fun a -> not (List.exists (fun (s,a',_) -> s = randconnected && a = a') !tran)) alphabet in
             let randletter = List.nth eligable_letters (Random.int (List.length eligable_letters)) in
             tran := (randconnected, randletter, dest)::!tran;
             connected := dest::!connected;
@@ -62,7 +63,7 @@ let generate_random_dfa n =
     Dfa.create states alphabet transition initial final
 
 (* Output intended to be saved to CSV *)
-let equiv_tester () = 
+let _equiv_tester () = 
     Printf.printf "# States,Total Equiv,Total Hopcroft,Total Symmetric,Equivalence,Hopcroft,Symmetric,Total Equiv Same,Total Hopcroft Same,Total Symmetric Same,Equivalence,Hopcroft,Symmetric\n";
     let cumul_time_closure = ref 0. and
         cumul_time_hopcroft = ref 0. and
@@ -70,8 +71,9 @@ let equiv_tester () =
         cumul_time_closure_same = ref 0. and
         cumul_time_hopcroft_same = ref 0. and
         cumul_time_symmetric_same = ref 0. in
+    let iters = 100 in
     for s = 1 to 20 do
-        for i = 1 to 100 do
+        for _ = 1 to iters do
             let d1 = generate_random_dfa s and
                 d2 = generate_random_dfa s in
 
@@ -113,23 +115,24 @@ let equiv_tester () =
             (* Sanity check that our results are the same *)
             if res_11 <> res_12 || res_12 <> res_13 then (print_string "Failed\n"; exit 1);
         done;
-        Printf.printf "%i,%f,%f,%f,%f,%f,%f," s !cumul_time_closure !cumul_time_hopcroft !cumul_time_symmetric (!cumul_time_closure /. 100.) (!cumul_time_hopcroft /. 100.) (!cumul_time_symmetric /. 100.);
-        Printf.printf "%f,%f,%f,%f,%f,%f\n" !cumul_time_closure_same !cumul_time_hopcroft_same !cumul_time_symmetric_same (!cumul_time_closure_same /. 100.) (!cumul_time_hopcroft_same /. 100.) (!cumul_time_symmetric_same /. 100.);
+        Printf.printf "%i,%f,%f,%f,%f,%f,%f," s !cumul_time_closure !cumul_time_hopcroft !cumul_time_symmetric (!cumul_time_closure /. (float_of_int iters)) (!cumul_time_hopcroft /. (float_of_int iters)) (!cumul_time_symmetric /. (float_of_int iters));
+        Printf.printf "%f,%f,%f,%f,%f,%f\n" !cumul_time_closure_same !cumul_time_hopcroft_same !cumul_time_symmetric_same (!cumul_time_closure_same /. (float_of_int iters)) (!cumul_time_hopcroft_same /. (float_of_int iters)) (!cumul_time_symmetric_same /. (float_of_int iters));
     done;  
 
     exit 0
 
 (* Output intended to be saved to CSV *)
-let min_tester () = 
+let _min_tester () = 
     Printf.printf "# States,Total Myhill,Total Hopcroft,Total Brzozowski,Myhill,Hopcroft,Brzozowski\n";
     let cumul_time_myhill = ref 0. and
         cumul_time_hopcroft = ref 0. and
         cumul_time_brzozowski = ref 0. in
-    for s = 1 to 10 do
-        for i = 1 to 100 do
+    let iters = 100 in
+    for s = 1 to 20 do
+        for _ = 1 to iters do
             let d = generate_random_dfa s in
 
-            test_dfa_pred_succ d;
+            _test_dfa_pred_succ d;
 
             (* case 1: Myhill min *)
             let start_1 = Sys.time () in
@@ -151,9 +154,9 @@ let min_tester () =
             if not (List.length d.states >= List.length res_1.states) || not (List.length res_1.states = List.length res_2.states) || not (List.length res_2.states = List.length res_3.states) then (print_string "Failed\n"; exit 1);
             if not (List.length res_1.transitions = List.length res_2.transitions) || not (List.length res_2.transitions = List.length res_3.transitions) then (print_string "Failed\n"; exit 1);
         done;
-        Printf.printf "%i,%f,%f,%f,%f,%f,%f\n" s !cumul_time_myhill !cumul_time_hopcroft !cumul_time_brzozowski (!cumul_time_myhill /. 100.) (!cumul_time_hopcroft /. 100.) (!cumul_time_brzozowski /. 100.);
+        Printf.printf "%i,%f,%f,%f,%f,%f,%f\n" s !cumul_time_myhill !cumul_time_hopcroft !cumul_time_brzozowski (!cumul_time_myhill /. (float_of_int iters)) (!cumul_time_hopcroft /. (float_of_int iters)) (!cumul_time_brzozowski /. (float_of_int iters));
     done;  
 
     exit 0
 
-let test = min_tester ()
+let () = _min_tester ()

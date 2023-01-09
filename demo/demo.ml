@@ -1,5 +1,7 @@
 (* Demo program that compares two input regex *)
 
+open Regextkit
+
 (* |test_dfa_pred_succ| -- Tests DFAs pred and succ methods by checking that for each state, the predecessors of a successor contains itself *)
 let test_dfa_pred_succ (m: Dfa.dfa) =
     if List.exists (fun s ->
@@ -110,4 +112,4 @@ let main () =
 
     exit 0
 
-let demo = main ()
+let () = main ()

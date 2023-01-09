@@ -9,9 +9,8 @@
 parser.ml
 parser.mli
 lexer.ml
-test
 
-demo/demo
-demo/out.txt
+out.txt
+out.csv
 
-profiling/profile
+_build

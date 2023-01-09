@@ -1,7 +1,5 @@
-all: demo
-
-demo: demo.cmo
-		ocamlc ../regextkit.cma $^ -o $@
+all:
+	dune build ./demo.exe
 
 TESTSRC := $(wildcard test/*.test)
 
@@ -11,19 +9,11 @@ test : $(TESTSRC:test/%.test=test-%)
 
 test-%: force
 	@echo "*** Test $*.test"
-	./demo $$(sed -n 1p test/$*.test) $$(sed -n 2p test/$*.test) > out.txt
+	dune exec --no-print-directory ./demo.exe $$(sed -n 1p test/$*.test) $$(sed -n 2p test/$*.test) > out.txt
 	sed -n -e '1,/^(\*<</d' -e '/^>>\*)/q' -e p test/$*.test | diff - out.txt
 	@echo "*** Passed"; echo
 
 clean: force
-	rm -f demo *.cma *.cmo *.cmi *.o out.txt
-
-%.cmi : %.mli
-	ocamlc $(MLFLAGS) -c $<
-
-%.cmo : %.ml
-	ocamlc $(MLFLAGS) -c $<
+	rm -f out.txt
 
 force:
-
-MLFLAGS = -I ..
