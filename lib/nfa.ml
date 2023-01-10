@@ -19,13 +19,13 @@ let export_graphviz d =
 
     (List.fold_left (fun a s -> 
             let shape = if List.mem s d.accepting then "doublecircle" else "circle" in
-            Printf.sprintf "%s\"%s\" [shape=%s, ];\n" a (string_of_int s) shape
+            Printf.sprintf "%s%s [shape=%s, ];\n" a (string_of_int s) shape
         ) "" d.states)
         
     (string_of_int d.start)
 
     (List.fold_left (fun acc (s,a,t) ->
-            Printf.sprintf "%s\"%s\" -> \"%s\" [label=\"%s\", ];\n" acc (string_of_int s) (string_of_int t) a
+            Printf.sprintf "%s%s -> %s [label=\"%s\", ];\n" acc (string_of_int s) (string_of_int t) a
     ) "" d.transitions)
 
 let counter = ref 0;;
@@ -94,14 +94,13 @@ let succ n state symbol =
 (* |pred| -- returns the set of states preceeding state in nfa n *)
 let pred n state =
     (* all states from which state is eps_reachable *)
-    let epspreds = List.filter (fun s -> List.mem state (eps_reachable_set n [s])) n.states and
-        preds = ref [] in
-    List.iter (fun tt ->
-        List.iter (fun (s,a,t) ->
-            if (tt = t && a <> "ε") then preds := Utils.add_unique s !preds;
-        ) n.transitions;
-    ) epspreds;
-    List.filter (fun s -> List.exists (fun ss -> List.mem ss !preds) (eps_reachable_set n [s])) n.states
+    let epspreds = List.filter (fun s -> List.mem state (eps_reachable_set n [s])) n.states in
+    let preds = List.fold_left (fun acc tt ->
+            List.fold_left (fun acc' (s,a,t) ->
+                if (tt = t && a <> "ε") then Utils.add_unique s acc' else acc'
+            ) acc n.transitions
+        ) [] epspreds in
+    List.filter (fun s -> List.exists (fun ss -> List.mem ss preds) (eps_reachable_set n [s])) n.states
 
 (* |prune| -- reduces input nfa by pruning unreachable states *)
 let prune n = 

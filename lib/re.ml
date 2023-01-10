@@ -2,17 +2,36 @@ open Tree
 
 exception Syntax_error of string
 
-(* |print| -- prints string representation of regex ast *)
+(* |print| -- prints string representation of re *)
 let print re = 
     let rec stringify_ast = function
-          Literal a -> "Literal " ^ a
+          Literal a -> a
         | Epsilon -> "ε"
-        | Union (r1, r2) -> "Union (" ^ stringify_ast r1 ^ " , " ^ stringify_ast r2 ^ ")"
-        | Concat (r1, r2) -> "Concat (" ^ stringify_ast r1 ^ " , " ^ stringify_ast r2 ^ ")"
-        | Star r1 -> "Star (" ^ stringify_ast r1 ^ ")"
+        | Union (r1, r2) -> "(" ^ stringify_ast r1 ^ " + " ^ stringify_ast r2 ^ ")"
+        | Concat (r1, r2) -> "(" ^ stringify_ast r1 ^ " . " ^ stringify_ast r2 ^ ")"
+        | Star r1 -> stringify_ast r1 ^ "*"
         | Empty -> "∅"
     in
     print_string (stringify_ast re);  print_newline ()
+
+(* |export_graphviz| -- exports the AST in the DOT language for Graphviz *)
+let export_graphviz re =
+    let count = ref 0 in
+    let rec graphvizify parent = function
+          Literal a -> incr count; (string_of_int !count) ^ " [label=\""^a^"\", shape=ellipse, ];\n"^ (string_of_int parent) ^ " -> " ^ (string_of_int !count) ^ "[label=\"\", ];\n"
+        | Epsilon -> incr count; (string_of_int !count) ^ " [label=\"ε\", shape=ellipse, ];\n"^ (string_of_int parent) ^ " -> " ^ (string_of_int !count) ^ "[label=\"\", ];\n"
+        | Union (r1, r2) -> incr count;
+            let c = !count in (graphvizify c r1) ^ (graphvizify c r2) ^
+            (string_of_int c) ^ " [label=\"Union\", shape=ellipse, ];\n"^ (string_of_int parent) ^ " -> " ^ (string_of_int c) ^ "[label=\"\", ];\n"
+        | Concat (r1, r2) -> incr count;
+            let c = !count in (graphvizify c r1) ^ (graphvizify c r2) ^
+            (string_of_int c) ^ " [label=\"Concat\", shape=ellipse, ];\n"^ (string_of_int parent) ^ " -> " ^ (string_of_int c) ^ "[label=\"\", ];\n"
+        | Star r1 -> incr count;
+            let c = !count in (graphvizify c r1) ^
+            (string_of_int c) ^ " [label=\"Star\", shape=ellipse, ];\n"^ (string_of_int parent) ^ " -> " ^ (string_of_int c) ^ "[label=\"\", ];\n"
+        | Empty -> incr count; (string_of_int !count) ^ " [label=\"∅\", shape=ellipse, ];\n"^ (string_of_int parent) ^ " -> " ^ (string_of_int !count) ^ "[label=\"\", ];\n"
+    in
+    "digraph G {\n0 [label=\"\", shape=none, height=0, width=0, ]\n" ^ graphvizify 0 re ^ "}"
 
 (* |simplify_re| -- recursively simplifies the regex, returns regex and flag signalling change *)
 let rec simplify_re re flag = 
@@ -84,6 +103,7 @@ let rec simplify re =
     if flag then simplify r
     else r
 
+(* |parse| -- converts string into AST representation *)
 let parse s =
     let lexbuf = Lexing.from_string s in
     try

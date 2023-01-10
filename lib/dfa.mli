@@ -101,5 +101,5 @@ val nfa_to_dfa : Nfa.nfa -> dfa
 val print : dfa -> unit
 
 (** [export_graphviz m] 
-    @return a representation of the DFA [m] in the DOT language for Graphviz*)
+    @return a representation of the DFA [m] in the DOT language for Graphviz *)
 val export_graphviz : dfa -> string

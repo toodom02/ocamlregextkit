@@ -17,7 +17,7 @@ let print m =
 
 (* |export_graphviz| -- exports the dfa in the DOT language for Graphviz *)
 let export_graphviz d =
-    Printf.sprintf "digraph G {\n n0 [label=\"\", shape=none, height=0, width=0, ]\n%s\nn0 -> %s;\n%s\n}"
+    Printf.sprintf "digraph G {\n n0 [label=\"\", shape=none, height=0, width=0, ]\n%s\nn0 -> \"%s\";\n%s\n}"
 
     (List.fold_left (fun a s -> 
             let shape = if List.mem s d.accepting then "doublecircle" else "circle" in
@@ -106,17 +106,16 @@ let accepted m =
 
 (* |find_product_trans| -- returns { ((l,r),a,(l',r')) : (l,a,l') ∧ (r,a,r') } *)
 let find_product_trans m1 m2 cartStates alphabet = 
-    let newTrans = ref [] in
-    List.iter (function
+    List.fold_left (fun acc s ->
+        match s with
           ProductState (l,r) -> 
-            List.iter (fun a -> 
+            List.fold_left (fun acc' a ->
                 let lRes = succ m1 l a and
                     rRes = succ m2 r a in
-                newTrans := (ProductState (l,r), a, ProductState (lRes,rRes))::!newTrans;
-            ) alphabet
-        | _ -> ()
-    ) cartStates;
-    !newTrans
+                (ProductState(l,r),a,ProductState(lRes,rRes))::acc'
+            ) acc alphabet
+        | _ -> acc
+    ) [] cartStates
 
 let cross_product a b =
     List.concat (List.rev_map (fun e1 -> List.rev_map (fun e2 -> ProductState (e1,e2)) b) a)
@@ -472,13 +471,12 @@ let nfa_to_dfa (n: Nfa.nfa) =
         let currentstate = List.hd !stack in
         stack := List.tl !stack;
         List.iter (fun a ->
-            let nextstate = ref [] in
-            List.iter (fun s ->
-                List.iter (fun (s',a',t) ->
-                    if (s' = s && a' = a) then nextstate := t::!nextstate
-                ) n.transitions
-            ) currentstate;
-            let epsnext = Nfa.eps_reachable_set n !nextstate in
+            let nextstate = List.fold_left (fun acc s ->
+                    List.fold_left (fun acc' (s',a',t) ->
+                        if (s = s' && a = a') then t::acc' else acc'
+                    ) acc n.transitions
+                ) [] currentstate in
+            let epsnext = Nfa.eps_reachable_set n nextstate in
             if (not (List.mem epsnext !donestates)) then (
                 stack := epsnext::!stack;
                 donestates := epsnext::!donestates;
@@ -516,7 +514,7 @@ let create qs alph tran init fin =
         if not (List.mem a alph && List.mem s qs && List.mem t qs) then raise (Invalid_argument "DFA Transition function not valid")
     ) tran;
 
-    let newstates = List.init (List.length qs + 1) (fun i -> State [i]) in
+    let newstates = List.init (List.length qs) (fun i -> State [i]) in
     let newinit = State [Option.get (Utils.index init qs)]
     and newtran = 
         List.rev_map (fun (s,a,t) ->
@@ -529,21 +527,23 @@ let create qs alph tran init fin =
     in
 
     (* missing transitions for total transition function *)
-    let missingtran = 
-        let missing = ref [] and
-            sink = State [List.length qs] in
-        List.iter (fun a ->
-            List.iter (fun q ->
-                if not (List.exists (fun (s,a',_) -> s = q && a = a') newtran) then missing := (q,a,sink)::!missing
-            ) newstates;
-        ) alph;
-        !missing
+    let sink = State [List.length qs] in
+    let missingtran = List.fold_left (fun acc a ->
+        List.fold_left (fun acc' s -> 
+            if not (List.exists (fun (s',a',_) -> s = s' && a = a') newtran) 
+                then (s,a,sink)::acc' 
+            else acc'
+        ) acc newstates) [] alph
     in
+    let newstates = if List.length missingtran > 0 then newstates @ [sink] else newstates in
+    let newtrans = if List.length missingtran > 0 then 
+                        missingtran @ newtran @ List.map (fun a -> (sink,a,sink)) alph
+                   else missingtran @ newtran in
 
     {
         states = newstates;
         alphabet = alph;
         start = newinit;
         accepting = newfin;
-        transitions = Utils.list_union missingtran newtran;
+        transitions = newtrans;
     }
