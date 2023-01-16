@@ -259,6 +259,14 @@ let symmetric_equiv m1 m2 =
 (* |is_equiv| -- synonym for hopcroft_equiv *)
 let is_equiv = hopcroft_equiv
 
+(* helper func returns true iff state p is within some product state *)
+let rec contains p ps = 
+    if ps = p then true
+    else 
+        match ps with
+              State _ -> false
+            | ProductState (s,s') -> contains p s || contains p s'
+
 (* |myhill_min| -- returns minimised DFA by myhill nerode *)
 let myhill_min m =
     let m' = prune m in
@@ -293,15 +301,6 @@ let myhill_min m =
 
     (* unmarked gives us all pairs of indistinguishable states *)
     (* merge these states! *)
-
-    let rec contains p ps = 
-        if ps = p then true
-        else 
-            match ps with
-                  State _ -> false
-                | ProductState (s,s') -> contains p s || contains p s'
-    in
-
     let merged_states = 
         let merged = ref [] and
             seen = ref [] in
@@ -429,27 +428,18 @@ let hopcroft_min m =
         ) m'.alphabet
     done;
 
-    let newstates = List.init (List.length !p) (fun s -> State [s]) in
-    let newstart = List.find (function
-              State [ss] -> List.exists ((=) m'.start) (List.nth !p ss)
-            | _ -> false
-        ) newstates and
-        newaccepting = List.filter (function
-              State [ss] -> List.exists (fun s -> List.mem s m'.accepting) (List.nth !p ss)
-            | _ -> false
-        ) newstates and
-        newtrans = List.fold_left (fun acc (s,a,t) ->
-            Utils.add_unique (List.find (function
-                  State [ss] -> List.exists ((=) s) (List.nth !p ss)
-                | _ -> false
-            ) newstates, a, List.find (function
-                  State [ss] -> List.exists ((=) t) (List.nth !p ss)
-                | _ -> false
-            ) newstates) acc    
-        ) [] m'.transitions in
+    let merged_states = List.fold_left (fun acc ss ->
+        if List.length ss > 1 then 
+        (List.fold_left (fun acc' s -> ProductState(acc',s)) (List.hd ss) (List.tl ss))::acc
+        else (List.hd ss)::acc 
+    ) [] !p in
+
+    let newtrans = List.fold_left (fun acc (s,a,t) -> Utils.add_unique (List.find (contains s) merged_states, a, List.find (contains t) merged_states) acc) [] m'.transitions and
+        newaccepting = List.fold_left (fun acc s -> Utils.add_unique (List.find (contains s) merged_states) acc) [] m'.accepting and
+        newstart = List.find (contains m'.start) merged_states in
 
     {
-        states = newstates;
+        states = merged_states;
         alphabet = m'.alphabet;
         transitions = newtrans;
         start = newstart;
