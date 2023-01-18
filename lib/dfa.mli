@@ -59,10 +59,6 @@ val product_intersection : dfa -> dfa -> dfa
     @return the union of DFAs [m1] [m2], by the product construction *)
 val product_union : dfa -> dfa -> dfa
 
-(** [closure_equiv m1 m2] 
-    @return true iff the two DFAs [m1] and [m2] are equivalent, by equivalence closure *)
-val closure_equiv : dfa -> dfa -> bool
-
 (** [hopcroft_equiv m1 m2] 
     @return true iff the two DFAs [m1] and [m2] are equivalent, by Hopcroft's algorithm *)
 val hopcroft_equiv : dfa -> dfa -> bool

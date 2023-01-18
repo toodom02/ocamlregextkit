@@ -82,8 +82,7 @@ let main () =
     test_nfa_pred_succ nfa1'; test_nfa_pred_succ nfa2';
 
     (* Test that our equivalence functions all give the same result *)
-    if (Dfa.closure_equiv dfa1 dfa2 <> Dfa.symmetric_equiv dfa1 dfa2) then exit 1;
-    if (Dfa.closure_equiv dfa1 dfa2 <> Dfa.hopcroft_equiv dfa1 dfa2) then exit 1;
+    if (Dfa.symmetric_equiv dfa1 dfa2 <> Dfa.hopcroft_equiv dfa1 dfa2) then exit 1;
 
     (* Test that minimisation works as expected *)
     let myhillmin1 = Dfa.myhill_min dfa1 and

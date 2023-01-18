@@ -20,9 +20,9 @@ let export_graphviz d =
     Printf.sprintf "digraph G {\n n0 [label=\"\", shape=none, height=0, width=0, ]\n%s\nn0 -> \"%s\";\n%s\n}"
 
     (List.fold_left (fun a s -> 
-            let shape = if List.mem s d.accepting then "doublecircle" else "circle" in
-            Printf.sprintf "%s\"%s\" [shape=%s, ];\n" a (stringify_state s) shape
-        ) "" d.states)
+        let shape = "ellipse, " ^ if List.mem s d.accepting then "peripheries=2, " else "" in
+        Printf.sprintf "%s\"%s\" [shape=%s];\n" a (stringify_state s) shape
+      ) "" d.states)
         
     (stringify_state d.start)
 
@@ -179,43 +179,6 @@ let disjoin_dfas m1 m2 =
         start = negate_state m2.start;
         accepting = List.rev_map (fun s -> negate_state s) m2.accepting;
     })
-
-(* |closure_equiv| -- returns true iff input DFAs are equivalent, by equivalence closure *)
-let closure_equiv m1 m2 =
-    let (m1', m2') = disjoin_dfas m1 m2 in
-
-    let delta (u,v) =
-        List.fold_left (fun acc a ->
-            (succ m1' u a, succ m2' v a)::acc
-        ) [] m1'.alphabet
-    in
-
-    let e = List.concat (List.rev_map (fun e1 -> List.filter_map (fun e2 -> 
-        if (List.mem e1 m1'.accepting && List.mem e2 m2'.accepting) then Some(e1,e2)
-        else if (List.mem e1 m1'.accepting || List.mem e2 m2'.accepting) then None
-        else Some(e1,e2)
-        ) m2'.states) m1'.states) in
-    
-    let flag = ref false and
-        qclose = ref [] and
-        w = ref [(m1'.start, m2'.start)] in
-    while (List.length !w > 0 && not !flag) do
-        let (u,v) = List.hd !w in
-        w := List.tl !w;
-
-        if not (List.mem (u,v) e) then (
-            flag := true;
-        ) else if not (List.mem (u,v) (!qclose)) then (
-            let new_equiv_relations = List.fold_left (fun acc (i,j) ->
-                if (i = v && j <> u) then (j,u)::(u,j)::acc
-                else if (i = u && j <> v) then (j,v)::(v,j)::acc
-                else acc
-            ) [(v,v);(u,u);(v,u);(u,v)] !qclose in
-            qclose := Utils.list_union !qclose new_equiv_relations;
-            w := (delta (u,v)) @ !w
-        )
-    done;
-    not !flag
 
 (* |hopcroft_equiv| -- returns true iff DFAs are equivalent, by Hopcroft's algorithm *)
 let hopcroft_equiv m1 m2 =

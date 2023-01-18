@@ -14,19 +14,19 @@ let print n =
     print_string "transitions: "; print_newline(); List.iter (fun (s,a,t) -> print_string "    "; print_int s; print_string ("\t--"^a^"-->\t"); print_int t; print_newline ()) n.transitions
 
 (* |export_graphviz| -- exports the nfa in the DOT language for Graphviz *)
-let export_graphviz d =
+let export_graphviz n =
     Printf.sprintf "digraph G {\n n0 [label=\"\", shape=none, height=0, width=0, ]\n%s\nn0 -> %s;\n%s\n}"
 
     (List.fold_left (fun a s -> 
-            let shape = if List.mem s d.accepting then "doublecircle" else "circle" in
-            Printf.sprintf "%s%s [shape=%s, ];\n" a (string_of_int s) shape
-        ) "" d.states)
+        let shape = "ellipse, " ^ if List.mem s n.accepting then "peripheries=2, " else "" in
+        Printf.sprintf "%s\"%s\" [shape=%s];\n" a (string_of_int s) shape
+      ) "" n.states)
         
-    (string_of_int d.start)
+    (string_of_int n.start)
 
     (List.fold_left (fun acc (s,a,t) ->
             Printf.sprintf "%s%s -> %s [label=\"%s\", ];\n" acc (string_of_int s) (string_of_int t) a
-    ) "" d.transitions)
+    ) "" n.transitions)
 
 let counter = ref 0;;
 

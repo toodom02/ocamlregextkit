@@ -73,62 +73,6 @@ let disjoin_dfas m1 m2 =
 let main = register "main"
 let disjoin = register "disjoin DFAs"
 let loop = register "main loop"
-let calce = register "calculate E"
-let equivclosure = register "calculate equiv closure"
-let calcdelta = register "calculate delta"
-
-
-let _profile_closure_equiv (m1:dfa) (m2:dfa) =
-    start_profiling ();
-    enter main;
-    enter disjoin;
-    let (m1', m2') = disjoin_dfas m1 m2 in
-    exit disjoin;
-
-    let delta (u,v) =
-        List.fold_left (fun acc a ->
-            let (_,_,du) = List.find (fun (s,a',_) -> a = a' && s = u) m1'.transitions and
-                (_,_,dv) = List.find (fun (s,a',_) -> a = a' && s = v) m2'.transitions in
-            (du,dv)::acc
-        ) [] m1'.alphabet
-    in
-
-    enter calce;
-    let e = List.concat (List.rev_map (fun e1 -> List.filter_map (fun e2 -> 
-        if (List.mem e1 m1'.accepting && List.mem e2 m2'.accepting) then Some(e1,e2)
-        else if (List.mem e1 m1'.accepting || List.mem e2 m2'.accepting) then None
-        else Some(e1,e2)
-        ) m2'.states) m1'.states) in
-    exit calce;
-    
-    let flag = ref false and
-        qclose = ref [] and
-        w = ref [(m1'.start, m2'.start)] in
-    enter loop;
-    while (List.length !w > 0 && not !flag) do
-        let (u,v) = List.hd !w in
-        w := List.tl !w;
-
-        if not (List.mem (u,v) e) then (
-            flag := true;
-        ) else if not (List.mem (u,v) (!qclose)) then (
-            enter equivclosure;
-            let new_equiv_relations = List.fold_left (fun acc (i,j) ->
-                if (i = v && j <> u) then (j,u)::(u,j)::acc
-                else if (i = u && j <> v) then (j,v)::(v,j)::acc
-                else acc
-            ) [(v,v);(u,u);(v,u);(u,v)] !qclose in
-            qclose := list_union !qclose new_equiv_relations;
-            exit equivclosure;
-            enter calcdelta;
-            let newdelt = delta (u,v) in
-            exit calcdelta;
-            w := (newdelt) @ !w
-        )
-    done;
-    exit loop;
-    exit main
-
 let complementing = register "Complementing DFAs"
 let product_intersecting = register "Intersecting DFAs"
 let product_unioning = register "Unioning DFAs"
@@ -467,7 +411,7 @@ let main () =
         ] (fun _ -> ()) "ERROR";
 
     let dfa1 = generate_random_dfa !size in
-    _profile_closure_equiv dfa1 dfa1;
+    _profile_hopcroft_equiv dfa1 dfa1;
     Printf.printf "\n====================================\n\n%i States\n" (!size+1)
 
 let () = main ()
