@@ -216,8 +216,7 @@ let symmetric_equiv m1 m2 =
         comp2 = complement m2 in
     let m1notm2 = product_intersection m1 comp2 and
         m2notm1 = product_intersection comp1 m2 in
-    let emp = product_union m1notm2 m2notm1 in
-        is_empty emp
+        (is_empty m1notm2) && (is_empty m2notm1)
 
 (* |is_equiv| -- synonym for hopcroft_equiv *)
 let is_equiv = hopcroft_equiv

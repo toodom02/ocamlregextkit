@@ -60,27 +60,30 @@ let generate_random_dfa n =
         ) states;
         !tran
     in
+    (* add trivial state for non-minimality *)
+    let states = -1::states in
+    let transition = (-1,"a",-1)::(-1,"b",-1)::transition in
     Dfa.create states alphabet transition initial final
 
 (* Output intended to be saved to CSV *)
 let _equiv_tester () = 
     Printf.printf "# States,Total Hopcroft,Total Symmetric,Hopcroft,Symmetric,Total Hopcroft Same,Total Symmetric Same,Hopcroft,Symmetric\n";
-    let cumul_time_hopcroft = ref 0. and
-        cumul_time_symmetric = ref 0. and
-        cumul_time_hopcroft_same = ref 0. and
-        cumul_time_symmetric_same = ref 0. in
-    let iters = 100 in
+    let iters = 1000 in
     for s = 1 to 20 do
+        let cumul_time_hopcroft = ref 0. and
+            cumul_time_symmetric = ref 0. and
+            cumul_time_hopcroft_same = ref 0. and
+            cumul_time_symmetric_same = ref 0. in
         for _ = 1 to iters do
             let d1 = generate_random_dfa s and
                 d2 = generate_random_dfa s in
 
-            (* case 2: Hopcroft equiv *)
+            (* case 1: Hopcroft equiv *)
             let start_2 = Sys.time () in
             let res_2 = Dfa.hopcroft_equiv d1 d2 in
             cumul_time_hopcroft  := (Sys.time () -. start_2) +. !cumul_time_hopcroft;
 
-            (* case 3: Symmetric equiv *)
+            (* case 2: Symmetric equiv *)
             let start_3 = Sys.time () in
             let res_3 = Dfa.symmetric_equiv d1 d2 in
             cumul_time_symmetric := (Sys.time () -. start_3) +. !cumul_time_symmetric;
@@ -90,12 +93,12 @@ let _equiv_tester () =
 
             (* Now testing identical DFAs *)
 
-            (* case 2: Hopcroft equiv *)
+            (* case 1: Hopcroft equiv *)
             let start_12 = Sys.time () in
             let res_12 = Dfa.hopcroft_equiv d1 d1 in
             cumul_time_hopcroft_same  := (Sys.time () -. start_12) +. !cumul_time_hopcroft_same;
 
-            (* case 3: Symmetric equiv *)
+            (* case 2: Symmetric equiv *)
             let start_13 = Sys.time () in
             let res_13 = Dfa.symmetric_equiv d1 d1 in
             cumul_time_symmetric_same := (Sys.time () -. start_13) +. !cumul_time_symmetric_same;
@@ -105,18 +108,16 @@ let _equiv_tester () =
         done;
         Printf.printf "%i,%f,%f,%f,%f," s !cumul_time_hopcroft !cumul_time_symmetric (!cumul_time_hopcroft /. (float_of_int iters)) (!cumul_time_symmetric /. (float_of_int iters));
         Printf.printf "%f,%f,%f,%f\n" !cumul_time_hopcroft_same !cumul_time_symmetric_same (!cumul_time_hopcroft_same /. (float_of_int iters)) (!cumul_time_symmetric_same /. (float_of_int iters));
-    done;  
-
-    exit 0
+    done
 
 (* Output intended to be saved to CSV *)
 let _min_tester () = 
     Printf.printf "# States,Total Myhill,Total Hopcroft,Total Brzozowski,Myhill,Hopcroft,Brzozowski\n";
-    let cumul_time_myhill = ref 0. and
-        cumul_time_hopcroft = ref 0. and
-        cumul_time_brzozowski = ref 0. in
-    let iters = 100 in
+    let iters = 1000 in
     for s = 1 to 20 do
+        let cumul_time_myhill = ref 0. and
+            cumul_time_hopcroft = ref 0. and
+            cumul_time_brzozowski = ref 0. in
         for _ = 1 to iters do
             let d = generate_random_dfa s in
 
@@ -127,12 +128,12 @@ let _min_tester () =
             let res_1 = Dfa.myhill_min d in
             cumul_time_myhill := (Sys.time () -. start_1) +. !cumul_time_myhill;
 
-            (* case 2: Hopcroft equiv *)
+            (* case 2: Hopcroft min *)
             let start_2 = Sys.time () in
             let res_2 = Dfa.hopcroft_min d in
             cumul_time_hopcroft  := (Sys.time () -. start_2) +. !cumul_time_hopcroft;
 
-            (* case 3: Brzozowski equiv *)
+            (* case 3: Brzozowski min *)
             let start_3 = Sys.time () in
             let res_3 = Dfa.brzozowski_min d in
             cumul_time_brzozowski := (Sys.time () -. start_3) +. !cumul_time_brzozowski;
@@ -143,8 +144,6 @@ let _min_tester () =
             if not (List.length res_1.transitions = List.length res_2.transitions) || not (List.length res_2.transitions = List.length res_3.transitions) then (print_string "Failed\n"; exit 1);
         done;
         Printf.printf "%i,%f,%f,%f,%f,%f,%f\n" s !cumul_time_myhill !cumul_time_hopcroft !cumul_time_brzozowski (!cumul_time_myhill /. (float_of_int iters)) (!cumul_time_hopcroft /. (float_of_int iters)) (!cumul_time_brzozowski /. (float_of_int iters));
-    done;  
+    done
 
-    exit 0
-
-let () = _min_tester ()
+let () = _equiv_tester (); _min_tester ()

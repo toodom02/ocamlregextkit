@@ -75,7 +75,6 @@ let disjoin = register "disjoin DFAs"
 let loop = register "main loop"
 let complementing = register "Complementing DFAs"
 let product_intersecting = register "Intersecting DFAs"
-let product_unioning = register "Unioning DFAs"
 let emptiness = register "Checking emptiness"
 
 let _profile_symmetric_equiv m1 m2 =
@@ -89,11 +88,9 @@ let _profile_symmetric_equiv m1 m2 =
     let m1notm2 = product_intersection m1 comp2 and
         m2notm1 = product_intersection comp1 m2 in
     exit product_intersecting;
-    enter product_unioning;
-    let emp = product_union m1notm2 m2notm1 in
-    exit product_unioning;
     enter emptiness;
-    let _ = is_empty emp in
+    let _ = is_empty m1notm2 and
+        _ = is_empty m2notm1 in
     exit emptiness;
     exit main
 
@@ -411,7 +408,7 @@ let main () =
         ] (fun _ -> ()) "ERROR";
 
     let dfa1 = generate_random_dfa !size in
-    _profile_hopcroft_equiv dfa1 dfa1;
+    _profile_symmetric_equiv dfa1 dfa1;
     Printf.printf "\n====================================\n\n%i States\n" (!size+1)
 
 let () = main ()
