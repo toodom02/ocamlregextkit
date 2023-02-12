@@ -8,6 +8,20 @@ let rec list_union l1 l2 =
           [] -> l1
         | x::xs -> list_union (add_unique x l1) xs
 
+let add_unique_array e arr =
+    if Array.mem e arr then arr else Array.append arr [|e|]
+
+let array_union a1 a2 =
+    Array.fold_left (fun arr a -> add_unique_array a arr) a1 a2
+
+let array_index a arr =
+    let rec aux i =
+        if arr.(i) = a then Some(i) 
+        else if (i+1) = Array.length arr then None 
+        else aux (i+1)
+    in
+    aux 0
+
 (* |list_equal| -- returns true if the two lists contain the same elements (not considering order) *)
 let list_equal l1 l2 = 
     let rec rec_equal = function
