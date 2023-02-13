@@ -87,7 +87,7 @@ let create qs alph tran init fin =
     let newtran = Array.make_matrix (List.length qs) (List.length alph) ([]) in
     List.iter (fun (s,a,t) ->
         newtran.(Option.get (Utils.index s qs)).(Option.get (Utils.index a alph)) <- ((Option.get (Utils.index t qs))::newtran.(Option.get (Utils.index s qs)).(Option.get (Utils.index a alph)))
-    )tran;
+    ) tran;
     let finList = List.rev_map (fun s -> Option.get (Utils.index s qs)) fin in
     let newfin = Array.init (List.length qs) (fun s -> if (List.mem s finList) then true else false) in
     {

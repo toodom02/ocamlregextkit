@@ -4,7 +4,7 @@ type state = int
 type nfa = {
     states: state array;
     alphabet: string array;
-    transitions: state list array array;
+    transitions: int list array array;
     start: int;
     accepting: bool array
 }
@@ -44,7 +44,7 @@ val succ : nfa -> int -> string -> int list
 
 (** [is_empty n] 
     @return true iff NFA [n] is empty *)
-(* val is_empty : nfa -> bool *)
+val is_empty : nfa -> bool
 
 (** [accepts n s] 
     @return true iff NFA [n] accepts string [s] *)
