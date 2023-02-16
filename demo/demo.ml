@@ -4,16 +4,15 @@ open Regextkit
 
 let main () = 
     (* Get CLI args *)
-    let fns = ref [] in
-    Arg.parse [] (fun s -> fns := !fns @ [s]) "";
-    if List.length !fns <> 2 then (
-      print_string "Usage: demo \"<regex>\" \"<regex>\"\n";
-      exit 2
+    let args = Sys.argv in
+    if Array.length args <> 3 then (
+        print_string "Usage: demo \"<regex>\" \"<regex>\"\n";
+        exit 2
     );
 
     (* Parse strings as REs *)
-    let re1 = Re.parse (List.hd !fns) and
-        re2 = Re.parse (List.nth !fns 1) in
+    let re1 = Re.parse args.(1) and
+        re2 = Re.parse args.(2) in
 
     (* Reduce REs *)
     let re1' = Re.simplify re1 and
@@ -43,7 +42,7 @@ let main () =
         accepted2 = Dfa.accepted snd_and_not_fst in
 
     (* Test that our equivalence functions all give the same result *)
-    (* if (Dfa.symmetric_equiv dfa1 dfa2 <> Dfa.hopcroft_equiv dfa1 dfa2) then exit 1; *)
+    if (Dfa.symmetric_equiv dfa1 dfa2 <> Dfa.hopcroft_equiv dfa1 dfa2) then exit 1;
 
     (* Test that minimisation works as expected *)
     (* let myhillmin1 = Dfa.myhill_min dfa1 and

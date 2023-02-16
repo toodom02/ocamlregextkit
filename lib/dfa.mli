@@ -53,7 +53,7 @@ val product_union : dfa -> dfa -> dfa
 
 (** [hopcroft_equiv m1 m2] 
     @return true iff the two DFAs [m1] and [m2] are equivalent, by Hopcroft's algorithm *)
-(* val hopcroft_equiv : dfa -> dfa -> bool *)
+val hopcroft_equiv : dfa -> dfa -> bool
 
 (** [symmetric_equiv m1 m2] 
     @return true iff the two DFAs [m1] and [m2] are equivalent, by symmetric difference *)
@@ -61,7 +61,7 @@ val symmetric_equiv : dfa -> dfa -> bool
 
 (** [is_equiv m1 m2] synonym for [hopcroft_equiv m1 m2]
     @return true iff the two DFAs [m1] and [m2] are equivalent *)
-(* val is_equiv : dfa -> dfa -> bool *)
+val is_equiv : dfa -> dfa -> bool
 
 (** [myhill_min m]
     @return minimisation of DFA [m], by Myhill-Nerode theorem *)

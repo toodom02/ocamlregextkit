@@ -2,5 +2,5 @@ a+b+c
 a
 
 (*<<
-'c' exists in the first but not the second
+'b' exists in the first but not the second
 >>*)

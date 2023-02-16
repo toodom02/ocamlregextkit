@@ -153,45 +153,47 @@ let product_union m1 m2 =
 
 (* |disjoin_dfas| -- returns a tuple of disjoint DFAs, over the same alphabet *)
 (* NB: Transition functions may no longer be Total *)
-(* let disjoin_dfas m1 m2 =
+let disjoin_dfas m1 m2 =
     (* need to merge alphabets and disjoin our DFAs by renaming states in m2, by negative numbers *)
     let rec negate_state = function
           State xs -> State (List.rev_map (fun x -> -x-1) xs)
         | ProductState (s1,s2) -> ProductState (negate_state s1, negate_state s2)
     in
 
-    let merged_alphabet = Utils.list_union m1.alphabet m2.alphabet in
+    let newalphabet = Utils.array_union m1.alphabet m2.alphabet in
+    let transitions1 = Array.init (Array.length m1.states) (fun s -> Array.init (Array.length newalphabet) (fun a -> if a >= (Array.length m1.alphabet) then (-1) else m1.transitions.(s).(a))) in
+    let transitions2 = Array.init (Array.length m2.states) (fun s -> Array.init (Array.length newalphabet) (fun a -> if Array.mem newalphabet.(a) m2.alphabet then m2.transitions.(s).(Option.get (Utils.array_index newalphabet.(a) m2.alphabet)) else (-1))) in
 
     ({
         states = m1.states;
-        alphabet = merged_alphabet;
-        transitions = m1.transitions;
+        alphabet = newalphabet;
+        transitions = transitions1;
         start = m1.start;
         accepting = m1.accepting;
     },
     {
-        states = List.rev_map (fun s -> negate_state s) m2.states;
-        alphabet = merged_alphabet;
-        transitions = List.rev_map (fun (s,a,t) -> (negate_state s,a,negate_state t)) m2.transitions;
-        start = negate_state m2.start;
-        accepting = List.rev_map (fun s -> negate_state s) m2.accepting;
-    }) *)
+        states = Array.map (fun s -> negate_state s) m2.states;
+        alphabet = newalphabet;
+        transitions = transitions2;
+        start = m2.start;
+        accepting = m2.accepting;
+    })
 
 (* |hopcroft_equiv| -- returns true iff DFAs are equivalent, by Hopcroft's algorithm *)
-(* let hopcroft_equiv m1 m2 =
+let hopcroft_equiv m1 m2 =
     let (m1', m2') = disjoin_dfas m1 m2 in
-    let merged_states = ref (List.rev_map (fun s -> [s]) (m1'.states @ m2'.states)) and
+    let merged_states = ref ((List.init (Array.length m1.states) (fun i -> [i])) @ (List.init (Array.length m2.states) (fun i -> [-i-1]))) and
         stack = ref [] in
 
-    merged_states := List.filter_map (fun s -> if List.mem m2'.start s then Some(m1'.start::s) else if List.mem m1'.start s then None else Some(s)) !merged_states;
+    merged_states := List.filter_map (fun s -> if List.mem (-m2'.start-1) s then Some(m1'.start::s) else if List.mem m1'.start s then None else Some(s)) !merged_states;
     stack := [(m1'.start, m2'.start)];
     while (List.length !stack > 0) do
         let (q1,q2) = List.hd !stack in
         stack := List.tl !stack;
-        List.iter (fun a ->
+        Array.iter (fun a ->
             let succ1 = succ m1' q1 a and succ2 = succ m2' q2 a in
             let r1 = List.find (List.mem succ1) !merged_states and
-                r2 = List.find (List.mem succ2) !merged_states in
+                r2 = List.find (List.mem (-succ2-1)) !merged_states in
             if (r1 <> r2) then (
                 stack := (succ1, succ2)::!stack;
                 merged_states := List.filter_map (fun s -> 
@@ -204,9 +206,9 @@ let product_union m1 m2 =
     done;
 
     List.for_all (fun ss ->
-        List.for_all (fun s -> List.mem s m1'.accepting || List.mem s m2'.accepting) ss || 
-        List.for_all (fun s -> not (List.mem s m1'.accepting || List.mem s m2'.accepting)) ss
-    ) !merged_states *)
+        List.for_all (fun s -> if (s >= 0) then m1'.accepting.(s) else m2'.accepting.(-s-1)) ss || 
+        List.for_all (fun s -> not (if (s >= 0) then m1'.accepting.(s) else m2'.accepting.(-s-1))) ss
+    ) !merged_states
 
 let symmetric_equiv m1 m2 =
     let comp1 = complement m1 and
@@ -216,7 +218,7 @@ let symmetric_equiv m1 m2 =
         (is_empty m1notm2) && (is_empty m2notm1)
 
 (* |is_equiv| -- synonym for hopcroft_equiv *)
-(* let is_equiv = hopcroft_equiv *)
+let is_equiv = hopcroft_equiv
 
 (* helper func returns true iff state p is within some product state *)
 (* let rec contains p ps = 
