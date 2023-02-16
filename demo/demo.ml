@@ -31,16 +31,15 @@ let test_nfa_pred_succ (n: Nfa.nfa) =
 
 let main () = 
     (* Get CLI args *)
-    let fns = ref [] in
-    Arg.parse [] (fun s -> fns := !fns @ [s]) "";
-    if List.length !fns <> 2 then (
-      print_string "Usage: demo \"<regex>\" \"<regex>\"\n";
-      exit 2
+    let args = Sys.argv in
+    if Array.length args <> 3 then (
+        print_string "Usage: demo \"<regex>\" \"<regex>\"\n";
+        exit 2
     );
 
     (* Parse strings as REs *)
-    let re1 = Re.parse (List.hd !fns) and
-        re2 = Re.parse (List.nth !fns 1) in
+    let re1 = Re.parse args.(1) and
+        re2 = Re.parse args.(2) in
 
     (* Reduce REs *)
     let re1' = Re.simplify re1 and

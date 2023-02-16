@@ -423,11 +423,10 @@ let nfa_to_dfa (n: Nfa.nfa) =
         let currentstate = List.hd !stack in
         stack := List.tl !stack;
         List.iter (fun a ->
-            let nextstate = List.fold_left (fun acc s ->
-                    List.fold_left (fun acc' (s',a',t) ->
-                        if (s = s' && a = a') then t::acc' else acc'
-                    ) acc n.transitions
-                ) [] currentstate in
+            let nextstate = List.concat_map (fun s -> 
+                List.filter_map (fun (s',a',t) -> 
+                    if (s = s' && a = a') then Some(t) else None
+                ) n.transitions) currentstate in
             let epsnext = Nfa.eps_reachable_set n nextstate in
             if (not (List.mem epsnext !donestates)) then (
                 stack := epsnext::!stack;
@@ -480,13 +479,13 @@ let create qs alph tran init fin =
 
     (* missing transitions for total transition function *)
     let sink = State [List.length qs] in
-    let missingtran = List.fold_left (fun acc a ->
-        List.fold_left (fun acc' s -> 
-            if not (List.exists (fun (s',a',_) -> s = s' && a = a') newtran) 
-                then (s,a,sink)::acc' 
-            else acc'
-        ) acc newstates) [] alph
-    in
+    let missingtran = List.concat_map (fun a ->
+            List.filter_map (fun s ->
+                if not (List.exists (fun (s',a',_) -> s = s' && a = a') newtran)
+                    then Some(s,a,sink)
+                else None
+            ) newstates
+        ) alph in
     let newstates = if List.length missingtran > 0 then newstates @ [sink] else newstates in
     let newtrans = if List.length missingtran > 0 then 
                         missingtran @ newtran @ List.map (fun a -> (sink,a,sink)) alph
