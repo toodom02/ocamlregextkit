@@ -1,5 +1,9 @@
 (** Provides some useful generic functions *)
 
+val array_union : 'a array -> 'a array -> 'a array
+
+val array_index : 'a -> 'a array -> int option
+
 (** [list_union xs ys] 
     @return the set union of the lists [xs] and [ys] *)
 val list_union : 'a list -> 'a list -> 'a list

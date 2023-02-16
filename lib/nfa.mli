@@ -34,25 +34,9 @@ val reachable_states : nfa -> int list
     @return a list of successor states of NFA [n] after reading word [w] from state [s] *)
 val succ : nfa -> int -> string -> int list
 
-(** [pred n s] 
-    @return a list of states that preceed the state [s] in NFA [n]  *)
-(* val pred : nfa -> state -> state list *)
-
-(** [prune n] 
-    @return a reduction of NFA [n] by removing unreachable states *)
-(* val prune : nfa -> nfa *)
-
 (** [is_empty n] 
     @return true iff NFA [n] is empty *)
 val is_empty : nfa -> bool
-
-(** [accepts n s] 
-    @return true iff NFA [n] accepts string [s] *)
-(* val accepts : nfa -> string -> bool *)
-    
-(** [accepted n] 
-    @return the shortest string accepted by NFA [n] *)
-(* val accepted : nfa -> string option *)
 
 (** [merge_alphabets n1 n2] 
     @return a tuple of NFAs [(n1', n2')] such that [n1'] and [n2'] both share a common alphabet *)
@@ -60,7 +44,3 @@ val merge_alphabets : nfa -> nfa -> (nfa * nfa)
 
 (** [print n] prints a string representation of the NFA [n] *)
 val print : nfa -> unit
-
-(** [export_graphviz n] 
-    @return a representation of the NFA [n] in the DOT language for Graphviz *)
-(* val export_graphviz : nfa -> string *)

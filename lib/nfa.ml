@@ -51,7 +51,7 @@ let is_empty n =
 
 (* |merge_alphabets| -- returns pair of nfas with a common alphabet *)
 let merge_alphabets n1 n2 =
-    let newalphabet = (Utils.array_union n1.alphabet n2.alphabet) in
+    let newalphabet = Utils.array_union n1.alphabet n2.alphabet in
     let transitions1 = Array.init (Array.length n1.states) (fun s -> Array.init (Array.length newalphabet) (fun a -> if a >= (Array.length n1.alphabet) then [] else n1.transitions.(s).(a))) in
     let transitions2 = Array.init (Array.length n2.states) (fun s -> Array.init (Array.length newalphabet) (fun a -> if Array.mem newalphabet.(a) n2.alphabet then n2.transitions.(s).(Option.get (Utils.array_index newalphabet.(a) n2.alphabet)) else [])) in
     ({

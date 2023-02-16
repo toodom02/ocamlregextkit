@@ -31,33 +31,25 @@ val reachable_states : dfa -> int list
     @return the successor state of DFA [m] after reading word [w] from state [s] *)
 val succ : dfa -> int -> string -> int
 
-(** [pred m s w] 
-    @return the set of predecessor states of DFA [m] before reading word [w] from state [s] *)
-(* val pred : dfa -> state -> string -> state list *)
-
 (** [prune m] 
     @return a reduction of DFA [m] by removing unreachable states *)
-(* val prune : dfa -> dfa *)
+val prune : dfa -> dfa
 
 (** [is_empty m] 
     @return true iff DFA [m] is empty *)
-(* val is_empty : dfa -> bool *)
-
-(** [accepts m s] 
-    @return true iff DFA [m] accepts string [s] *)
-(* val accepts : dfa -> string -> bool *)
+val is_empty : dfa -> bool
 
 (** [accepted m] 
     @return the shortest string accepted by DFA [m] *)
-(* val accepted : dfa -> string option *)
+val accepted : dfa -> string option
 
 (** [product_insterection m1 m2] 
     @return the intersection of DFAs [m1] [m2], by the product construction *)
-(* val product_intersection : dfa -> dfa -> dfa *)
+val product_intersection : dfa -> dfa -> dfa
 
 (** [product_union m1 m2] 
     @return the union of DFAs [m1] [m2], by the product construction *)
-(* val product_union : dfa -> dfa -> dfa *)
+val product_union : dfa -> dfa -> dfa
 
 (** [hopcroft_equiv m1 m2] 
     @return true iff the two DFAs [m1] and [m2] are equivalent, by Hopcroft's algorithm *)
@@ -65,7 +57,7 @@ val succ : dfa -> int -> string -> int
 
 (** [symmetric_equiv m1 m2] 
     @return true iff the two DFAs [m1] and [m2] are equivalent, by symmetric difference *)
-(* val symmetric_equiv : dfa -> dfa -> bool *)
+val symmetric_equiv : dfa -> dfa -> bool
 
 (** [is_equiv m1 m2] synonym for [hopcroft_equiv m1 m2]
     @return true iff the two DFAs [m1] and [m2] are equivalent *)
@@ -95,7 +87,3 @@ val nfa_to_dfa : Nfa.nfa -> dfa
 
 (** [print m] prints a string representation of the DFA [m] *)
 val print : dfa -> unit
-
-(** [export_graphviz m] 
-    @return a representation of the DFA [m] in the DOT language for Graphviz *)
-(* val export_graphviz : dfa -> string *)

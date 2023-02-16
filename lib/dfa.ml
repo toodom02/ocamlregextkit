@@ -41,103 +41,115 @@ let succ m state symbol =
           None -> raise (Invalid_argument "symbol not in alphabet")
         | Some i -> m.transitions.(state).(i)
 
-(* |pred| -- returns the state preceeding state in dfa m before reading symbol *)
-(* let pred m state symbol = 
-    List.filter_map (fun (s,a,t) ->
-        if (t = state && a = symbol) then Some(s) else None
-    ) m.transitions *)
-
 (* |prune| -- reduces input dfa by pruning unreachable states *)
-(* let prune m = 
+let prune m = 
     let marked = reachable_states m in
+    let unreachable_states = List.filter (fun i -> not (List.mem i marked)) (List.init (Array.length m.states) Fun.id) in
+    let removeIs is = List.fold_left (fun (arr,c) i -> ((Array.append (Array.sub arr 0 (i-c)) (Array.sub arr (i - c + 1) (Array.length arr - (i-c) - 1)), c+1))) (is,0) unreachable_states in
+    let (newStates,_) = removeIs m.states and
+        (newTrans,_) = removeIs m.transitions and
+        (newAcc,_) = removeIs m.accepting in
+    Array.iteri (fun i _ ->
+        Array.iteri (fun j _ ->
+            let t = m.states.(m.transitions.(i).(j)) in
+            let newti = Option.get (Utils.array_index t newStates) in
+            newTrans.(i).(j) <- newti
+        ) m.alphabet    
+    ) newStates;
     {
-        states = List.filter (fun s -> List.mem s marked) m.states;
+        states = newStates;
         alphabet = m.alphabet;
         start = m.start;
-        transitions = List.filter (fun (s,_,_) -> List.mem s marked) m.transitions;
-        accepting = List.filter (fun s -> List.mem s marked) m.accepting
-    } *)
+        transitions = newTrans;
+        accepting = newAcc
+    }
 
 (* |is_empty| -- returns true iff dfa has no reachable accepting states *)
-(* let is_empty m =
+let is_empty m =
     let marked = reachable_states m in
-    not (List.exists (fun s -> List.mem s m.accepting) marked) *)
-
-(* |accepts| -- returns true iff string s is accepted by the dfa m *)
-(* let accepts m s =
-    let rec does_accept state = function
-          "" -> List.mem state m.accepting
-        | str -> does_accept (succ m state (String.make 1 str.[0])) (String.sub str 1 ((String.length str) - 1))
-    in
-    does_accept m.start s *)
+    not (List.exists (fun s -> m.accepting.(s)) marked)
 
 (* |accepted| -- returns the shortest word accepted by dfa m *)
-(* let accepted m =
+let accepted m =
     let queue = ref [(m.start, "")] and
         seen = ref [] and
         shortest = ref None in
     while Option.is_none !shortest && List.length !queue > 0 do
         let (currentState, currentWord) = List.hd !queue in
-        if List.mem currentState m.accepting then (shortest := Some(currentWord))
+        if m.accepting.(currentState) then (shortest := Some(currentWord))
         else (
             seen := currentState::!seen;
             queue := (List.tl !queue) @ 
-                List.filter_map (fun (s,a,t) -> 
-                    if s = currentState && not (List.mem t !seen) then Some((t,currentWord^a)) else None
-                ) m.transitions;
+                List.filter_map (fun a -> 
+                    let t = m.transitions.(currentState).(a) in
+                    if not (List.mem t !seen) then Some((t, currentWord^m.alphabet.(a))) else None
+                ) (List.init (Array.length m.alphabet) Fun.id)
         )
     done;
-    !shortest *)
+    !shortest
 
 (* |find_product_trans| -- returns { ((l,r),a,(l',r')) : (l,a,l') ∧ (r,a,r') } *)
-(* let find_product_trans m1 m2 cartStates alphabet = 
-    List.fold_left (fun acc s ->
+let find_product_trans m1 m2 cartStates alphabet = 
+    let arr = Array.make_matrix (Array.length cartStates) (Array.length alphabet) (-1) in
+    Array.iteri (fun i s ->
         match s with
-          ProductState (l,r) -> 
-            List.fold_left (fun acc' a ->
-                let lRes = succ m1 l a and
-                    rRes = succ m2 r a in
-                (ProductState(l,r),a,ProductState(lRes,rRes))::acc'
-            ) acc alphabet
-        | _ -> acc
-    ) [] cartStates *)
+              ProductState (l,r) ->
+                Array.iteri (fun j a ->
+                    let lRes = succ m1 (Option.get (Utils.array_index l m1.states)) a and
+                        rRes = succ m2 (Option.get (Utils.array_index r m2.states)) a in
+                    let k = Option.get (Utils.array_index (ProductState(m1.states.(lRes),m2.states.(rRes))) cartStates) in
+                    arr.(i).(j) <- k
+                ) alphabet
+            | _ -> ()
+    ) cartStates;
+    arr
 
-(* let cross_product a b =
-    List.concat (List.rev_map (fun e1 -> List.rev_map (fun e2 -> ProductState (e1,e2)) b) a) *)
+let cross_product a b =
+    Array.fold_left Array.append [||] (Array.map (fun e1 -> Array.map (fun e2 -> ProductState (e1,e2)) b) a)
 
 (* |product_intersection| -- returns the intersection of two input dfas, using the product construction *)
-(* let product_intersection m1 m2 =
+let product_intersection m1 m2 =
     let cartesianStates = cross_product m1.states m2.states in
-    let unionAlphabet = Utils.list_union m1.alphabet m2.alphabet in
+    let unionAlphabet = Utils.array_union m1.alphabet m2.alphabet in
+
     let cartTrans = find_product_trans m1 m2 cartesianStates unionAlphabet and
-        cartAccepting = List.filter (function
-              ProductState (l,r) -> List.mem l m1.accepting && List.mem r m2.accepting
-            | _ -> false
+        cartAccepting = Array.map (fun s ->
+            match s with
+                  ProductState(l,r) ->
+                    let li = Option.get (Utils.array_index l m1.states) and
+                        ri = Option.get (Utils.array_index r m2.states) in
+                        m1.accepting.(li) && m2.accepting.(ri)
+                | _ -> false
         ) cartesianStates in
     {
         states = cartesianStates;
         alphabet = unionAlphabet;
         transitions = cartTrans;
-        start = ProductState (m1.start, m2.start);
+        start = Option.get (Utils.array_index (ProductState (m1.states.(m1.start), m2.states.(m2.start))) cartesianStates);
         accepting = cartAccepting;
-    } *)
+    }
 
 (* |product_union| -- returns the union of two input dfas, using the product construction *)
-(* let product_union m1 m2 =
+let product_union m1 m2 =
     let cartesianStates = cross_product m1.states m2.states in
-    let unionAlphabet = Utils.list_union m1.alphabet m2.alphabet in
+    let unionAlphabet = Utils.array_union m1.alphabet m2.alphabet in
+
     let cartTrans = find_product_trans m1 m2 cartesianStates unionAlphabet and
-        cartAccepting = List.filter (function
-              ProductState (l,r) -> List.mem l m1.accepting || List.mem r m2.accepting
-            | _ -> false
+        cartAccepting = Array.map (fun s ->
+            match s with
+                  ProductState(l,r) ->
+                    let li = Option.get (Utils.array_index l m1.states) and
+                        ri = Option.get (Utils.array_index r m2.states) in
+                        m1.accepting.(li) || m2.accepting.(ri)
+                | _ -> false
         ) cartesianStates in
     {
         states = cartesianStates;
         alphabet = unionAlphabet;
         transitions = cartTrans;
-        start = ProductState (m1.start, m2.start);
+        start = Option.get (Utils.array_index (ProductState (m1.states.(m1.start), m2.states.(m2.start))) cartesianStates);
         accepting = cartAccepting;
-    } *)
+    }
 
 (* |disjoin_dfas| -- returns a tuple of disjoint DFAs, over the same alphabet *)
 (* NB: Transition functions may no longer be Total *)
@@ -196,12 +208,12 @@ let succ m state symbol =
         List.for_all (fun s -> not (List.mem s m1'.accepting || List.mem s m2'.accepting)) ss
     ) !merged_states *)
 
-(* let symmetric_equiv m1 m2 =
+let symmetric_equiv m1 m2 =
     let comp1 = complement m1 and
         comp2 = complement m2 in
     let m1notm2 = product_intersection m1 comp2 and
         m2notm1 = product_intersection comp1 m2 in
-        (is_empty m1notm2) && (is_empty m2notm1) *)
+        (is_empty m1notm2) && (is_empty m2notm1)
 
 (* |is_equiv| -- synonym for hopcroft_equiv *)
 (* let is_equiv = hopcroft_equiv *)
