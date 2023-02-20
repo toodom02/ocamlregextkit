@@ -3,6 +3,8 @@ type dfa = {
     states: state array; alphabet: string array; transitions: int array array; start: int; accepting: bool array
 }
 
+type product_op = Union | Intersection
+
 let rec stringify_state = function
       State n -> "[ " ^ (List.fold_left (fun acc s -> acc ^ string_of_int s ^ " ") "" n) ^ "]"
     | ProductState (l,r) -> "(" ^ stringify_state l ^ " , " ^ stringify_state r ^ ")"
@@ -45,7 +47,7 @@ let succ m state symbol =
 let prune m = 
     let marked = reachable_states m in
     let unreachable_states = List.filter (fun i -> not (List.mem i marked)) (List.init (Array.length m.states) Fun.id) in
-    let removeIs is = List.fold_left (fun (arr,c) i -> ((Array.append (Array.sub arr 0 (i-c)) (Array.sub arr (i - c + 1) (Array.length arr - (i-c) - 1)), c+1))) (is,0) unreachable_states in
+    let removeIs is = List.fold_left (fun (arr,c) i -> (Utils.array_removei (i-c) arr, c+1)) (is,0) unreachable_states in
     let (newStates,_) = removeIs m.states and
         (newTrans,_) = removeIs m.transitions and
         (newAcc,_) = removeIs m.accepting in
@@ -104,21 +106,21 @@ let find_product_trans m1 m2 cartStates alphabet =
     ) cartStates;
     arr
 
-let cross_product a b =
-    Array.fold_left Array.append [||] (Array.map (fun e1 -> Array.map (fun e2 -> ProductState (e1,e2)) b) a)
-
-(* |product_intersection| -- returns the intersection of two input dfas, using the product construction *)
-let product_intersection m1 m2 =
+let product_construction op m1 m2 =
+    let cross_product a b =
+        Array.fold_left Array.append [||] (Array.map (fun e1 -> Array.map (fun e2 -> ProductState (e1,e2)) b) a)
+    in
     let cartesianStates = cross_product m1.states m2.states in
     let unionAlphabet = Utils.array_union m1.alphabet m2.alphabet in
-
     let cartTrans = find_product_trans m1 m2 cartesianStates unionAlphabet and
-        cartAccepting = Array.map (fun s ->
-            match s with
-                  ProductState(l,r) ->
+        cartAccepting = Array.map (function
+                | ProductState(l,r) -> (
                     let li = Option.get (Utils.array_index l m1.states) and
                         ri = Option.get (Utils.array_index r m2.states) in
-                        m1.accepting.(li) && m2.accepting.(ri)
+                    match op with 
+                        | Union -> m1.accepting.(li) || m2.accepting.(ri)
+                        | Intersection -> m1.accepting.(li) && m2.accepting.(ri)
+                    )
                 | _ -> false
         ) cartesianStates in
     {
@@ -130,26 +132,10 @@ let product_intersection m1 m2 =
     }
 
 (* |product_union| -- returns the union of two input dfas, using the product construction *)
-let product_union m1 m2 =
-    let cartesianStates = cross_product m1.states m2.states in
-    let unionAlphabet = Utils.array_union m1.alphabet m2.alphabet in
+let product_union m1 m2 = product_construction Union m1 m2
 
-    let cartTrans = find_product_trans m1 m2 cartesianStates unionAlphabet and
-        cartAccepting = Array.map (fun s ->
-            match s with
-                  ProductState(l,r) ->
-                    let li = Option.get (Utils.array_index l m1.states) and
-                        ri = Option.get (Utils.array_index r m2.states) in
-                        m1.accepting.(li) || m2.accepting.(ri)
-                | _ -> false
-        ) cartesianStates in
-    {
-        states = cartesianStates;
-        alphabet = unionAlphabet;
-        transitions = cartTrans;
-        start = Option.get (Utils.array_index (ProductState (m1.states.(m1.start), m2.states.(m2.start))) cartesianStates);
-        accepting = cartAccepting;
-    }
+(* |product_intersection| -- returns the intersection of two input dfas, using the product construction *)
+let product_intersection m1 m2 = product_construction Intersection m1 m2
 
 (* |disjoin_dfas| -- returns a tuple of disjoint DFAs, over the same alphabet *)
 (* NB: Transition functions may no longer be Total *)
@@ -220,16 +206,16 @@ let symmetric_equiv m1 m2 =
 (* |is_equiv| -- synonym for hopcroft_equiv *)
 let is_equiv = hopcroft_equiv
 
-(* helper func returns true iff state p is within some product state *)
-(* let rec contains p ps = 
-    if ps = p then true
+(* helper func returns true iff any state within product state matches predicate *)
+let rec contains f ps =
+    if f ps then true
     else 
         match ps with
-              State _ -> false
-            | ProductState (s,s') -> contains p s || contains p s' *)
+            | State _ -> false
+            | ProductState (s,s') -> contains f s || contains f s'
 
 (* |myhill_min| -- returns minimised DFA by myhill nerode *)
-(* let myhill_min m =
+let myhill_min m =
     let m' = prune m in
 
     let allpairs = 
@@ -239,10 +225,11 @@ let is_equiv = hopcroft_equiv
                 | (_,[]) -> []
                 | (x::xs,ys) -> List.rev_append (List.rev_map (fun y -> (x, y)) ys) (find_pairs xs (List.tl ys))
         in
-        find_pairs m'.states m'.states
+        let ss = List.init (Array.length m'.states) Fun.id in
+        find_pairs ss ss
     in
     let marked = ref (List.filter (fun (p,q) ->
-            (List.mem p m'.accepting && not (List.mem q m'.accepting)) || (not (List.mem p m'.accepting) && List.mem q m'.accepting)
+            (m'.accepting.(p) && not m'.accepting.(q)) || (not m'.accepting.(p) && m'.accepting.(q))
         ) allpairs) in
     let unmarked = ref (List.filter (fun ss -> not (List.mem ss !marked)) allpairs) and
         stop = ref false in
@@ -251,7 +238,7 @@ let is_equiv = hopcroft_equiv
         stop := true;
         let newunmarked = ref [] in
         List.iter (fun (p,q) ->
-            if (List.exists (fun a -> 
+            if (Array.exists (fun a -> 
                 let succp = succ m p a and succq = succ m q a in
                 List.mem (succp, succq) !marked || List.mem (succq, succp) !marked
             ) m'.alphabet)
@@ -263,36 +250,55 @@ let is_equiv = hopcroft_equiv
     (* unmarked gives us all pairs of indistinguishable states *)
     (* merge these states! *)
     let merged_states = 
-        let merged = ref [] and
+        let merged = ref [||] and
             seen = ref [] in
+        (* returns index of j after removing i, assuming <> *)
+        let nextnewind i j = if i > j then j else (j-1) in
         List.iter (fun (p,q) ->
             if (List.mem p !seen && List.mem q !seen) then (
-                let s = List.find (contains p) !merged and
-                    s' = List.find (contains q) !merged in
-                if (s <> s') then
-                    merged := ProductState(s,s')::(List.filter (fun ps -> ps <> s && ps <> s') !merged)
+                let i = Option.get (Utils.array_findi (contains ((=) m'.states.(p))) !merged) and
+                    i' = Option.get (Utils.array_findi (contains ((=) m'.states.(q))) !merged) in
+                if (i <> i') then
+                    let newarr = Utils.array_removei i !merged in
+                    let j = nextnewind i i' in
+                    merged := Array.append (Utils.array_removei j newarr) [|ProductState(!merged.(i),!merged.(i'))|]
             ) else if (List.mem p !seen) then (
-                let s = List.find (contains p) !merged in
-                merged := ProductState(s,q)::(List.filter((<>) s) !merged);
+                let i = Option.get (Utils.array_findi (contains ((=) m'.states.(p))) !merged) in
+                merged := Array.append (Utils.array_removei i !merged) [|ProductState(!merged.(i),m'.states.(q))|];
                 seen := q::!seen
             ) else if (List.mem q !seen) then (
-                let s' = List.find (contains q) !merged in
-                merged := ProductState(p,s')::(List.filter((<>) s') !merged);
+                let i' = Option.get (Utils.array_findi (contains ((=) m'.states.(q))) !merged) in
+                merged := Array.append (Utils.array_removei i' !merged) [|ProductState(m'.states.(p),!merged.(i'))|];
                 seen := p::!seen
             ) else if (p = q) then (
-                merged := p::!merged;
+                merged := Array.append !merged [|m'.states.(p)|];
                 seen := p::!seen
             ) else (
-                merged := ProductState(p,q)::!merged;
+                merged := Array.append !merged [|ProductState(m'.states.(p),m'.states.(q))|];
                 seen := p::q::!seen
             )
         ) !unmarked;
         !merged
     in
 
-    let newtrans = List.fold_left (fun acc (s,a,t) -> Utils.add_unique (List.find (contains s) merged_states, a, List.find (contains t) merged_states) acc) [] m'.transitions and
-        newaccepting = List.fold_left (fun acc s -> Utils.add_unique (List.find (contains s) merged_states) acc) [] m'.accepting and
-        newstart = List.find (contains m'.start) merged_states in
+    let newtrans = Array.init (Array.length merged_states) (fun s -> Array.init (Array.length m'.alphabet) (fun a ->
+            (* find the transition here lol *)
+            let rec find_substate s = 
+                match Utils.array_index s m'.states with
+                    | Some ind -> ind
+                    | None -> (
+                        match s with
+                            | ProductState(l,r) -> 
+                                let ind = find_substate l in
+                                if ind < 0 then ind else find_substate r
+                            | _ -> -1
+                    )
+            in
+            let sub = find_substate merged_states.(s) in
+            Option.get (Utils.array_findi (contains ((=) m'.states.(m'.transitions.(sub).(a)))) merged_states)
+        )) and
+        newaccepting = Array.init (Array.length merged_states) (fun i -> contains (fun s -> let j = Utils.array_index s m'.states in if Option.is_some j then m'.accepting.(Option.get j) else false) merged_states.(i)) and
+        newstart = Option.get (Utils.array_findi (contains ((=) m'.states.(m'.start))) merged_states) in
 
     {
         states = merged_states;
@@ -300,7 +306,7 @@ let is_equiv = hopcroft_equiv
         transitions = newtrans;
         start = newstart;
         accepting = newaccepting;
-    } *)
+    }
 
 (* |brzozowski_min| -- minimise input DFA by Brzozowski's algorithm *)
 (* let brzozowski_min m =
@@ -415,7 +421,7 @@ let nfa_to_dfa (n: Nfa.nfa) =
     let newstarti = Nfa.eps_reachable_set n [n.start] in
     let newstart = List.map (fun s -> n.states.(s)) newstarti in
     let epsindex = Option.get (Utils.array_index "ε" n.alphabet) in
-    let newalph = Array.append (Array.sub n.alphabet 0 epsindex) (Array.sub n.alphabet (epsindex + 1) (Array.length n.alphabet - epsindex - 1)) in
+    let newalph = Utils.array_removei epsindex n.alphabet in
     let newtrans = ref [||] and
         newstates = ref [|State newstart|] and
         stack = ref [newstarti] and

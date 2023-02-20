@@ -14,13 +14,18 @@ let add_unique_array e arr =
 let array_union a1 a2 =
     Array.fold_left (fun arr a -> add_unique_array a arr) a1 a2
 
-let array_index a arr =
+let array_findi f arr =
     let rec aux i =
-        if arr.(i) = a then Some(i) 
+        if f arr.(i) then Some(i)
         else if (i+1) = Array.length arr then None 
         else aux (i+1)
     in
     aux 0
+
+let array_index a arr = array_findi ((=) a) arr
+
+let array_removei i arr =
+    Array.append (Array.sub arr 0 i) (Array.sub arr (i + 1) (Array.length arr - i - 1)) 
 
 (* |list_equal| -- returns true if the two lists contain the same elements (not considering order) *)
 let list_equal l1 l2 = 

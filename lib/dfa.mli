@@ -65,7 +65,7 @@ val is_equiv : dfa -> dfa -> bool
 
 (** [myhill_min m]
     @return minimisation of DFA [m], by Myhill-Nerode theorem *)
-(* val myhill_min : dfa -> dfa *)
+val myhill_min : dfa -> dfa
 
 (** [hopcroft_min m]
     @return minimisation of DFA [m], by Hopcroft's algorithm. 

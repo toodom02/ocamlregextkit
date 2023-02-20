@@ -4,6 +4,10 @@ val array_union : 'a array -> 'a array -> 'a array
 
 val array_index : 'a -> 'a array -> int option
 
+val array_findi : ('a -> bool) -> 'a array -> int option
+
+val array_removei : int -> 'a array -> 'a array
+
 (** [list_union xs ys] 
     @return the set union of the lists [xs] and [ys] *)
 val list_union : 'a list -> 'a list -> 'a list
