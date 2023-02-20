@@ -75,7 +75,7 @@ val myhill_min : dfa -> dfa
 (** [brzozowski_min m]
     @return minimisation of DFA [m], by Brzozowski's algorithm. 
     Note that states will be renamed. *)
-(* val brzozowski_min : dfa -> dfa *)
+val brzozowski_min : dfa -> dfa
 
 (** [minimise m] synonym for [hopcroft_min m]
     @return minimisation of DFA [m] *)

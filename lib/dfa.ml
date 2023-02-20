@@ -309,56 +309,53 @@ let myhill_min m =
     }
 
 (* |brzozowski_min| -- minimise input DFA by Brzozowski's algorithm *)
-(* let brzozowski_min m =
+let brzozowski_min m =
     let reverse_and_determinise d =
-        let get_state s = Option.get (Utils.index s d.states) in
-        let newstart = (List.map get_state d.accepting) in
-        let newstates = ref [State newstart] and
-            newtrans = ref [] and
-            stack = ref [newstart] and
-            donestates = ref [newstart] in
-        
+        let (newstarti,_) = Array.fold_left (fun (acc,i) _ -> if d.accepting.(i) then (i::acc,i+1) else (acc,i+1)) ([],0) d.states in
+        let newstarti = List.sort compare newstarti in
+        let newstates = ref [|State newstarti|] and
+            newtrans = ref [||] and
+            stack = ref [newstarti] and
+            donestates = ref [newstarti] in
         while (List.length !stack > 0) do
             let currentstate = List.hd !stack in
             stack := List.tl !stack;
-            List.iter (fun a ->
-                let nextstate = ref [] in
-                List.iter (fun (s',a',t) ->
-                    if a = a' && List.mem (get_state t) currentstate then (
-                        nextstate := Utils.add_unique (get_state s') !nextstate
-                    )
-                ) d.transitions;
-
-                nextstate := List.sort compare !nextstate;
-
-                if not (List.mem !nextstate !donestates) then (
-                    stack := !nextstate::!stack;
-                    donestates := !nextstate::!donestates;
-                    newstates := Utils.add_unique (State !nextstate) !newstates;
+            let currentTrans = Array.make (Array.length d.alphabet) (-1) in
+            for a = 0 to Array.length d.alphabet - 1 do
+                let nextstatei = ref [] in
+                for j = 0 to Array.length d.states - 1 do
+                    if List.mem d.transitions.(j).(a) currentstate then 
+                        nextstatei := Utils.add_unique j !nextstatei
+                done;
+                nextstatei := List.sort compare !nextstatei;
+                if not (List.mem !nextstatei !donestates) then (
+                    stack := !stack @ [!nextstatei];
+                    donestates := !nextstatei::!donestates;
+                    newstates := Array.append !newstates [|State !nextstatei|];
                 );
-
-                newtrans := (State currentstate, a, State !nextstate)::!newtrans
-            ) d.alphabet
+                let ind = Option.get (Utils.array_index (State !nextstatei) !newstates) in
+                currentTrans.(a) <- ind
+            done;
+            newtrans := Array.append !newtrans [|currentTrans|];
         done;
 
-        let newaccepting = List.filter_map (function
-                  State s -> if List.mem (get_state d.start) s then Some(State s) else None
-                | _ -> None
-            ) !newstates
-        in
+        let newaccepting = Array.map (function 
+            | State ss -> List.exists ((=) d.start) ss
+            | _ -> false
+        ) !newstates in
 
         {
             states = !newstates;
             alphabet = d.alphabet;
             transitions = !newtrans;
-            start = State newstart;
+            start = 0;
             accepting = newaccepting;
         }
     in
     (* reverse DFA *)
     let drd = reverse_and_determinise m in
     (* reverse Drd *)
-    reverse_and_determinise drd *)
+    reverse_and_determinise drd
 
 (* |hopcroft_min| -- minimise input DFA by Hopcroft's algorithm *)
 (* let hopcroft_min m =
@@ -446,7 +443,7 @@ let nfa_to_dfa (n: Nfa.nfa) =
     done;
 
     let newaccepting = Array.map (function 
-            State ss -> 
+        | State ss -> 
             List.exists (fun s ->
                 let ind = Option.get (Utils.array_index s n.states) in
                 n.accepting.(ind)
