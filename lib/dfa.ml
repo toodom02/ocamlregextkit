@@ -237,7 +237,7 @@ let myhill_min m =
         let newunmarked = ref [] in
         List.iter (fun (p,q) ->
             if (Array.exists (fun a -> 
-                let succp = succ m p a and succq = succ m q a in
+                let succp = succ m' p a and succq = succ m' q a in
                 List.mem (succp, succq) !marked || List.mem (succq, succp) !marked
             ) m'.alphabet)
             then (marked := (p,q)::!marked; stop := false) else newunmarked := (p,q)::!newunmarked;

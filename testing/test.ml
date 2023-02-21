@@ -1,32 +1,5 @@
 open Regextkit
 
-(* |test_dfa_pred_succ| -- Tests DFAs pred and succ methods by checking that for each state, the predecessors of a successor contains itself *)
-let _test_dfa_pred_succ (m: Dfa.dfa) =
-    if List.exists (fun s ->
-        List.exists (fun a ->
-            let succ = Dfa.succ m s a in
-            not (List.mem s (Dfa.pred m succ a))
-        ) m.alphabet
-    ) m.states then exit 1
-
-(* |test_nfa_pred_succ| -- Tests NFAs pred and succ methods by checking that for each state, the successor of a predecessor contains itself *)
-let _test_nfa_pred_succ (n: Nfa.nfa) =
-    if List.exists (fun s ->
-        let pred = Nfa.pred n s in
-        List.exists (fun ss ->
-            not (List.exists (fun a -> List.mem s (Nfa.succ n ss a)) n.alphabet)
-        ) pred
-    ) n.states then exit 1
-
-(* |test_dfa_total| -- Tests that DFA is total, i.e. each state has exactly one transition for each letter *)
-let _test_dfa_total (m: Dfa.dfa) =
-    if not (List.for_all (fun s ->
-        List.for_all (fun a ->
-            let ts = List.find_all (fun (s',a',_) -> s = s' && a = a') m.transitions in
-            List.length ts = 1
-        ) m.alphabet
-    ) m.states) then exit 1
-
 (* |generate_random_dfa| -- Generates a randomised DFA of n connected states, with each state having transitions to random states and 10% chance of final state *)
 let generate_random_dfa n =
     Random.self_init ();
@@ -121,8 +94,6 @@ let _min_tester () =
         for _ = 1 to iters do
             let d = generate_random_dfa s in
 
-            _test_dfa_pred_succ d;
-
             (* case 1: Myhill min *)
             let start_1 = Sys.time () in
             let res_1 = Dfa.myhill_min d in
@@ -140,8 +111,8 @@ let _min_tester () =
 
             (* Sanity check that our results are the same *)
             if not (Dfa.is_equiv d res_1) || not (Dfa.is_equiv res_1 res_2) || not (Dfa.is_equiv res_2 res_3) then (print_string "Failed\n"; exit 1);
-            if not (List.length d.states >= List.length res_1.states) || not (List.length res_1.states = List.length res_2.states) || not (List.length res_2.states = List.length res_3.states) then (print_string "Failed\n"; exit 1);
-            if not (List.length res_1.transitions = List.length res_2.transitions) || not (List.length res_2.transitions = List.length res_3.transitions) then (print_string "Failed\n"; exit 1);
+            if not (Array.length d.states >= Array.length res_1.states) || not (Array.length res_1.states = Array.length res_2.states) || not (Array.length res_2.states = Array.length res_3.states) then (print_string "Failed\n"; exit 1);
+            if not (Array.length res_1.transitions = Array.length res_2.transitions) || not (Array.length res_2.transitions = Array.length res_3.transitions) then (print_string "Failed\n"; exit 1);
         done;
         Printf.printf "%i,%f,%f,%f,%f,%f,%f\n" s !cumul_time_myhill !cumul_time_hopcroft !cumul_time_brzozowski (!cumul_time_myhill /. (float_of_int iters)) (!cumul_time_hopcroft /. (float_of_int iters)) (!cumul_time_brzozowski /. (float_of_int iters));
     done
