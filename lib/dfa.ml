@@ -25,13 +25,13 @@ let complement m =
         alphabet = m.alphabet;
         transitions = m.transitions;
         start = m.start;
-        accepting = Array.map (fun s -> not s) m.accepting  
+        accepting = Array.map not m.accepting;
     }
 
 (* |reachable_states| -- returns the set of reachable states in dfa m *)
 let reachable_states m = 
     let rec find_reachable_states marked =
-        let newmarked = List.fold_right Utils.add_unique (List.concat_map (fun s -> List.map (fun i -> m.transitions.(s).(i)) (List.init (Array.length m.alphabet) Fun.id)) marked) marked in
+        let newmarked = List.fold_right Utils.add_unique (List.concat_map (fun s -> List.init (Array.length m.alphabet) (fun i -> m.transitions.(s).(i))) marked) marked in
         if marked <> newmarked then find_reachable_states newmarked
         else List.sort compare newmarked
     in
@@ -49,19 +49,17 @@ let prune m =
     let unreachable_states = List.filter (fun i -> not (List.mem i marked)) (List.init (Array.length m.states) Fun.id) in
     let removeIs is = List.fold_left (fun (arr,c) i -> (Utils.array_removei (i-c) arr, c+1)) (is,0) unreachable_states in
     let (newStates,_) = removeIs m.states and
-        (newTrans,_) = removeIs m.transitions and
         (newAcc,_) = removeIs m.accepting in
-    Array.iteri (fun i _ ->
-        Array.iteri (fun j _ ->
-            let t = m.states.(m.transitions.(i).(j)) in
-            let newti = Option.get (Utils.array_index t newStates) in
-            newTrans.(i).(j) <- newti
-        ) m.alphabet    
-    ) newStates;
+    let newTrans = Array.init (Array.length newStates) (fun s ->
+        let olds = Option.get (Utils.array_index newStates.(s) m.states) in
+        Array.init (Array.length m.alphabet) (fun a ->
+            let t = m.states.(m.transitions.(olds).(a)) in
+            Option.get (Utils.array_index t newStates)
+    )) in
     {
         states = newStates;
         alphabet = m.alphabet;
-        start = m.start;
+        start = Option.get (Utils.array_index m.states.(m.start) newStates);
         transitions = newTrans;
         accepting = newAcc
     }
@@ -132,10 +130,10 @@ let product_construction op m1 m2 =
     }
 
 (* |product_union| -- returns the union of two input dfas, using the product construction *)
-let product_union m1 m2 = product_construction Union m1 m2
+let product_union = product_construction Union
 
 (* |product_intersection| -- returns the intersection of two input dfas, using the product construction *)
-let product_intersection m1 m2 = product_construction Intersection m1 m2
+let product_intersection = product_construction Intersection
 
 (* |disjoin_dfas| -- returns a tuple of disjoint DFAs, over the same alphabet *)
 (* NB: Transition functions may no longer be Total *)
@@ -282,7 +280,6 @@ let myhill_min m =
     in
 
     let newtrans = Array.init (Array.length merged_states) (fun s -> Array.init (Array.length m'.alphabet) (fun a ->
-            (* find the transition here lol *)
             let rec find_substate s = 
                 match Utils.array_index s m'.states with
                     | Some ind -> ind
@@ -358,21 +355,21 @@ let brzozowski_min m =
     reverse_and_determinise drd
 
 (* |hopcroft_min| -- minimise input DFA by Hopcroft's algorithm *)
-(* let hopcroft_min m =
+let hopcroft_min m =
     let m' = prune m in
 
     let p = ref [] in
-    let qnotf = List.filter (fun s -> not (List.mem s m'.accepting)) m'.states in
-    if List.length qnotf > 0 && List.length m'.accepting > 0 then p := [m'.accepting; qnotf] 
-    else if List.length m'.accepting > 0 then p := [m'.accepting]
+    let (f,qnotf,_) = Array.fold_left (fun (accf,accqf,i) b -> if b then (i::accf,accqf,i+1) else (accf,i::accqf,i+1)) ([],[],0) m'.accepting in
+    if List.length qnotf > 0 && List.length f > 0 then p := [f; qnotf] 
+    else if List.length f > 0 then p := [f]
     else if List.length qnotf > 0 then p := [qnotf];
     let w = ref !p in
 
     while (List.length !w > 0) do
         let a = List.hd !w in
         w := List.tl !w;
-        List.iter (fun c ->
-            let x = List.fold_left (fun acc (s,c',t) -> if c = c' && List.mem t a then Utils.add_unique s acc else acc) [] m'.transitions in
+        for c = 0 to Array.length m'.alphabet - 1 do
+            let (x,_) = Array.fold_left (fun (acc,j) _ -> if List.mem m'.transitions.(j).(c) a then (Utils.add_unique j acc,j+1) else (acc,j+1)) ([],0) m'.states in
             let newp = ref [] in
             List.iter (fun y ->
                 let xinty = List.filter (fun s -> List.mem s x) y and
@@ -389,18 +386,31 @@ let brzozowski_min m =
                 ) else newp := y::!newp
             ) !p;
             p := !newp
-        ) m'.alphabet
+        done;
     done;
+    
+    let merged_states = Array.make (List.length !p) (State []) in
+    List.iteri (fun i ss ->
+            merged_states.(i) <- (List.fold_left (fun acc' s -> ProductState(acc',m'.states.(s))) m'.states.(List.hd ss) (List.tl ss))
+    ) !p;
 
-    let merged_states = List.fold_left (fun acc ss ->
-        if List.length ss > 1 then 
-        (List.fold_left (fun acc' s -> ProductState(acc',s)) (List.hd ss) (List.tl ss))::acc
-        else (List.hd ss)::acc 
-    ) [] !p in
-
-    let newtrans = List.fold_left (fun acc (s,a,t) -> Utils.add_unique (List.find (contains s) merged_states, a, List.find (contains t) merged_states) acc) [] m'.transitions and
-        newaccepting = List.fold_left (fun acc s -> Utils.add_unique (List.find (contains s) merged_states) acc) [] m'.accepting and
-        newstart = List.find (contains m'.start) merged_states in
+    let newtrans = Array.init (Array.length merged_states) (fun s -> Array.init (Array.length m'.alphabet) (fun a ->
+        let rec find_substate s = 
+            match Utils.array_index s m'.states with
+                | Some ind -> ind
+                | None -> (
+                    match s with
+                        | ProductState(l,r) -> 
+                            let ind = find_substate l in
+                            if ind < 0 then ind else find_substate r
+                        | _ -> -1
+                )
+        in
+        let sub = find_substate merged_states.(s) in
+        Option.get (Utils.array_findi (contains ((=) m'.states.(m'.transitions.(sub).(a)))) merged_states)
+    )) and
+    newaccepting = Array.init (Array.length merged_states) (fun i -> contains (fun s -> let j = Utils.array_index s m'.states in if Option.is_some j then m'.accepting.(Option.get j) else false) merged_states.(i)) and
+    newstart = Option.get (Utils.array_findi (contains ((=) m'.states.(m'.start))) merged_states) in
 
     {
         states = merged_states;
@@ -408,10 +418,10 @@ let brzozowski_min m =
         transitions = newtrans;
         start = newstart;
         accepting = newaccepting;
-    } *)
+    }
 
 (* |minimise| -- synonym for hopcroft_min *)
-(* let minimise = hopcroft_min *)
+let minimise = hopcroft_min
 
 (* |nfa_to_dfa| -- converts nfa to dfa by the subset construction *)
 let nfa_to_dfa (n: Nfa.nfa) =
