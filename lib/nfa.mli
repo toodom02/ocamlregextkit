@@ -9,6 +9,10 @@ type nfa = {
     accepting: bool array
 }
 
+(** [is_accepting n s] 
+    @return true iff state [s] is an accepting state of NFA [n] *)
+val is_accepting : nfa -> int -> bool
+
 (** [create q al t s f] 
     @return the NFA of States [q], alphabet [al], transition function [t], initial state [s], and accepting states [f].
     Note that states will be renamed to integers.

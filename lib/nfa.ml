@@ -5,6 +5,9 @@ type nfa = {
     states: state array; alphabet: string array; transitions: int list array array; start: int; accepting: bool array
 }
 
+(* |is_accepting| -- returns true if state s is accepting *)
+let is_accepting n s = n.accepting.(s)
+
 (* |print| -- prints out nfa representation *)
 let print n = 
     print_string "states: "; Array.iter (fun s -> print_int s; print_char ' ') n.states; print_newline ();
@@ -17,7 +20,7 @@ let print n =
 (* |eps_reachable_set| -- returns list of all epsilon-reachable states from input list of states *)
 let eps_reachable_set n ss =
     match Utils.array_index "ε" n.alphabet with
-          None -> List.sort compare ss
+        | None -> List.sort compare ss
         | Some epsi ->
             let rec get_reachable_set states =
                 let news = List.fold_right Utils.add_unique (List.concat_map (fun s -> n.transitions.(s).(epsi)) states) states in
@@ -38,7 +41,7 @@ let reachable_states n =
 (* |succ| -- the resulting states of nfa n after reading symbol *)
 let succ n statei symbol =
     match Utils.array_index symbol n.alphabet with
-          None -> []
+        | None -> []
         | Some symboli ->
             let initial_reachable = eps_reachable_set n [statei] in    
             let succs = List.fold_right Utils.add_unique (List.concat_map (fun s -> n.transitions.(s).(symboli)) initial_reachable) [] in
@@ -47,7 +50,7 @@ let succ n statei symbol =
 (* |is_empty| -- returns true iff nfa has no reachable accepting states *)
 let is_empty n =
     let marked = reachable_states n in
-    not (List.exists (fun s -> n.accepting.(s)) marked)
+    not (List.exists (is_accepting n) marked)
 
 (* |merge_alphabets| -- returns pair of nfas with a common alphabet *)
 let merge_alphabets n1 n2 =
@@ -102,7 +105,7 @@ let counter = ref 0;;
 
 (* |construct_rec_nfa| -- recursively builds NFA for given re *)
 let rec construct_rec_nfa = function
-      Literal a -> counter := !counter + 2;
+    | Literal a -> counter := !counter + 2;
             ([!counter - 2; !counter - 1], [a], !counter - 2, [!counter - 1], [(!counter - 2, a, !counter - 1)])
     | Epsilon -> counter := !counter + 1;
             ([!counter - 1], [], !counter - 1, [!counter - 1], [])

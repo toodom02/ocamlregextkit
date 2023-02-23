@@ -38,8 +38,35 @@ let generate_random_dfa n =
     let transition = (-1,"a",-1)::(-1,"b",-1)::transition in
     Dfa.create states alphabet transition initial final
 
+(* circular DFA, with unraveled tail (for minimisation) *)
+let generate_circular_dfa n =
+    let states = List.init (n*2) Fun.id and
+        trans = List.init (n*2) (fun i -> if i < n then (i,"a",i+1) else (i,"a",(i+1) mod n + n)) and
+        start = 0 and
+        accepting = [0;n] in
+    Dfa.create states ["a"] trans start accepting
+
+(* Generates pairs of DFAs s.t. L(0) = x mod n = r and L(1) = x mod 2n = r or n+r *)
+let generate_equivalent_modular_dfas n =
+    Random.self_init ();
+    let diff = if n <= 1 then 0 else Random.int (n-1) in
+    let states = List.init (n) Fun.id and
+        trans = List.init (n) (fun i -> (i,"a",(i+1) mod n)) and
+        start = 0 and
+        accepting = [diff] in
+    let states2 = List.init (n*2) Fun.id and
+        trans2 = List.init (n*2) (fun i -> (i,"a",(i+1) mod (n*2))) and
+        start2 = 0 and
+        accepting2 = [diff;n+diff] in
+    (
+    Dfa.create states ["a"] trans start accepting
+    ,
+    Dfa.create states2 ["a"] trans2 start2 accepting2
+    )
+
 (* Output intended to be saved to CSV *)
 let _equiv_tester () = 
+    print_string "RANDOM EQUIV\n";
     Printf.printf "# States,Total Hopcroft,Total Symmetric,Hopcroft,Symmetric,Total Hopcroft Same,Total Symmetric Same,Hopcroft,Symmetric\n";
     let iters = 1000 in
     for s = 1 to 20 do
@@ -83,8 +110,35 @@ let _equiv_tester () =
         Printf.printf "%f,%f,%f,%f\n" !cumul_time_hopcroft_same !cumul_time_symmetric_same (!cumul_time_hopcroft_same /. (float_of_int iters)) (!cumul_time_symmetric_same /. (float_of_int iters));
     done
 
+let _circular_equiv_tester () = 
+    print_string "CIRCULAR EQUIV\n";
+    Printf.printf "#,Total Hopcroft,Total Symmetric,Hopcroft,Symmetric\n";
+    let iters = 100 in
+    for s = 1 to 20 do
+        let cumul_time_hopcroft = ref 0. and
+            cumul_time_symmetric = ref 0. in
+        for _ = 1 to iters do
+            let (d1,d2) = generate_equivalent_modular_dfas s in
+
+            (* case 1: Hopcroft equiv *)
+            let start_2 = Sys.time () in
+            let res_2 = Dfa.hopcroft_equiv d1 d2 in
+            cumul_time_hopcroft  := (Sys.time () -. start_2) +. !cumul_time_hopcroft;
+
+            (* case 2: Symmetric equiv *)
+            let start_3 = Sys.time () in
+            let res_3 = Dfa.symmetric_equiv d1 d2 in
+            cumul_time_symmetric := (Sys.time () -. start_3) +. !cumul_time_symmetric;
+
+            (* Sanity check that our results are the same *)
+            if res_2 <> res_3 then (print_string "Failed\n"; exit 1);
+        done;
+        Printf.printf "%i,%f,%f,%f,%f\n" s !cumul_time_hopcroft !cumul_time_symmetric (!cumul_time_hopcroft /. (float_of_int iters)) (!cumul_time_symmetric /. (float_of_int iters));
+    done
+
 (* Output intended to be saved to CSV *)
 let _min_tester () = 
+    print_string "RANDOM MINIMISATION\n";
     Printf.printf "# States,Total Myhill,Total Hopcroft,Total Brzozowski,Myhill,Hopcroft,Brzozowski\n";
     let iters = 1000 in
     for s = 1 to 20 do
@@ -117,4 +171,38 @@ let _min_tester () =
         Printf.printf "%i,%f,%f,%f,%f,%f,%f\n" s !cumul_time_myhill !cumul_time_hopcroft !cumul_time_brzozowski (!cumul_time_myhill /. (float_of_int iters)) (!cumul_time_hopcroft /. (float_of_int iters)) (!cumul_time_brzozowski /. (float_of_int iters));
     done
 
-let () = _equiv_tester (); _min_tester ()
+let _min_circular () = 
+    print_string "CIRCULAR MINIMISATION\n";
+    Printf.printf "#,Total Myhill,Total Hopcroft,Total Brzozowski,Myhill,Hopcroft,Brzozowski\n";
+    let iters = 100 in
+    for s = 1 to 20 do
+        let cumul_time_myhill = ref 0. and
+            cumul_time_hopcroft = ref 0. and
+            cumul_time_brzozowski = ref 0. in
+        for _ = 1 to iters do
+            let d = generate_circular_dfa s in
+
+            (* case 1: Myhill min *)
+            let start_1 = Sys.time () in
+            let res_1 = Dfa.myhill_min d in
+            cumul_time_myhill := (Sys.time () -. start_1) +. !cumul_time_myhill;
+
+            (* case 2: Hopcroft min *)
+            let start_2 = Sys.time () in
+            let res_2 = Dfa.hopcroft_min d in
+            cumul_time_hopcroft  := (Sys.time () -. start_2) +. !cumul_time_hopcroft;
+
+            (* case 3: Brzozowski min *)
+            let start_3 = Sys.time () in
+            let res_3 = Dfa.brzozowski_min d in
+            cumul_time_brzozowski := (Sys.time () -. start_3) +. !cumul_time_brzozowski;
+
+            (* Sanity check that our results are the same *)
+            if not (Dfa.is_equiv d res_1) || not (Dfa.is_equiv res_1 res_2) || not (Dfa.is_equiv res_2 res_3) then (print_string "Failed\n"; exit 1);
+            if not (Array.length d.states > Array.length res_1.states) || not (Array.length res_1.states = Array.length res_2.states) || not (Array.length res_2.states = Array.length res_3.states) then (print_string "Failed\n"; exit 1);
+            if not (Array.length res_1.transitions = Array.length res_2.transitions) || not (Array.length res_2.transitions = Array.length res_3.transitions) then (print_string "Failed\n"; exit 1);
+        done;
+        Printf.printf "%i,%f,%f,%f,%f,%f,%f\n" s !cumul_time_myhill !cumul_time_hopcroft !cumul_time_brzozowski (!cumul_time_myhill /. (float_of_int iters)) (!cumul_time_hopcroft /. (float_of_int iters)) (!cumul_time_brzozowski /. (float_of_int iters));
+    done
+
+    let () = _equiv_tester (); _circular_equiv_tester (); _min_tester (); _min_circular ()

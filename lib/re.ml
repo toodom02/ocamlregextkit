@@ -5,7 +5,7 @@ exception Syntax_error of string
 (* |print| -- prints string representation of re *)
 let print re = 
     let rec stringify_ast = function
-          Literal a -> a
+        | Literal a -> a
         | Epsilon -> "ε"
         | Union (r1, r2) -> "(" ^ stringify_ast r1 ^ " + " ^ stringify_ast r2 ^ ")"
         | Concat (r1, r2) -> "(" ^ stringify_ast r1 ^ " . " ^ stringify_ast r2 ^ ")"
@@ -18,7 +18,7 @@ let print re =
 let export_graphviz re =
     let count = ref 0 in
     let rec graphvizify parent = function
-          Literal a -> incr count; (string_of_int !count) ^ " [label=\""^a^"\", shape=ellipse, ];\n"^ (string_of_int parent) ^ " -> " ^ (string_of_int !count) ^ "[label=\"\", ];\n"
+        | Literal a -> incr count; (string_of_int !count) ^ " [label=\""^a^"\", shape=ellipse, ];\n"^ (string_of_int parent) ^ " -> " ^ (string_of_int !count) ^ "[label=\"\", ];\n"
         | Epsilon -> incr count; (string_of_int !count) ^ " [label=\"ε\", shape=ellipse, ];\n"^ (string_of_int parent) ^ " -> " ^ (string_of_int !count) ^ "[label=\"\", ];\n"
         | Union (r1, r2) -> incr count;
             let c = !count in (graphvizify c r1) ^ (graphvizify c r2) ^
@@ -46,7 +46,7 @@ let is_subset_of r1 r2 =
 (* |simplify_re| -- recursively simplifies the regex *)
 let rec simplify_re = function
     (* Reduce by Kozen Axioms *)
-      Union (r1, Union (r2, r3)) -> simplify_re (Union(Union(r1, r2), r3))                              (* a + (b + c) = (a + b) + c *)                              
+    | Union (r1, Union (r2, r3)) -> simplify_re (Union(Union(r1, r2), r3))                              (* a + (b + c) = (a + b) + c *)                              
     | Union (r1, Empty) -> simplify_re r1                                                               (* a + ∅ = a *)  
     | Union (Empty, r1) -> simplify_re r1                                                               (* ∅ + a = a *)
     | Union (r1, r2) when r1 = r2 -> simplify_re r1                                                     (* a + a = a *)

@@ -5,8 +5,11 @@ type dfa = {
 
 type product_op = Union | Intersection
 
+(* |is_accepting| -- returns true if state s is accepting *)
+let is_accepting m s = m.accepting.(s)
+
 let rec stringify_state = function
-      State n -> "[ " ^ (List.fold_left (fun acc s -> acc ^ string_of_int s ^ " ") "" n) ^ "]"
+    | State n -> "[ " ^ (List.fold_left (fun acc s -> acc ^ string_of_int s ^ " ") "" n) ^ "]"
     | ProductState (l,r) -> "(" ^ stringify_state l ^ " , " ^ stringify_state r ^ ")"
 
 (* |print| -- prints out dfa representation *)
@@ -40,7 +43,7 @@ let reachable_states m =
 (* |succ| -- the resulting state of dfa m after reading symbol *)
 let succ m state symbol = 
     match Utils.array_index symbol m.alphabet with
-          None -> raise (Invalid_argument "symbol not in alphabet")
+        | None -> raise (Invalid_argument "symbol not in alphabet")
         | Some i -> m.transitions.(state).(i)
 
 (* |prune| -- reduces input dfa by pruning unreachable states *)
@@ -67,7 +70,7 @@ let prune m =
 (* |is_empty| -- returns true iff dfa has no reachable accepting states *)
 let is_empty m =
     let marked = reachable_states m in
-    not (List.exists (fun s -> m.accepting.(s)) marked)
+    not (List.exists (is_accepting m) marked)
 
 (* |accepted| -- returns the shortest word accepted by dfa m *)
 let accepted m =
@@ -76,7 +79,7 @@ let accepted m =
         shortest = ref None in
     while Option.is_none !shortest && List.length !queue > 0 do
         let (currentState, currentWord) = List.hd !queue in
-        if m.accepting.(currentState) then (shortest := Some(currentWord))
+        if is_accepting m currentState then (shortest := Some(currentWord))
         else (
             seen := currentState::!seen;
             queue := (List.tl !queue) @ 
@@ -93,7 +96,7 @@ let find_product_trans m1 m2 cartStates alphabet =
     let arr = Array.make_matrix (Array.length cartStates) (Array.length alphabet) (-1) in
     Array.iteri (fun i s ->
         match s with
-              ProductState (l,r) ->
+            | ProductState (l,r) ->
                 Array.iteri (fun j a ->
                     let lRes = succ m1 (Option.get (Utils.array_index l m1.states)) a and
                         rRes = succ m2 (Option.get (Utils.array_index r m2.states)) a in
@@ -116,8 +119,8 @@ let product_construction op m1 m2 =
                     let li = Option.get (Utils.array_index l m1.states) and
                         ri = Option.get (Utils.array_index r m2.states) in
                     match op with 
-                        | Union -> m1.accepting.(li) || m2.accepting.(ri)
-                        | Intersection -> m1.accepting.(li) && m2.accepting.(ri)
+                        | Union -> (is_accepting m1 li) || (is_accepting m2 ri)
+                        | Intersection -> (is_accepting m1 li) && (is_accepting m2 ri)
                     )
                 | _ -> false
         ) cartesianStates in
@@ -140,7 +143,7 @@ let product_intersection = product_construction Intersection
 let disjoin_dfas m1 m2 =
     (* need to merge alphabets and disjoin our DFAs by renaming states in m2, by negative numbers *)
     let rec negate_state = function
-          State xs -> State (List.rev_map (fun x -> -x-1) xs)
+        | State xs -> State (List.rev_map (fun x -> -x-1) xs)
         | ProductState (s1,s2) -> ProductState (negate_state s1, negate_state s2)
     in
 
@@ -190,8 +193,8 @@ let hopcroft_equiv m1 m2 =
     done;
 
     List.for_all (fun ss ->
-        List.for_all (fun s -> if (s >= 0) then m1'.accepting.(s) else m2'.accepting.(-s-1)) ss || 
-        List.for_all (fun s -> not (if (s >= 0) then m1'.accepting.(s) else m2'.accepting.(-s-1))) ss
+        List.for_all (fun s -> if (s >= 0) then (is_accepting m1' s) else (is_accepting m2' (-s-1))) ss || 
+        List.for_all (fun s -> not (if (s >= 0) then (is_accepting m1' s) else (is_accepting m2' (-s-1)))) ss
     ) !merged_states
 
 let symmetric_equiv m1 m2 =
@@ -219,7 +222,7 @@ let myhill_min m =
     let allpairs = 
         let rec find_pairs xss yss =
             match xss, yss with
-                  ([],_) -> []
+                | ([],_) -> []
                 | (_,[]) -> []
                 | (x::xs,ys) -> List.rev_append (List.rev_map (fun y -> (x, y)) ys) (find_pairs xs (List.tl ys))
         in
@@ -227,7 +230,7 @@ let myhill_min m =
         find_pairs ss ss
     in
     let marked = ref (List.filter (fun (p,q) ->
-            (m'.accepting.(p) && not m'.accepting.(q)) || (not m'.accepting.(p) && m'.accepting.(q))
+            ((is_accepting m' p) && not (is_accepting m' q)) || (not (is_accepting m' p) && (is_accepting m' q))
         ) allpairs) in
     let unmarked = ref (List.filter (fun ss -> not (List.mem ss !marked)) allpairs) and
         stop = ref false in
@@ -294,7 +297,7 @@ let myhill_min m =
             let sub = find_substate merged_states.(s) in
             Option.get (Utils.array_findi (contains ((=) m'.states.(m'.transitions.(sub).(a)))) merged_states)
         )) and
-        newaccepting = Array.init (Array.length merged_states) (fun i -> contains (fun s -> let j = Utils.array_index s m'.states in if Option.is_some j then m'.accepting.(Option.get j) else false) merged_states.(i)) and
+        newaccepting = Array.init (Array.length merged_states) (fun i -> contains (fun s -> let j = Utils.array_index s m'.states in if Option.is_some j then (is_accepting m' (Option.get j)) else false) merged_states.(i)) and
         newstart = Option.get (Utils.array_findi (contains ((=) m'.states.(m'.start))) merged_states) in
 
     {
@@ -308,7 +311,7 @@ let myhill_min m =
 (* |brzozowski_min| -- minimise input DFA by Brzozowski's algorithm *)
 let brzozowski_min m =
     let reverse_and_determinise d =
-        let (newstarti,_) = Array.fold_left (fun (acc,i) _ -> if d.accepting.(i) then (i::acc,i+1) else (acc,i+1)) ([],0) d.states in
+        let (newstarti,_) = Array.fold_left (fun (acc,i) _ -> if (is_accepting d i) then (i::acc,i+1) else (acc,i+1)) ([],0) d.states in
         let newstarti = List.sort compare newstarti in
         let newstates = ref [|State newstarti|] and
             newtrans = ref [||] and
@@ -409,7 +412,7 @@ let hopcroft_min m =
         let sub = find_substate merged_states.(s) in
         Option.get (Utils.array_findi (contains ((=) m'.states.(m'.transitions.(sub).(a)))) merged_states)
     )) and
-    newaccepting = Array.init (Array.length merged_states) (fun i -> contains (fun s -> let j = Utils.array_index s m'.states in if Option.is_some j then m'.accepting.(Option.get j) else false) merged_states.(i)) and
+    newaccepting = Array.init (Array.length merged_states) (fun i -> contains (fun s -> let j = Utils.array_index s m'.states in if Option.is_some j then (is_accepting m' (Option.get j)) else false) merged_states.(i)) and
     newstart = Option.get (Utils.array_findi (contains ((=) m'.states.(m'.start))) merged_states) in
 
     {
@@ -456,7 +459,7 @@ let nfa_to_dfa (n: Nfa.nfa) =
         | State ss -> 
             List.exists (fun s ->
                 let ind = Option.get (Utils.array_index s n.states) in
-                n.accepting.(ind)
+                Nfa.is_accepting n ind
             ) ss
         | _ -> false
     ) !newstates in

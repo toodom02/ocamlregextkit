@@ -2,8 +2,3 @@
  (name test)
  (modules test)
  (libraries regextkit))
-
-(executable
- (name profile)
- (modules profile)
- (libraries regextkit landmarks))
