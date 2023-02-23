@@ -9,6 +9,10 @@ type dfa = {
     accepting: state list
 }
 
+(** [is_accepting n s] 
+    @return true iff state [s] is an accepting state of NFA [n] *)
+val is_accepting : dfa -> state -> bool
+
 (** [create q al t s f] 
     @return the DFA of States [q], alphabet [al], transition function [t], initial state [s], and accepting states [f].
     Note that states will be renamed to integer list. Sink state will be added to make transition function [t] total.

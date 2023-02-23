@@ -3,8 +3,13 @@ type dfa = {
     states: state list; alphabet: string list; transitions: (state * string * state) list; start: state; accepting: state list
 }
 
+type product_op = Union | Intersection
+
+(* |is_accepting| -- returns true if state s is accepting *)
+let is_accepting m s = List.mem s m.accepting
+
 let rec stringify_state = function
-      State n -> "[ " ^ (List.fold_left (fun acc s -> acc ^ string_of_int s ^ " ") "" n) ^ "]"
+    | State n -> "[ " ^ (List.fold_left (fun acc s -> acc ^ string_of_int s ^ " ") "" n) ^ "]"
     | ProductState (l,r) -> "(" ^ stringify_state l ^ " , " ^ stringify_state r ^ ")"
 
 (* |print| -- prints out dfa representation *)
@@ -20,7 +25,7 @@ let export_graphviz d =
     Printf.sprintf "digraph G {\n n0 [label=\"\", shape=none, height=0, width=0, ]\n%s\nn0 -> \"%s\";\n%s\n}"
 
     (List.fold_left (fun a s -> 
-        let shape = "ellipse, " ^ if List.mem s d.accepting then "peripheries=2, " else "" in
+        let shape = "ellipse, " ^ if is_accepting d s then "peripheries=2, " else "" in
         Printf.sprintf "%s\"%s\" [shape=%s];\n" a (stringify_state s) shape
       ) "" d.states)
         
@@ -37,7 +42,7 @@ let complement m =
         alphabet = m.alphabet;
         transitions = m.transitions;
         start = m.start;
-        accepting = List.filter (fun ss -> not (List.mem ss m.accepting)) m.states;  
+        accepting = List.filter (fun s -> not (is_accepting m s)) m.states;  
     }
 
 (* |reachable_states| -- returns the set of reachable states in dfa m *)
@@ -76,12 +81,12 @@ let prune m =
 (* |is_empty| -- returns true iff dfa has no reachable accepting states *)
 let is_empty m =
     let marked = reachable_states m in
-    not (List.exists (fun s -> List.mem s m.accepting) marked)
+    not (List.exists (is_accepting m) marked)
 
 (* |accepts| -- returns true iff string s is accepted by the dfa m *)
 let accepts m s =
     let rec does_accept state = function
-          "" -> List.mem state m.accepting
+          "" -> is_accepting m state
         | str -> does_accept (succ m state (String.make 1 str.[0])) (String.sub str 1 ((String.length str) - 1))
     in
     does_accept m.start s
@@ -93,7 +98,7 @@ let accepted m =
         shortest = ref None in
     while Option.is_none !shortest && List.length !queue > 0 do
         let (currentState, currentWord) = List.hd !queue in
-        if List.mem currentState m.accepting then (shortest := Some(currentWord))
+        if is_accepting m currentState then (shortest := Some(currentWord))
         else (
             seen := currentState::!seen;
             queue := (List.tl !queue) @ 
@@ -104,62 +109,53 @@ let accepted m =
     done;
     !shortest
 
-(* |find_product_trans| -- returns { ((l,r),a,(l',r')) : (l,a,l') ∧ (r,a,r') } *)
-let find_product_trans m1 m2 cartStates alphabet = 
-    List.fold_left (fun acc s ->
-        match s with
-          ProductState (l,r) -> 
-            List.fold_left (fun acc' a ->
-                let lRes = succ m1 l a and
-                    rRes = succ m2 r a in
-                (ProductState(l,r),a,ProductState(lRes,rRes))::acc'
-            ) acc alphabet
-        | _ -> acc
-    ) [] cartStates
-
-let cross_product a b =
-    List.concat (List.rev_map (fun e1 -> List.rev_map (fun e2 -> ProductState (e1,e2)) b) a)
+let product_operation op m1 m2 =
+    let cross_product a b =
+        List.concat (List.rev_map (fun e1 -> List.rev_map (fun e2 -> ProductState (e1,e2)) b) a)
+    in
+    (* |find_product_trans| -- returns { ((l,r),a,(l',r')) : (l,a,l') ∧ (r,a,r') } *)
+    let find_product_trans m1 m2 cartStates alphabet = 
+        List.fold_left (fun acc s ->
+            match s with
+            | ProductState (l,r) -> 
+                List.fold_left (fun acc' a ->
+                    let lRes = succ m1 l a and rRes = succ m2 r a in
+                    (ProductState(l,r),a,ProductState(lRes,rRes))::acc'
+                ) acc alphabet
+            | _ -> acc
+        ) [] cartStates
+    in
+    let cartesianStates = cross_product m1.states m2.states in
+    let unionAlphabet = Utils.list_union m1.alphabet m2.alphabet in
+    let cartTrans = find_product_trans m1 m2 cartesianStates unionAlphabet and
+        cartAccepting = List.filter (function 
+            | ProductState (l,r) -> (
+                match op with 
+                    | Union -> is_accepting m1 l || is_accepting m2 r
+                    | Intersection -> is_accepting m1 l && is_accepting m2 r
+                )
+            | _ -> false
+        ) cartesianStates in
+    {
+        states = cartesianStates;
+        alphabet = unionAlphabet;
+        transitions = cartTrans;
+        start = ProductState (m1.start, m2.start);
+        accepting = cartAccepting;
+    }
 
 (* |product_intersection| -- returns the intersection of two input dfas, using the product construction *)
-let product_intersection m1 m2 =
-    let cartesianStates = cross_product m1.states m2.states in
-    let unionAlphabet = Utils.list_union m1.alphabet m2.alphabet in
-    let cartTrans = find_product_trans m1 m2 cartesianStates unionAlphabet and
-        cartAccepting = List.filter (function
-              ProductState (l,r) -> List.mem l m1.accepting && List.mem r m2.accepting
-            | _ -> false
-        ) cartesianStates in
-    {
-        states = cartesianStates;
-        alphabet = unionAlphabet;
-        transitions = cartTrans;
-        start = ProductState (m1.start, m2.start);
-        accepting = cartAccepting;
-    }
+let product_intersection = product_operation Intersection
 
 (* |product_union| -- returns the union of two input dfas, using the product construction *)
-let product_union m1 m2 =
-    let cartesianStates = cross_product m1.states m2.states in
-    let unionAlphabet = Utils.list_union m1.alphabet m2.alphabet in
-    let cartTrans = find_product_trans m1 m2 cartesianStates unionAlphabet and
-        cartAccepting = List.filter (function
-              ProductState (l,r) -> List.mem l m1.accepting || List.mem r m2.accepting
-            | _ -> false
-        ) cartesianStates in
-    {
-        states = cartesianStates;
-        alphabet = unionAlphabet;
-        transitions = cartTrans;
-        start = ProductState (m1.start, m2.start);
-        accepting = cartAccepting;
-    }
+let product_union = product_operation Union
 
 (* |disjoin_dfas| -- returns a tuple of disjoint DFAs, over the same alphabet *)
 (* NB: Transition functions may no longer be Total *)
 let disjoin_dfas m1 m2 =
     (* need to merge alphabets and disjoin our DFAs by renaming states in m2, by negative numbers *)
     let rec negate_state = function
-          State xs -> State (List.rev_map (fun x -> -x-1) xs)
+        | State xs -> State (List.rev_map (fun x -> -x-1) xs)
         | ProductState (s1,s2) -> ProductState (negate_state s1, negate_state s2)
     in
 
@@ -207,8 +203,8 @@ let hopcroft_equiv m1 m2 =
     done;
 
     List.for_all (fun ss ->
-        List.for_all (fun s -> List.mem s m1'.accepting || List.mem s m2'.accepting) ss || 
-        List.for_all (fun s -> not (List.mem s m1'.accepting || List.mem s m2'.accepting)) ss
+        List.for_all (fun s -> is_accepting m1' s || is_accepting m2' s) ss || 
+        List.for_all (fun s -> not (is_accepting m1' s || is_accepting m2' s)) ss
     ) !merged_states
 
 let symmetric_equiv m1 m2 =
@@ -226,7 +222,7 @@ let rec contains p ps =
     if ps = p then true
     else 
         match ps with
-              State _ -> false
+            | State _ -> false
             | ProductState (s,s') -> contains p s || contains p s'
 
 (* |myhill_min| -- returns minimised DFA by myhill nerode *)
@@ -236,14 +232,15 @@ let myhill_min m =
     let allpairs = 
         let rec find_pairs xss yss =
             match xss, yss with
-                  ([],_) -> []
+                | ([],_) -> []
                 | (_,[]) -> []
                 | (x::xs,ys) -> List.rev_append (List.rev_map (fun y -> (x, y)) ys) (find_pairs xs (List.tl ys))
         in
         find_pairs m'.states m'.states
     in
     let marked = ref (List.filter (fun (p,q) ->
-            (List.mem p m'.accepting && not (List.mem q m'.accepting)) || (not (List.mem p m'.accepting) && List.mem q m'.accepting)
+            let pa = is_accepting m' p and qa = is_accepting m' q in
+            (pa && not qa) || (not pa && qa)
         ) allpairs) in
     let unmarked = ref (List.filter (fun ss -> not (List.mem ss !marked)) allpairs) and
         stop = ref false in
@@ -337,7 +334,7 @@ let brzozowski_min m =
         done;
 
         let newaccepting = List.filter_map (function
-                  State s -> if List.mem (get_state d.start) s then Some(State s) else None
+                | State s -> if List.mem (get_state d.start) s then Some(State s) else None
                 | _ -> None
             ) !newstates
         in
@@ -360,7 +357,7 @@ let hopcroft_min m =
     let m' = prune m in
 
     let p = ref [] in
-    let qnotf = List.filter (fun s -> not (List.mem s m'.accepting)) m'.states in
+    let qnotf = List.filter (fun s -> not (is_accepting m' s)) m'.states in
     if List.length qnotf > 0 && List.length m'.accepting > 0 then p := [m'.accepting; qnotf] 
     else if List.length m'.accepting > 0 then p := [m'.accepting]
     else if List.length qnotf > 0 then p := [qnotf];
@@ -438,7 +435,7 @@ let nfa_to_dfa (n: Nfa.nfa) =
     done;
 
     let newaccepting = List.filter (function
-          State s -> List.exists (fun s' -> List.mem s' n.accepting) s
+        | State s -> List.exists (Nfa.is_accepting n) s
         | _ -> false
     ) !newstates in
         

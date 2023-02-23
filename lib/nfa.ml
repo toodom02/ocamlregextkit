@@ -5,6 +5,9 @@ type nfa = {
     states: state list; alphabet: string list; transitions: (state * string * state) list; start: state; accepting: state list
 }
 
+(* |is_accepting| -- returns true if state s is accepting *)
+let is_accepting n s = List.mem s n.accepting
+
 (* |print| -- prints out nfa representation *)
 let print n = 
     print_string "states: "; List.iter (fun s -> print_int s; print_char ' ') n.states; print_newline ();
@@ -18,7 +21,7 @@ let export_graphviz n =
     Printf.sprintf "digraph G {\n n0 [label=\"\", shape=none, height=0, width=0, ]\n%s\nn0 -> %s;\n%s\n}"
 
     (List.fold_left (fun a s -> 
-        let shape = "ellipse, " ^ if List.mem s n.accepting then "peripheries=2, " else "" in
+        let shape = "ellipse, " ^ if (is_accepting n s) then "peripheries=2, " else "" in
         Printf.sprintf "%s\"%s\" [shape=%s];\n" a (string_of_int s) shape
       ) "" n.states)
         
@@ -27,42 +30,6 @@ let export_graphviz n =
     (List.fold_left (fun acc (s,a,t) ->
             Printf.sprintf "%s%s -> %s [label=\"%s\", ];\n" acc (string_of_int s) (string_of_int t) a
     ) "" n.transitions)
-
-let counter = ref 0;;
-
-(* |construct_rec_nfa| -- recursively builds NFA for given re *)
-let rec construct_rec_nfa = function
-      Literal a -> counter := !counter + 2;
-                {states = [!counter - 2; !counter - 1]; alphabet = [a]; start = !counter - 2; accepting = [!counter - 1]; transitions = [(!counter - 2, a, !counter - 1)]}
-    | Epsilon -> counter := !counter + 1;
-                {states = [!counter - 1]; alphabet = []; start = !counter - 1; accepting = [!counter - 1]; transitions = []}
-    | Empty -> counter := !counter + 1;
-                {states = [!counter - 1]; alphabet = []; start = !counter - 1; accepting = []; transitions = []}
-    | Union (r1, r2) -> let nfa1 = construct_rec_nfa r1 and nfa2 = construct_rec_nfa r2 in
-                counter := !counter + 1;
-                {states = (!counter - 1) :: (nfa1.states @ nfa2.states); alphabet = Utils.list_union nfa1.alphabet nfa2.alphabet; start = !counter - 1; accepting = nfa1.accepting @ nfa2.accepting; 
-                transitions = ((!counter - 1, "ε", nfa1.start) :: nfa1.transitions) @ ((!counter - 1, "ε", nfa2.start) :: nfa2.transitions)}
-    | Concat (r1, r2) -> let nfa1 = construct_rec_nfa r1 and nfa2 = construct_rec_nfa r2 in
-                let newtrans = List.rev_map (fun s -> (s,"ε",nfa2.start)) nfa1.accepting in
-                {states = nfa1.states @ nfa2.states; alphabet = Utils.list_union nfa1.alphabet nfa2.alphabet; start = nfa1.start; accepting = nfa2.accepting;
-                transitions = nfa1.transitions @ newtrans @ nfa2.transitions}
-    | Star r -> let nfa1 = construct_rec_nfa r in
-                let newtrans = List.rev_map (fun s -> (s, "ε", nfa1.start)) nfa1.accepting in
-                counter := !counter + 1;
-                {states = (!counter - 1) :: nfa1.states; alphabet = nfa1.alphabet; start = !counter - 1; accepting = (!counter - 1) :: nfa1.accepting;
-                transitions = (!counter - 1, "ε", nfa1.start) :: newtrans @ nfa1.transitions}
-
-(* |re_to_nfa| -- converts input regex AST into nfa *)
-let re_to_nfa re = 
-    let n = construct_rec_nfa re in
-    counter := 0;
-    {
-        states = List.sort compare n.states;
-        alphabet = List.rev n.alphabet;
-        start = n.start;
-        accepting = n.accepting;
-        transitions = n.transitions;
-    }
 
 (* |eps_reachable_set| -- returns set of all epsilon-reachable states from input set of states *)
 let eps_reachable_set n ss =
@@ -116,7 +83,7 @@ let prune n =
 (* |is_empty| -- returns true iff nfa has no reachable accepting states *)
 let is_empty n =
     let marked = reachable_states n in
-    not (List.exists (fun m -> List.mem m n.accepting) marked)
+    not (List.exists (is_accepting n) marked)
 
 (* |accepts| -- returns true iff string s is accepted by the nfa n. Can take a long time *)
 let accepts n s =
@@ -125,7 +92,7 @@ let accepts n s =
         let c = (String.make 1 s.[i]) in
         sts := eps_reachable_set n (List.fold_left (fun a ss -> Utils.list_union (succ n ss c) a) [] !sts);
     done;
-    List.exists (fun st -> List.mem st n.accepting) !sts
+    List.exists (is_accepting n) !sts
 
 (* |accepted| -- returns the shortest word accepted by dfa m *)
 let accepted n =
@@ -134,7 +101,7 @@ let accepted n =
         shortest = ref None in
     while Option.is_none !shortest && List.length !queue > 0 do
         let (currentState, currentWord) = List.hd !queue in
-        if List.mem currentState n.accepting then (shortest := Some(currentWord))
+        if (is_accepting n currentState) then (shortest := Some(currentWord))
         else (
             seen := currentState::!seen;
             queue := (List.tl !queue) @ 
@@ -184,12 +151,7 @@ let create qs alph tran init fin =
         List.rev_map (fun (s,a,t) ->
             (Option.get (Utils.index s qs), a, Option.get (Utils.index t qs))
         ) tran
-    and newfin = 
-        List.rev_map (fun s ->
-            Option.get (Utils.index s qs)
-        ) fin
-    in
-
+    and newfin = List.rev_map (fun s -> Option.get (Utils.index s qs)) fin in
     {
         states = newstates;
         alphabet = alph;
@@ -198,3 +160,38 @@ let create qs alph tran init fin =
         transitions = newtran;
     }
   
+let counter = ref 0;;
+
+(* |construct_rec_nfa| -- recursively builds NFA for given re *)
+let rec construct_rec_nfa = function
+    | Literal a -> counter := !counter + 2;
+                {states = [!counter - 2; !counter - 1]; alphabet = [a]; start = !counter - 2; accepting = [!counter - 1]; transitions = [(!counter - 2, a, !counter - 1)]}
+    | Epsilon -> counter := !counter + 1;
+                {states = [!counter - 1]; alphabet = []; start = !counter - 1; accepting = [!counter - 1]; transitions = []}
+    | Empty -> counter := !counter + 1;
+                {states = [!counter - 1]; alphabet = []; start = !counter - 1; accepting = []; transitions = []}
+    | Union (r1, r2) -> let nfa1 = construct_rec_nfa r1 and nfa2 = construct_rec_nfa r2 in
+                counter := !counter + 1;
+                {states = (!counter - 1) :: (nfa1.states @ nfa2.states); alphabet = Utils.list_union nfa1.alphabet nfa2.alphabet; start = !counter - 1; accepting = nfa1.accepting @ nfa2.accepting; 
+                transitions = ((!counter - 1, "ε", nfa1.start) :: nfa1.transitions) @ ((!counter - 1, "ε", nfa2.start) :: nfa2.transitions)}
+    | Concat (r1, r2) -> let nfa1 = construct_rec_nfa r1 and nfa2 = construct_rec_nfa r2 in
+                let newtrans = List.rev_map (fun s -> (s,"ε",nfa2.start)) nfa1.accepting in
+                {states = nfa1.states @ nfa2.states; alphabet = Utils.list_union nfa1.alphabet nfa2.alphabet; start = nfa1.start; accepting = nfa2.accepting;
+                transitions = nfa1.transitions @ newtrans @ nfa2.transitions}
+    | Star r -> let nfa1 = construct_rec_nfa r in
+                let newtrans = List.rev_map (fun s -> (s, "ε", nfa1.start)) nfa1.accepting in
+                counter := !counter + 1;
+                {states = (!counter - 1) :: nfa1.states; alphabet = nfa1.alphabet; start = !counter - 1; accepting = (!counter - 1) :: nfa1.accepting;
+                transitions = (!counter - 1, "ε", nfa1.start) :: newtrans @ nfa1.transitions}
+
+(* |re_to_nfa| -- converts input regex AST into nfa *)
+let re_to_nfa re = 
+    counter := 0;
+    let n = construct_rec_nfa re in
+    {
+        states = List.sort compare n.states;
+        alphabet = List.rev n.alphabet;
+        start = n.start;
+        accepting = n.accepting;
+        transitions = n.transitions;
+    }    
