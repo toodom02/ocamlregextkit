@@ -1,143 +1,99 @@
-Note: Nodes accounting for less than 1.00% of their parent have been ignored.
-
 1 State
 -----------------------------------------------------
-[   5.12K cycles in 1 calls ]   - 47.23% : Intersecting DFAs
-[   2.19K cycles in 1 calls ]   - 20.17% : Checking emptiness
-[ 979.00  cycles in 1 calls ]   -  9.02% : Complementing DFAs
-
-====================================
+[   2.29K cycles in 1 calls ]   - 34.70% : Symetric Difference of DFAs
+[   1.27K cycles in 1 calls ]   - 19.21% : Checking emptiness
 
 2 States
 -----------------------------------------------------
-[  11.58K cycles in 1 calls ]   - 50.27% : Intersecting DFAs
-[   7.72K cycles in 1 calls ]   - 33.50% : Checking emptiness
-[   1.18K cycles in 1 calls ]   -  5.12% : Complementing DFAs
-
-====================================
+[  11.82K cycles in 1 calls ]   - 57.88% : Symetric Difference of DFAs
+[   5.75K cycles in 1 calls ]   - 28.17% : Checking emptiness
 
 3 States
 -----------------------------------------------------
-[  23.37K cycles in 1 calls ]   - 47.01% : Intersecting DFAs
-[  21.31K cycles in 1 calls ]   - 42.85% : Checking emptiness
-[ 921.00  cycles in 1 calls ]   -  1.85% : Complementing DFAs
-
-====================================
+[  16.91K cycles in 1 calls ]   - 49.89% : Symetric Difference of DFAs
+[  14.25K cycles in 1 calls ]   - 42.07% : Checking emptiness
 
 4 States
 -----------------------------------------------------
-[  45.32K cycles in 1 calls ]   - 50.79% : Intersecting DFAs
-[  39.01K cycles in 1 calls ]   - 43.72% : Checking emptiness
-[ 954.00  cycles in 1 calls ]   -  1.07% : Complementing DFAs
-
-====================================
+[  28.57K cycles in 1 calls ]   - 34.48% : Checking emptiness
+[  25.81K cycles in 1 calls ]   - 31.15% : Symetric Difference of DFAs
 
 5 States
 -----------------------------------------------------
-[  77.60K cycles in 1 calls ]   - 53.53% : Intersecting DFAs
-[  62.17K cycles in 1 calls ]   - 42.88% : Checking emptiness
-
-====================================
+[  32.45K cycles in 1 calls ]   - 51.86% : Symetric Difference of DFAs
+[  28.17K cycles in 1 calls ]   - 45.02% : Checking emptiness
 
 6 States
 -----------------------------------------------------
-[ 408.97K cycles in 1 calls ]   - 75.66% : Intersecting DFAs
-[ 123.65K cycles in 1 calls ]   - 22.87% : Checking emptiness
-
-====================================
+[  59.75K cycles in 1 calls ]   - 53.44% : Checking emptiness
+[  48.98K cycles in 1 calls ]   - 43.81% : Symetric Difference of DFAs
 
 7 States
 -----------------------------------------------------
-[ 340.94K cycles in 1 calls ]   - 60.32% : Checking emptiness
-[ 220.03K cycles in 1 calls ]   - 38.93% : Intersecting DFAs
-
-====================================
+[ 149.10K cycles in 1 calls ]   - 58.65% : Checking emptiness
+[ 102.21K cycles in 1 calls ]   - 40.21% : Symetric Difference of DFAs
 
 8 States
 -----------------------------------------------------
-[ 279.26K cycles in 1 calls ]   - 49.87% : Intersecting DFAs
-[ 275.44K cycles in 1 calls ]   - 49.18% : Checking emptiness
-
-====================================
+[ 167.59K cycles in 1 calls ]   - 57.66% : Checking emptiness
+[ 121.28K cycles in 1 calls ]   - 41.73% : Symetric Difference of DFAs
 
 9 States
 -----------------------------------------------------
-[ 876.52K cycles in 1 calls ]   - 67.32% : Checking emptiness
-[ 411.41K cycles in 1 calls ]   - 31.60% : Intersecting DFAs
-
-====================================
+[ 233.96K cycles in 1 calls ]   - 62.83% : Checking emptiness
+[ 132.70K cycles in 1 calls ]   - 35.64% : Symetric Difference of DFAs
 
 10 States
 ------------------------------------------------------
-[   1.68M cycles in 1 calls ]   - 72.36% : Intersecting DFAs
-[ 631.49K cycles in 1 calls ]   - 27.16% : Checking emptiness
-
-====================================
+[ 297.85K cycles in 1 calls ]   - 57.45% : Checking emptiness
+[ 218.87K cycles in 1 calls ]   - 42.22% : Symetric Difference of DFAs
 
 11 States
 ------------------------------------------------------
-[ 916.28K cycles in 1 calls ]   - 59.20% : Checking emptiness
-[ 625.79K cycles in 1 calls ]   - 40.43% : Intersecting DFAs
-
-====================================
+[ 648.66K cycles in 1 calls ]   - 64.24% : Checking emptiness
+[ 358.03K cycles in 1 calls ]   - 35.46% : Symetric Difference of DFAs
 
 12 States
 ------------------------------------------------------
-[   1.07M cycles in 1 calls ]   - 56.51% : Checking emptiness
-[ 817.28K cycles in 1 calls ]   - 43.18% : Intersecting DFAs
-
-====================================
+[ 637.05K cycles in 1 calls ]   - 60.57% : Checking emptiness
+[ 411.47K cycles in 1 calls ]   - 39.12% : Symetric Difference of DFAs
 
 13 States
 ------------------------------------------------------
-[   1.28M cycles in 1 calls ]   - 50.50% : Intersecting DFAs
-[   1.25M cycles in 1 calls ]   - 49.16% : Checking emptiness
-
-====================================
+[   1.10M cycles in 1 calls ]   - 52.80% : Checking emptiness
+[ 974.63K cycles in 1 calls ]   - 46.76% : Symetric Difference of DFAs
 
 14 States
 ------------------------------------------------------
-[   2.19M cycles in 1 calls ]   - 57.71% : Checking emptiness
-[   1.59M cycles in 1 calls ]   - 41.98% : Intersecting DFAs
-
-====================================
+[ 664.75K cycles in 1 calls ]   - 58.96% : Checking emptiness
+[ 459.40K cycles in 1 calls ]   - 40.74% : Symetric Difference of DFAs
 
 15 States
 ------------------------------------------------------
-[   2.49M cycles in 1 calls ]   - 62.44% : Checking emptiness
-[   1.49M cycles in 1 calls ]   - 37.35% : Intersecting DFAs
-
-====================================
+[ 920.62K cycles in 1 calls ]   - 58.65% : Checking emptiness
+[ 645.35K cycles in 1 calls ]   - 41.11% : Symetric Difference of DFAs
 
 16 States
 ------------------------------------------------------
-[   3.59M cycles in 1 calls ]   - 60.67% : Checking emptiness
-[   2.30M cycles in 1 calls ]   - 38.87% : Intersecting DFAs
-
-====================================
+[   1.07M cycles in 1 calls ]   - 54.85% : Checking emptiness
+[ 877.25K cycles in 1 calls ]   - 45.01% : Symetric Difference of DFAs
 
 17 States
 ------------------------------------------------------
-[   3.61M cycles in 1 calls ]   - 61.27% : Checking emptiness
-[   2.23M cycles in 1 calls ]   - 37.82% : Intersecting DFAs
-
-====================================
+[   1.61M cycles in 1 calls ]   - 64.30% : Checking emptiness
+[ 889.17K cycles in 1 calls ]   - 35.60% : Symetric Difference of DFAs
 
 18 States
 ------------------------------------------------------
-[   5.02M cycles in 1 calls ]   - 65.70% : Checking emptiness
-[   2.61M cycles in 1 calls ]   - 34.14% : Intersecting DFAs
-
-====================================
+[   1.19M cycles in 1 calls ]   - 55.68% : Checking emptiness
+[ 946.18K cycles in 1 calls ]   - 44.23% : Symetric Difference of DFAs
 
 19 States
 ------------------------------------------------------
-[   4.24M cycles in 1 calls ]   - 55.65% : Checking emptiness
-[   3.37M cycles in 1 calls ]   - 44.18% : Intersecting DFAs
-
-====================================
+[   1.40M cycles in 1 calls ]   - 56.04% : Checking emptiness
+[   1.09M cycles in 1 calls ]   - 43.87% : Symetric Difference of DFAs
 
 20 States
 ------------------------------------------------------
-[   6.32M cycles in 1 calls ]   - 65.91% : Checking emptiness
-[   3.26M cycles in 1 calls ]   - 33.97% : Intersecting DFAs
+[   2.77M cycles in 1 calls ]   - 63.96% : Checking emptiness
+[   1.56M cycles in 1 calls ]   - 35.97% : Symetric Difference of DFAs

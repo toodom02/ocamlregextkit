@@ -73,24 +73,17 @@ let disjoin_dfas m1 m2 =
 let main = register "main"
 let disjoin = register "disjoin DFAs"
 let loop = register "main loop"
-let complementing = register "Complementing DFAs"
-let product_intersecting = register "Intersecting DFAs"
+let product_differencing = register "Symetric Difference of DFAs"
 let emptiness = register "Checking emptiness"
 
 let _profile_symmetric_equiv m1 m2 =
     start_profiling ();
     enter main;
-    enter complementing;
-    let comp1 = complement m1 and
-        comp2 = complement m2 in
-    exit complementing;
-    enter product_intersecting;
-    let m1notm2 = product_intersection m1 comp2 and
-        m2notm1 = product_intersection comp1 m2 in
-    exit product_intersecting;
+    enter product_differencing;
+    let diff = product_difference m1 m2 in
+    exit product_differencing;
     enter emptiness;
-    let _ = is_empty m1notm2 and
-        _ = is_empty m2notm1 in
+    let _ = is_empty diff in
     exit emptiness;
     exit main
 

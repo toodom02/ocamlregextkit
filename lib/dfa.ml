@@ -3,7 +3,7 @@ type dfa = {
     states: state list; alphabet: string list; transitions: (state * string * state) list; start: state; accepting: state list
 }
 
-type product_op = Union | Intersection
+type product_op = Union | Intersection | SymmetricDifference
 
 (* |is_accepting| -- returns true if state s is accepting *)
 let is_accepting m s = List.mem s m.accepting
@@ -51,7 +51,7 @@ let reachable_states m = Utils.reachable_states m.start m.transitions
 (* |succ| -- the resulting state of dfa m after reading symbol *)
 let succ m state symbol = 
     let rec sinkState = function
-          State _ -> State []
+        | State _ -> State []
         | ProductState (l,r) -> ProductState (sinkState l,sinkState r)
     in
 
@@ -86,7 +86,7 @@ let is_empty m =
 (* |accepts| -- returns true iff string s is accepted by the dfa m *)
 let accepts m s =
     let rec does_accept state = function
-          "" -> is_accepting m state
+        | "" -> is_accepting m state
         | str -> does_accept (succ m state (String.make 1 str.[0])) (String.sub str 1 ((String.length str) - 1))
     in
     does_accept m.start s
@@ -109,7 +109,7 @@ let accepted m =
     done;
     !shortest
 
-let product_operation op m1 m2 =
+let product_construction op m1 m2 =
     let cross_product a b =
         List.concat (List.rev_map (fun e1 -> List.rev_map (fun e2 -> ProductState (e1,e2)) b) a)
     in
@@ -117,12 +117,12 @@ let product_operation op m1 m2 =
     let find_product_trans m1 m2 cartStates alphabet = 
         List.fold_left (fun acc s ->
             match s with
-            | ProductState (l,r) -> 
-                List.fold_left (fun acc' a ->
-                    let lRes = succ m1 l a and rRes = succ m2 r a in
-                    (ProductState(l,r),a,ProductState(lRes,rRes))::acc'
-                ) acc alphabet
-            | _ -> acc
+                | ProductState (l,r) -> 
+                    List.fold_left (fun acc' a ->
+                        let lRes = succ m1 l a and rRes = succ m2 r a in
+                        (ProductState(l,r),a,ProductState(lRes,rRes))::acc'
+                    ) acc alphabet
+                | _ -> acc
         ) [] cartStates
     in
     let cartesianStates = cross_product m1.states m2.states in
@@ -133,6 +133,7 @@ let product_operation op m1 m2 =
                 match op with 
                     | Union -> is_accepting m1 l || is_accepting m2 r
                     | Intersection -> is_accepting m1 l && is_accepting m2 r
+                    | SymmetricDifference -> is_accepting m1 l && not (is_accepting m2 r) || not (is_accepting m1 l) && is_accepting m2 r
                 )
             | _ -> false
         ) cartesianStates in
@@ -145,10 +146,13 @@ let product_operation op m1 m2 =
     }
 
 (* |product_intersection| -- returns the intersection of two input dfas, using the product construction *)
-let product_intersection = product_operation Intersection
+let product_intersection = product_construction Intersection
 
 (* |product_union| -- returns the union of two input dfas, using the product construction *)
-let product_union = product_operation Union
+let product_union = product_construction Union
+
+(* |product_difference| -- returns the symmetric difference of two input dfas, using the product construction *)
+let product_difference = product_construction SymmetricDifference
 
 (* |disjoin_dfas| -- returns a tuple of disjoint DFAs, over the same alphabet *)
 (* NB: Transition functions may no longer be Total *)
@@ -207,12 +211,8 @@ let hopcroft_equiv m1 m2 =
         List.for_all (fun s -> not (is_accepting m1' s || is_accepting m2' s)) ss
     ) !merged_states
 
-let symmetric_equiv m1 m2 =
-    let comp1 = complement m1 and
-        comp2 = complement m2 in
-    let m1notm2 = product_intersection m1 comp2 and
-        m2notm1 = product_intersection comp1 m2 in
-        (is_empty m1notm2) && (is_empty m2notm1)
+(* |symmetric_equiv| -- returns true iff DFAs are equivalent, by Symmetric Difference *)
+let symmetric_equiv m1 m2 = is_empty (product_difference m1 m2)
 
 (* |is_equiv| -- synonym for hopcroft_equiv *)
 let is_equiv = hopcroft_equiv
