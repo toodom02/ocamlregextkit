@@ -59,6 +59,10 @@ val accepted : dfa -> string option
     @return the intersection of DFAs [m1] [m2], by the product construction *)
 val product_intersection : dfa -> dfa -> dfa
 
+(** [product_difference m1 m2] 
+    @return the symmetric difference of DFAs [m1] [m2], by the product construction *)
+val product_difference : dfa -> dfa -> dfa
+
 (** [product_union m1 m2] 
     @return the union of DFAs [m1] [m2], by the product construction *)
 val product_union : dfa -> dfa -> dfa
