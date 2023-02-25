@@ -101,7 +101,7 @@ let create qs alph tran init fin =
         accepting = newfin;
     }
   
-let counter = ref 0;;
+let counter = ref 0
 
 (* |construct_rec_nfa| -- recursively builds NFA for given re *)
 let rec construct_rec_nfa = function

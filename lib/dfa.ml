@@ -3,7 +3,7 @@ type dfa = {
     states: state array; alphabet: string array; transitions: int array array; start: int; accepting: bool array
 }
 
-type product_op = Union | Intersection
+type product_op = Union | Intersection | SymmetricDifference
 
 (* |is_accepting| -- returns true if state s is accepting *)
 let is_accepting m s = m.accepting.(s)
@@ -121,6 +121,7 @@ let product_construction op m1 m2 =
                     match op with 
                         | Union -> (is_accepting m1 li) || (is_accepting m2 ri)
                         | Intersection -> (is_accepting m1 li) && (is_accepting m2 ri)
+                        | SymmetricDifference -> is_accepting m1 li && not (is_accepting m2 ri) || not (is_accepting m1 li) && is_accepting m2 ri
                     )
                 | _ -> false
         ) cartesianStates in
@@ -137,6 +138,9 @@ let product_union = product_construction Union
 
 (* |product_intersection| -- returns the intersection of two input dfas, using the product construction *)
 let product_intersection = product_construction Intersection
+
+(* |product_intersection| -- returns the symmetric difference of two input dfas, using the product construction *)
+let product_difference = product_construction SymmetricDifference
 
 (* |disjoin_dfas| -- returns a tuple of disjoint DFAs, over the same alphabet *)
 (* NB: Transition functions may no longer be Total *)
@@ -197,12 +201,8 @@ let hopcroft_equiv m1 m2 =
         List.for_all (fun s -> not (if (s >= 0) then (is_accepting m1' s) else (is_accepting m2' (-s-1)))) ss
     ) !merged_states
 
-let symmetric_equiv m1 m2 =
-    let comp1 = complement m1 and
-        comp2 = complement m2 in
-    let m1notm2 = product_intersection m1 comp2 and
-        m2notm1 = product_intersection comp1 m2 in
-        (is_empty m1notm2) && (is_empty m2notm1)
+(* |symmetric_equi| -- returns true iff DFAs are equivalent, by symmetric difference *)
+let symmetric_equiv m1 m2 = is_empty (product_difference m1 m2)
 
 (* |is_equiv| -- synonym for hopcroft_equiv *)
 let is_equiv = hopcroft_equiv
