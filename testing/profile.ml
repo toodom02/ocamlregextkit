@@ -73,8 +73,51 @@ let disjoin_dfas m1 m2 =
 let main = register "main"
 let disjoin = register "disjoin DFAs"
 let loop = register "main loop"
-let product_differencing = register "Symetric Difference of DFAs"
+let product_differencing = register "Symmetric Difference of DFAs"
 let emptiness = register "Checking emptiness"
+
+let cartStates = register "Calculating cartesian states"
+let findtrans = register "Calculating transitions"
+let findAccepting = register "Calculating accepting states"
+
+let product_difference m1 m2 =
+    let cross_product a b =
+        List.concat (List.rev_map (fun e1 -> List.rev_map (fun e2 -> ProductState (e1,e2)) b) a)
+    in
+    (* |find_product_trans| -- returns { ((l,r),a,(l',r')) : (l,a,l') ∧ (r,a,r') } *)
+    let find_product_trans m1 m2 cartStates alphabet = 
+        List.fold_left (fun acc s ->
+            match s with
+                | ProductState (l,r) -> 
+                    List.fold_left (fun acc' a ->
+                        let lRes = succ m1 l a and rRes = succ m2 r a in
+                        (ProductState(l,r),a,ProductState(lRes,rRes))::acc'
+                    ) acc alphabet
+                | _ -> acc
+        ) [] cartStates
+    in
+    enter cartStates;
+    let cartesianStates = cross_product m1.states m2.states in
+    exit cartStates;
+    let unionAlphabet = list_union m1.alphabet m2.alphabet in
+    enter findtrans;
+    let cartTrans = find_product_trans m1 m2 cartesianStates unionAlphabet in
+    exit findtrans;
+    enter findAccepting;
+    let cartAccepting = List.filter (function 
+            | ProductState (l,r) -> (
+                is_accepting m1 l && not (is_accepting m2 r) || not (is_accepting m1 l) && is_accepting m2 r
+                )
+            | _ -> false
+        ) cartesianStates in
+    exit findAccepting;
+    {
+        states = cartesianStates;
+        alphabet = unionAlphabet;
+        transitions = cartTrans;
+        start = ProductState (m1.start, m2.start);
+        accepting = cartAccepting;
+    }
 
 let _profile_symmetric_equiv m1 m2 =
     start_profiling ();
@@ -401,7 +444,8 @@ let main () =
         ] (fun _ -> ()) "ERROR";
 
     let dfa1 = generate_random_dfa !size in
-    _profile_symmetric_equiv dfa1 dfa1;
+    let dfa2 = generate_random_dfa !size in
+    _profile_symmetric_equiv dfa1 dfa2;
     Printf.printf "\n====================================\n\n%i States\n" (!size+1)
 
 let () = main ()
