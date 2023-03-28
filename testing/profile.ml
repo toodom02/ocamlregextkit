@@ -1,3 +1,5 @@
+(* To be updated since ADT update
+
 (* Code to profile equivalence and minimisation functions for DFAs *)
 (* includes lots of duplicated code in order to profile segments *)
 
@@ -448,4 +450,4 @@ let main () =
     _profile_symmetric_equiv dfa1 dfa2;
     Printf.printf "\n====================================\n\n%i States\n" (!size+1)
 
-let () = main ()
+let () = main () *)

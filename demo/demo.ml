@@ -3,31 +3,31 @@
 open Regextkit
 
 (* |test_dfa_pred_succ| -- Tests DFAs pred and succ methods by checking that for each state, the predecessors of a successor contains itself *)
-let test_dfa_pred_succ (m: Dfa.dfa) =
+let test_dfa_pred_succ m =
     if List.exists (fun s ->
         List.exists (fun a ->
             let succ = Dfa.succ m s a in
             not (List.mem s (Dfa.pred m succ a))
-        ) m.alphabet
-    ) m.states then exit 1
+        ) (Dfa.get_alphabet m)
+    ) (Dfa.get_states m) then exit 1
 
 (* |test_dfa_total| -- Tests that DFA is total, i.e. each state has exactly one transition for each letter *)
-let test_dfa_total (m: Dfa.dfa) =
+let test_dfa_total m =
     if not (List.for_all (fun s ->
         List.for_all (fun a ->
-            let ts = List.find_all (fun (s',a',_) -> s = s' && a = a') m.transitions in
+            let ts = List.find_all (fun (s',a',_) -> s = s' && a = a') (Dfa.get_transitions m) in
             List.length ts = 1
-        ) m.alphabet
-    ) m.states) then exit 1
+        ) (Dfa.get_alphabet m)
+    ) (Dfa.get_states m)) then exit 1
 
 (* |test_nfa_pred_succ| -- Tests NFAs pred and succ methods by checking that for each state, the successor of a predecessor contains itself *)
-let test_nfa_pred_succ (n: Nfa.nfa) =
+let test_nfa_pred_succ n =
     if List.exists (fun s ->
         let pred = Nfa.pred n s in
         List.exists (fun ss ->
-            not (List.exists (fun a -> List.mem s (Nfa.succ n ss a)) n.alphabet)
+            not (List.exists (fun a -> List.mem s (Nfa.succ n ss a)) (Nfa.get_alphabet n))
         ) pred
-    ) n.states then exit 1
+    ) (Nfa.get_states n) then exit 1
 
 let main () = 
     (* Get CLI args *)

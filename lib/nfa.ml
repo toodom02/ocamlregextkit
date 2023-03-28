@@ -1,20 +1,24 @@
 open Tree
 
 type state = int
-type nfa = {
-    states: state list; alphabet: string list; transitions: (state * string * state) list; start: state; accepting: state list
-}
+type nfa = state Adt.automata
+
+let get_states = Adt.get_states
+let get_alphabet = Adt.get_alphabet
+let get_transitions = Adt.get_transitions
+let get_start = Adt.get_start
+let get_accepting = Adt.get_accepting
 
 (* |is_accepting| -- returns true if state s is accepting *)
-let is_accepting n s = List.mem s n.accepting
+let is_accepting = Adt.is_accepting
 
 (* |print| -- prints out nfa representation *)
 let print n = 
-    print_string "states: "; List.iter (fun s -> print_int s; print_char ' ') n.states; print_newline ();
-    print_string "alphabet: "; List.iter (fun a -> print_string a; print_char ' ') n.alphabet; print_newline ();
-    print_string "start: "; print_int n.start; print_newline ();
-    print_string "accepting: "; List.iter (fun s -> print_int s; print_char ' ') n.accepting; print_newline ();
-    print_string "transitions: "; print_newline(); List.iter (fun (s,a,t) -> print_string "    "; print_int s; print_string ("\t--"^a^"-->\t"); print_int t; print_newline ()) n.transitions
+    print_string "states: "; List.iter (fun s -> print_int s; print_char ' ') (get_states n); print_newline ();
+    print_string "alphabet: "; List.iter (fun a -> print_string a; print_char ' ') (get_alphabet n); print_newline ();
+    print_string "start: "; print_int (get_start n); print_newline ();
+    print_string "accepting: "; List.iter (fun s -> print_int s; print_char ' ') (get_accepting n); print_newline ();
+    print_string "transitions: "; print_newline(); List.iter (fun (s,a,t) -> print_string "    "; print_int s; print_string ("\t--"^a^"-->\t"); print_int t; print_newline ()) (get_transitions n)
 
 (* |export_graphviz| -- exports the nfa in the DOT language for Graphviz *)
 let export_graphviz n =
@@ -23,19 +27,20 @@ let export_graphviz n =
     (List.fold_left (fun a s -> 
         let shape = "ellipse, " ^ if (is_accepting n s) then "peripheries=2, " else "" in
         Printf.sprintf "%s\"%s\" [shape=%s];\n" a (string_of_int s) shape
-      ) "" n.states)
+      ) "" (get_states n))
         
-    (string_of_int n.start)
+    (string_of_int (get_start n))
 
     (List.fold_left (fun acc (s,a,t) ->
             Printf.sprintf "%s%s -> %s [label=\"%s\", ];\n" acc (string_of_int s) (string_of_int t) a
-    ) "" n.transitions)
+    ) "" (get_transitions n))
 
 (* |eps_reachable_set| -- returns set of all epsilon-reachable states from input set of states *)
+(* TODO: Optimise for ADT *)
 let eps_reachable_set n ss =
 
     let get_reachable_set states =    
-        List.fold_right Utils.add_unique (List.filter_map (fun (s,a,t) -> if List.mem s states && a = "ε" then Some(t) else None) n.transitions) states
+        List.fold_right Utils.add_unique (List.filter_map (fun (s,a,t) -> if List.mem s states && a = "ε" then Some(t) else None) (get_transitions n)) states
     in
 
     (* iterate reachable set until no changes *)
@@ -48,37 +53,33 @@ let eps_reachable_set n ss =
     List.sort compare !sts
 
 (* |reachable_states| -- returns the set of reachable states in nfa n *)
-let reachable_states n = Utils.reachable_states n.start n.transitions
+let reachable_states n = Utils.reachable_states (get_start n) (get_transitions n)
 
 (* |succ| -- the resulting states of nfa n after reading symbol *)
+(* TODO: Optimise for ADT *)
 let succ n state symbol =
-    let initial_reachable = eps_reachable_set n [state] in    
+    let initial_reachable = eps_reachable_set n [state] in
     let succs = List.fold_left (fun acc (s,a,t) -> 
         if a = symbol && List.mem s initial_reachable then Utils.add_unique t acc else acc
     ) [] n.transitions in
     eps_reachable_set n succs
 
 (* |pred| -- returns the set of states preceeding state in nfa n *)
+(* TODO: Optimise for ADT *)
 let pred n state =
     (* all states from which state is eps_reachable *)
-    let epspreds = List.filter (fun s -> List.mem state (eps_reachable_set n [s])) n.states in
+    let epspreds = List.filter (fun s -> List.mem state (eps_reachable_set n [s])) (get_states n) in
     let preds = List.fold_left (fun acc tt ->
             List.fold_left (fun acc' (s,a,t) ->
                 if (tt = t && a <> "ε") then Utils.add_unique s acc' else acc'
             ) acc n.transitions
         ) [] epspreds in
-    List.filter (fun s -> List.exists (fun ss -> List.mem ss preds) (eps_reachable_set n [s])) n.states
+    List.filter (fun s -> List.exists (fun ss -> List.mem ss preds) (eps_reachable_set n [s])) (get_states n)
 
 (* |prune| -- reduces input nfa by pruning unreachable states *)
 let prune n = 
     let marked = reachable_states n in
-    {
-        states = List.filter (fun s -> List.mem s marked) n.states;
-        alphabet = n.alphabet;
-        start = n.start;
-        transitions = List.filter (fun (s,_,_) -> List.mem s marked) n.transitions;
-        accepting = List.filter (fun s -> List.mem s marked) n.accepting
-    }
+    Adt.create_automata (List.filter (fun s -> List.mem s marked) (get_states n)) (get_alphabet n) (List.filter (fun (s,_,_) -> List.mem s marked) (get_transitions n)) (get_start n) (List.filter (fun s -> List.mem s marked) (get_accepting n))
 
 (* |is_empty| -- returns true iff nfa has no reachable accepting states *)
 let is_empty n =
@@ -117,21 +118,11 @@ let accepted n =
 
 (* |merge_alphabets| -- returns pair of nfas with a common alphabet *)
 let merge_alphabets n1 n2 =
-    let newalphabet = Utils.list_union n1.alphabet n2.alphabet in
-    ({
-        states = n1.states;
-        alphabet = newalphabet;
-        start = n1.start;
-        accepting = n1.accepting;
-        transitions = n1.transitions;
-    },
-    {
-        states = n2.states;
-        alphabet = newalphabet;
-        start = n2.start;
-        accepting = n2.accepting;
-        transitions = n2.transitions;
-    })
+    let newalphabet = Utils.list_union (get_alphabet n1) (get_alphabet n2) in
+    (
+        Adt.create_automata (get_states n1) newalphabet (get_transitions n1) (get_start n1) (get_accepting n1),
+        Adt.create_automata (get_states n2) newalphabet (get_transitions n2) (get_start n2) (get_accepting n2)
+    )
 
 (* |create| -- Creates NFA, Renames states as their index in qs *)
 let create qs alph tran init fin =
@@ -152,46 +143,55 @@ let create qs alph tran init fin =
             (Option.get (Utils.index s qs), a, Option.get (Utils.index t qs))
         ) tran
     and newfin = List.rev_map (fun s -> Option.get (Utils.index s qs)) fin in
-    {
-        states = newstates;
-        alphabet = alph;
-        start = newinit;
-        accepting = newfin;
-        transitions = newtran;
-    }
+
+    Adt.create_automata newstates alph newtran newinit newfin
   
 let counter = ref 0
 
 (* |construct_rec_nfa| -- recursively builds NFA for given re *)
 let rec construct_rec_nfa = function
     | Literal a -> counter := !counter + 2;
-                {states = [!counter - 2; !counter - 1]; alphabet = [a]; start = !counter - 2; accepting = [!counter - 1]; transitions = [(!counter - 2, a, !counter - 1)]}
+        let states = [!counter - 2; !counter - 1] and alphabet = [a] 
+        and transitions = [(!counter - 2, a, !counter - 1)] 
+        and start = !counter - 2 and accepting = [!counter - 1] in
+        Adt.create_automata states alphabet transitions start accepting
     | Epsilon -> counter := !counter + 1;
-                {states = [!counter - 1]; alphabet = []; start = !counter - 1; accepting = [!counter - 1]; transitions = []}
+        let states = [!counter - 1] and alphabet = [] 
+        and transitions = [] and start = !counter - 1 
+        and accepting = [!counter - 1] in
+        Adt.create_automata states alphabet transitions start accepting
     | Empty -> counter := !counter + 1;
-                {states = [!counter - 1]; alphabet = []; start = !counter - 1; accepting = []; transitions = []}
-    | Union (r1, r2) -> let nfa1 = construct_rec_nfa r1 and nfa2 = construct_rec_nfa r2 in
-                counter := !counter + 1;
-                {states = (!counter - 1) :: (nfa1.states @ nfa2.states); alphabet = Utils.list_union nfa1.alphabet nfa2.alphabet; start = !counter - 1; accepting = nfa1.accepting @ nfa2.accepting; 
-                transitions = ((!counter - 1, "ε", nfa1.start) :: nfa1.transitions) @ ((!counter - 1, "ε", nfa2.start) :: nfa2.transitions)}
-    | Concat (r1, r2) -> let nfa1 = construct_rec_nfa r1 and nfa2 = construct_rec_nfa r2 in
-                let newtrans = List.rev_map (fun s -> (s,"ε",nfa2.start)) nfa1.accepting in
-                {states = nfa1.states @ nfa2.states; alphabet = Utils.list_union nfa1.alphabet nfa2.alphabet; start = nfa1.start; accepting = nfa2.accepting;
-                transitions = nfa1.transitions @ newtrans @ nfa2.transitions}
-    | Star r -> let nfa1 = construct_rec_nfa r in
-                let newtrans = List.rev_map (fun s -> (s, "ε", nfa1.start)) nfa1.accepting in
-                counter := !counter + 1;
-                {states = (!counter - 1) :: nfa1.states; alphabet = nfa1.alphabet; start = !counter - 1; accepting = (!counter - 1) :: nfa1.accepting;
-                transitions = (!counter - 1, "ε", nfa1.start) :: newtrans @ nfa1.transitions}
+        let states = [!counter - 1] and alphabet = [] 
+        and transitions = [] and start = !counter - 1 
+        and accepting = [] in
+        Adt.create_automata states alphabet transitions start accepting
+    | Union (r1, r2) -> let n1 = construct_rec_nfa r1 and n2 = construct_rec_nfa r2 in
+        counter := !counter + 1;
+        let states = (!counter - 1) :: (get_states n1 @ get_states n2) 
+        and alphabet = Utils.list_union (get_alphabet n1) (get_alphabet n2) 
+        and transitions = ((!counter - 1, "ε", n1.start) :: n1.transitions) 
+            @ ((!counter - 1, "ε", n2.start) :: n2.transitions) 
+        and start = !counter - 1 
+        and accepting = get_accepting n1 @ get_accepting n2 in
+        Adt.create_automata states alphabet transitions start accepting
+    | Concat (r1, r2) -> let n1 = construct_rec_nfa r1 and n2 = construct_rec_nfa r2 in
+        let newtrans = List.rev_map (fun s -> (s,"ε",n2.start)) (get_accepting n1) in
+        let states = get_states n1 @ get_states n2 
+        and alphabet = Utils.list_union (get_alphabet n1) (get_alphabet n2) 
+        and transitions = n1.transitions @ newtrans @ n2.transitions 
+        and start = n1.start and accepting = get_accepting n2 in
+        Adt.create_automata states alphabet transitions start accepting
+    | Star r -> let n1 = construct_rec_nfa r in
+        let newtrans = List.rev_map (fun s -> (s, "ε", n1.start)) (get_accepting n1) in
+        counter := !counter + 1;
+        let states = (!counter - 1) :: (get_states n1) 
+        and alphabet = (get_alphabet n1) 
+        and transitions = (!counter - 1, "ε", n1.start) :: newtrans @ n1.transitions 
+        and start = !counter - 1 and accepting = (!counter - 1) :: (get_accepting n1) in
+        Adt.create_automata states alphabet transitions start accepting
 
 (* |re_to_nfa| -- converts input regex AST into nfa *)
 let re_to_nfa re = 
     counter := 0;
     let n = construct_rec_nfa re in
-    {
-        states = List.sort compare n.states;
-        alphabet = List.rev n.alphabet;
-        start = n.start;
-        accepting = n.accepting;
-        transitions = n.transitions;
-    }    
+    Adt.create_automata (List.sort compare (get_states n)) (List.rev (get_alphabet n)) (get_transitions n) (get_start n) (get_accepting n)

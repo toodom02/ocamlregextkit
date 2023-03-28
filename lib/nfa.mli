@@ -1,17 +1,39 @@
 (** Representation of NFAs and implementation of standard operations *)
 
 type state = int
-type nfa = {
-    states: state list;
-    alphabet: string list;
-    transitions: (state * string * state) list;
-    start: state;
-    accepting: state list
-}
+type nfa = state Adt.automata
+
+(** [get_states n] 
+    @return a list of all states in NFA [n] *)
+    val get_states : nfa -> state list
+
+(** [get_alphabet n]
+    @return the alphabet of NFA [n] as a list *)
+val get_alphabet : nfa -> string list
+
+(** [get_transitions n]
+    @return the transition function of NFA [n] as a list of tuples [(s,a,t)] *)
+val get_transitions : nfa -> (state * string * state) list
+
+(** [get_start n]
+    @return the initial state of NFA [n] *)
+val get_start : nfa -> state
+
+(** [get_accepting n]
+    @return a list of all accepting states in NFA [n] *)
+val get_accepting : nfa -> state list
 
 (** [is_accepting n s] 
     @return true iff state [s] is an accepting state of NFA [n] *)
 val is_accepting : nfa -> state -> bool
+
+(** [succ n s w] 
+    @return a list of successor states of NFA [n] after reading word [w] from state [s] *)
+val succ : nfa -> state -> string -> state list
+
+(** [pred n s] 
+    @return a list of states that preceed the state [s] in NFA [n]  *)
+val pred : nfa -> state -> state list
 
 (** [create q al t s f] 
     @return the NFA of States [q], alphabet [al], transition function [t], initial state [s], and accepting states [f].
@@ -33,14 +55,6 @@ val eps_reachable_set : nfa -> state list -> state list
 (** [reachable_states n]
     @return the set of reachable (connected) states in the NFA [n] *)
 val reachable_states : nfa -> state list
-
-(** [succ n s w] 
-    @return a list of successor states of NFA [n] after reading word [w] from state [s] *)
-val succ : nfa -> state -> string -> state list
-
-(** [pred n s] 
-    @return a list of states that preceed the state [s] in NFA [n]  *)
-val pred : nfa -> state -> state list
 
 (** [prune n] 
     @return a reduction of NFA [n] by removing unreachable states *)

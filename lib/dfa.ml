@@ -1,82 +1,61 @@
 type state = State of int list | ProductState of state * state
-type dfa = {
-    states: state list; alphabet: string list; transitions: (state * string * state) list; start: state; accepting: state list
-}
+type dfa = state Adt.automata
 
 type product_op = Union | Intersection | SymmetricDifference
 
+let get_states = Adt.get_states
+let get_alphabet = Adt.get_alphabet
+let get_transitions = Adt.get_transitions
+let get_start = Adt.get_start
+let get_accepting = Adt.get_accepting
+
 (* |is_accepting| -- returns true if state s is accepting *)
-let is_accepting m s = List.mem s m.accepting
+let is_accepting = Adt.is_accepting
+
+(* |succ| -- the resulting state of dfa m after reading symbol *)
+let succ m s a = List.hd (Adt.get_next_states m s a)
+
+(* |pred| -- returns the state preceeding state in dfa m before reading symbol *)
+let pred = Adt.get_prev_states
 
 let rec stringify_state = function
-    | State n -> "[ " ^ (List.fold_left (fun acc s -> acc ^ string_of_int s ^ " ") "" n) ^ "]"
-    | ProductState (l,r) -> "(" ^ stringify_state l ^ " , " ^ stringify_state r ^ ")"
+  | State n -> "[ " ^ (List.fold_left (fun acc s -> acc ^ string_of_int s ^ " ") "" n) ^ "]"
+  | ProductState (l,r) -> "(" ^ stringify_state l ^ " , " ^ stringify_state r ^ ")"
 
 (* |print| -- prints out dfa representation *)
 let print m = 
-    print_string "states: "; List.iter (fun s -> print_string (stringify_state s)) m.states; print_newline ();
-    print_string "alphabet: "; List.iter (fun a -> print_string a; print_char ' ') m.alphabet; print_newline ();
-    print_string "start: "; print_string (stringify_state m.start); print_newline ();
-    print_string "accepting: "; List.iter (fun s -> print_string (stringify_state s)) m.accepting; print_newline ();
-    print_string "transitions: "; print_newline (); List.iter (fun (s,a,t) -> print_string "    "; print_string (stringify_state s); print_string ("\t--"^a^"-->\t"); print_string (stringify_state t); print_newline ()) m.transitions
+    print_string "states: "; List.iter (fun s -> print_string (stringify_state s)) (get_states m); print_newline ();
+    print_string "alphabet: "; List.iter (fun a -> print_string a; print_char ' ') (get_alphabet m); print_newline ();
+    print_string "start: "; print_string (stringify_state (get_start m)); print_newline ();
+    print_string "accepting: "; List.iter (fun s -> print_string (stringify_state s)) (get_accepting m); print_newline ();
+    print_string "transitions: "; print_newline (); List.iter (fun (s,a,t) -> print_string "    "; print_string (stringify_state s); print_string ("\t--"^a^"-->\t"); print_string (stringify_state t); print_newline ()) (get_transitions m)
 
 (* |export_graphviz| -- exports the dfa in the DOT language for Graphviz *)
 let export_graphviz d =
     Printf.sprintf "digraph G {\n n0 [label=\"\", shape=none, height=0, width=0, ]\n%s\nn0 -> \"%s\";\n%s\n}"
 
     (List.fold_left (fun a s -> 
-        let shape = "ellipse, " ^ if is_accepting d s then "peripheries=2, " else "" in
+        let shape = "ellipse, " ^ if Adt.is_accepting d s then "peripheries=2, " else "" in
         Printf.sprintf "%s\"%s\" [shape=%s];\n" a (stringify_state s) shape
-      ) "" d.states)
+      ) "" (get_states d))
         
-    (stringify_state d.start)
+    (stringify_state (get_start d))
 
     (List.fold_left (fun acc (s,a,t) ->
             Printf.sprintf "%s\"%s\" -> \"%s\" [label=\"%s\", ];\n" acc (stringify_state s) (stringify_state t) a
-    ) "" d.transitions)
+    ) "" (get_transitions d))
 
 (* |complement| -- returns the complement of input dfa *)
 let complement m = 
-    {
-        states = m.states;
-        alphabet = m.alphabet;
-        transitions = m.transitions;
-        start = m.start;
-        accepting = List.filter (fun s -> not (is_accepting m s)) m.states;  
-    }
+    Adt.create_automata (get_states m) (get_alphabet m) (get_transitions m) (get_start m) (List.filter (fun s -> not (is_accepting m s)) (get_states m))
 
 (* |reachable_states| -- returns the set of reachable states in dfa m *)
-let reachable_states m = Utils.reachable_states m.start m.transitions
-
-(* |succ| -- the resulting state of dfa m after reading symbol *)
-let succ m state symbol = 
-    let rec sinkState = function
-        | State _ -> State []
-        | ProductState (l,r) -> ProductState (sinkState l,sinkState r)
-    in
-
-    let postState = 
-        List.find_map (fun (s,a,t) -> 
-            if s = state && a = symbol then Some(t) else None
-        ) m.transitions in
-    if Option.is_none postState then sinkState m.start else Option.get postState
-
-(* |pred| -- returns the state preceeding state in dfa m before reading symbol *)
-let pred m state symbol = 
-    List.filter_map (fun (s,a,t) ->
-        if (t = state && a = symbol) then Some(s) else None
-    ) m.transitions
+let reachable_states m = Utils.reachable_states (get_start m) (get_transitions m)
 
 (* |prune| -- reduces input dfa by pruning unreachable states *)
 let prune m = 
     let marked = reachable_states m in
-    {
-        states = List.filter (fun s -> List.mem s marked) m.states;
-        alphabet = m.alphabet;
-        start = m.start;
-        transitions = List.filter (fun (s,_,_) -> List.mem s marked) m.transitions;
-        accepting = List.filter (fun s -> List.mem s marked) m.accepting
-    }
+    Adt.create_automata (List.filter (fun s -> List.mem s marked) (get_states m)) (get_alphabet m) (List.filter (fun (s,_,_) -> List.mem s marked) (get_transitions m)) (get_start m) (List.filter (fun s -> List.mem s marked) (get_accepting m))
 
 (* |is_empty| -- returns true iff dfa has no reachable accepting states *)
 let is_empty m =
@@ -89,11 +68,11 @@ let accepts m s =
         | "" -> is_accepting m state
         | str -> does_accept (succ m state (String.make 1 str.[0])) (String.sub str 1 ((String.length str) - 1))
     in
-    does_accept m.start s
+    does_accept (get_start m) s
 
 (* |accepted| -- returns the shortest word accepted by dfa m *)
 let accepted m =
-    let queue = ref [(m.start, "")] and
+    let queue = ref [(get_start m, "")] and
         seen = ref [] and
         shortest = ref None in
     while Option.is_none !shortest && List.length !queue > 0 do
@@ -111,7 +90,7 @@ let accepted m =
 
 let product_construction op m1 m2 =
     let cross_product a b =
-        List.concat (List.rev_map (fun e1 -> List.rev_map (fun e2 -> ProductState (e1,e2)) b) a)
+        List.concat (List.rev_map (fun e1 -> List.rev_map (fun e2 -> ProductState(e1,e2)) b) a)
     in
     (* |find_product_trans| -- returns { ((l,r),a,(l',r')) : (l,a,l') ∧ (r,a,r') } *)
     let find_product_trans m1 m2 cartStates alphabet = 
@@ -125,8 +104,8 @@ let product_construction op m1 m2 =
                 | _ -> acc
         ) [] cartStates
     in
-    let cartesianStates = cross_product m1.states m2.states in
-    let unionAlphabet = Utils.list_union m1.alphabet m2.alphabet in
+    let cartesianStates = cross_product (get_states m1) (get_states m2) in
+    let unionAlphabet = Utils.list_union (get_alphabet m1) (get_alphabet m2) in
     let cartTrans = find_product_trans m1 m2 cartesianStates unionAlphabet and
         cartAccepting = List.filter (function 
             | ProductState (l,r) -> (
@@ -137,13 +116,7 @@ let product_construction op m1 m2 =
                 )
             | _ -> false
         ) cartesianStates in
-    {
-        states = cartesianStates;
-        alphabet = unionAlphabet;
-        transitions = cartTrans;
-        start = ProductState (m1.start, m2.start);
-        accepting = cartAccepting;
-    }
+    Adt.create_automata cartesianStates unionAlphabet cartTrans (ProductState (get_start m1, get_start m2)) cartAccepting
 
 (* |product_intersection| -- returns the intersection of two input dfas, using the product construction *)
 let product_intersection = product_construction Intersection
@@ -163,31 +136,21 @@ let disjoin_dfas m1 m2 =
         | ProductState (s1,s2) -> ProductState (negate_state s1, negate_state s2)
     in
 
-    let merged_alphabet = Utils.list_union m1.alphabet m2.alphabet in
+    let merged_alphabet = Utils.list_union (get_alphabet m1) (get_alphabet m2) in
 
-    ({
-        states = m1.states;
-        alphabet = merged_alphabet;
-        transitions = m1.transitions;
-        start = m1.start;
-        accepting = m1.accepting;
-    },
-    {
-        states = List.rev_map (fun s -> negate_state s) m2.states;
-        alphabet = merged_alphabet;
-        transitions = List.rev_map (fun (s,a,t) -> (negate_state s,a,negate_state t)) m2.transitions;
-        start = negate_state m2.start;
-        accepting = List.rev_map (fun s -> negate_state s) m2.accepting;
-    })
+    (
+        Adt.create_automata (get_states m1) merged_alphabet (get_transitions m1) (get_start m1) (get_accepting m1),
+        Adt.create_automata (List.rev_map (fun s -> negate_state s) (get_states m2)) merged_alphabet (List.rev_map (fun (s,a,t) -> (negate_state s,a,negate_state t)) (get_transitions m2)) (negate_state (get_start m2)) (List.rev_map (fun s -> negate_state s) (get_accepting m2))
+    )
 
 (* |hopcroft_equiv| -- returns true iff DFAs are equivalent, by Hopcroft's algorithm *)
 let hopcroft_equiv m1 m2 =
     let (m1', m2') = disjoin_dfas m1 m2 in
-    let merged_states = ref (List.rev_map (fun s -> [s]) (m1'.states @ m2'.states)) and
+    let merged_states = ref (List.rev_map (fun s -> [s]) (get_states m1' @ get_states m2')) and
         stack = ref [] in
 
-    merged_states := List.filter_map (fun s -> if List.mem m2'.start s then Some(m1'.start::s) else if List.mem m1'.start s then None else Some(s)) !merged_states;
-    stack := [(m1'.start, m2'.start)];
+    merged_states := List.filter_map (fun s -> if List.mem (get_start m2') s then Some(get_start m1'::s) else if List.mem (get_start m1') s then None else Some(s)) !merged_states;
+    stack := [(get_start m1', get_start m2')];
     while (List.length !stack > 0) do
         let (q1,q2) = List.hd !stack in
         stack := List.tl !stack;
@@ -203,7 +166,7 @@ let hopcroft_equiv m1 m2 =
                     else Some(s)
                 ) !merged_states
             )
-        ) m1'.alphabet
+        ) (get_alphabet m1')
     done;
 
     List.for_all (fun ss ->
@@ -236,7 +199,7 @@ let myhill_min m =
                 | (_,[]) -> []
                 | (x::xs,ys) -> List.rev_append (List.rev_map (fun y -> (x, y)) ys) (find_pairs xs (List.tl ys))
         in
-        find_pairs m'.states m'.states
+        find_pairs (get_states m') (get_states m')
     in
     let marked = ref (List.filter (fun (p,q) ->
             let pa = is_accepting m' p and qa = is_accepting m' q in
@@ -252,7 +215,7 @@ let myhill_min m =
             if (List.exists (fun a -> 
                 let succp = succ m p a and succq = succ m q a in
                 List.mem (succp, succq) !marked || List.mem (succq, succp) !marked
-            ) m'.alphabet)
+            ) (get_alphabet m'))
             then (marked := (p,q)::!marked; stop := false) else newunmarked := (p,q)::!newunmarked;
         ) !unmarked;
         unmarked := !newunmarked
@@ -288,23 +251,17 @@ let myhill_min m =
         !merged
     in
 
-    let newtrans = List.fold_left (fun acc (s,a,t) -> Utils.add_unique (List.find (contains s) merged_states, a, List.find (contains t) merged_states) acc) [] m'.transitions and
-        newaccepting = List.fold_left (fun acc s -> Utils.add_unique (List.find (contains s) merged_states) acc) [] m'.accepting and
-        newstart = List.find (contains m'.start) merged_states in
+    let newtrans = List.fold_left (fun acc (s,a,t) -> Utils.add_unique (List.find (contains s) merged_states, a, List.find (contains t) merged_states) acc) [] (get_transitions m') and
+        newaccepting = List.fold_left (fun acc s -> Utils.add_unique (List.find (contains s) merged_states) acc) [] (get_accepting m') and
+        newstart = List.find (contains (get_start m')) merged_states in
 
-    {
-        states = merged_states;
-        alphabet = m'.alphabet;
-        transitions = newtrans;
-        start = newstart;
-        accepting = newaccepting;
-    }
+    Adt.create_automata merged_states (get_alphabet m') newtrans newstart newaccepting
 
 (* |brzozowski_min| -- minimise input DFA by Brzozowski's algorithm *)
 let brzozowski_min m =
     let reverse_and_determinise d =
-        let get_state s = Option.get (Utils.index s d.states) in
-        let newstart = List.sort compare (List.map get_state d.accepting) in
+        let get_state s = Option.get (Utils.index s (get_states d)) in
+        let newstart = List.sort compare (List.map get_state (get_accepting d)) in
         let newstates = ref [State newstart] and
             newtrans = ref [] and
             stack = ref [newstart] and
@@ -330,22 +287,16 @@ let brzozowski_min m =
                 );
 
                 newtrans := (State currentstate, a, State !nextstate)::!newtrans
-            ) d.alphabet
+            ) (get_alphabet d)
         done;
 
         let newaccepting = List.filter_map (function
-                | State s -> if List.mem (get_state d.start) s then Some(State s) else None
+                | State s -> if List.mem (get_state (get_start d)) s then Some(State s) else None
                 | _ -> None
             ) !newstates
         in
 
-        {
-            states = !newstates;
-            alphabet = d.alphabet;
-            transitions = !newtrans;
-            start = State newstart;
-            accepting = newaccepting;
-        }
+        Adt.create_automata !newstates (get_alphabet d) !newtrans (State newstart) newaccepting
     in
     (* reverse DFA *)
     let drd = reverse_and_determinise m in
@@ -357,9 +308,9 @@ let hopcroft_min m =
     let m' = prune m in
 
     let p = ref [] in
-    let qnotf = List.filter (fun s -> not (is_accepting m' s)) m'.states in
-    if List.length qnotf > 0 && List.length m'.accepting > 0 then p := [m'.accepting; qnotf] 
-    else if List.length m'.accepting > 0 then p := [m'.accepting]
+    let qnotf = List.filter (fun s -> not (is_accepting m' s)) (get_states m') in
+    if List.length qnotf > 0 && List.length (get_accepting m') > 0 then p := [get_accepting m'; qnotf] 
+    else if List.length (get_accepting m') > 0 then p := [get_accepting m']
     else if List.length qnotf > 0 then p := [qnotf];
     let w = ref !p in
 
@@ -367,7 +318,7 @@ let hopcroft_min m =
         let a = List.hd !w in
         w := List.tl !w;
         List.iter (fun c ->
-            let x = List.fold_left (fun acc (s,c',t) -> if c = c' && List.mem t a then Utils.add_unique s acc else acc) [] m'.transitions in
+            let x = List.fold_left (fun acc (s,c',t) -> if c = c' && List.mem t a then Utils.add_unique s acc else acc) [] (get_transitions m') in
             let newp = ref [] in
             List.iter (fun y ->
                 let xinty = List.filter (fun s -> List.mem s x) y and
@@ -384,7 +335,7 @@ let hopcroft_min m =
                 ) else newp := y::!newp
             ) !p;
             p := !newp
-        ) m'.alphabet
+        ) (get_alphabet m')
     done;
 
     let merged_states = List.fold_left (fun acc ss ->
@@ -393,17 +344,11 @@ let hopcroft_min m =
         else (List.hd ss)::acc 
     ) [] !p in
 
-    let newtrans = List.fold_left (fun acc (s,a,t) -> Utils.add_unique (List.find (contains s) merged_states, a, List.find (contains t) merged_states) acc) [] m'.transitions and
-        newaccepting = List.fold_left (fun acc s -> Utils.add_unique (List.find (contains s) merged_states) acc) [] m'.accepting and
-        newstart = List.find (contains m'.start) merged_states in
+    let newtrans = List.fold_left (fun acc (s,a,t) -> Utils.add_unique (List.find (contains s) merged_states, a, List.find (contains t) merged_states) acc) [] (get_transitions m') and
+        newaccepting = List.fold_left (fun acc s -> Utils.add_unique (List.find (contains s) merged_states) acc) [] (get_accepting m') and
+        newstart = List.find (contains (get_start m')) merged_states in
 
-    {
-        states = merged_states;
-        alphabet = m'.alphabet;
-        transitions = newtrans;
-        start = newstart;
-        accepting = newaccepting;
-    }
+    Adt.create_automata merged_states (get_alphabet m') newtrans newstart newaccepting
 
 (* |minimise| -- synonym for hopcroft_min *)
 let minimise = hopcroft_min
@@ -438,14 +383,8 @@ let nfa_to_dfa (n: Nfa.nfa) =
         | State s -> List.exists (Nfa.is_accepting n) s
         | _ -> false
     ) !newstates in
-        
-    {
-        states = !newstates;
-        alphabet = n.alphabet;
-        transitions = !newtrans;
-        start = State newstart;
-        accepting = newaccepting;
-    }
+
+    Adt.create_automata !newstates (n.alphabet) !newtrans (State newstart) newaccepting
 
 (* |create| -- Creates DFA, Renames states as their index in qs *)
 let create qs alph tran init fin =
@@ -488,10 +427,4 @@ let create qs alph tran init fin =
                         missingtran @ newtran @ List.map (fun a -> (sink,a,sink)) alph
                    else missingtran @ newtran in
 
-    {
-        states = newstates;
-        alphabet = alph;
-        start = newinit;
-        accepting = newfin;
-        transitions = newtrans;
-    }
+    Adt.create_automata newstates alph newtrans newinit newfin

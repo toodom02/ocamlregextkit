@@ -1,17 +1,38 @@
 (** Representation of DFAs and implementation of standard operations *)
-
 type state = State of int list | ProductState of state * state
-type dfa = {
-    states: state list; 
-    alphabet: string list; 
-    transitions: (state * string * state) list; 
-    start: state; 
-    accepting: state list
-}
+type dfa = state Adt.automata
 
-(** [is_accepting n s] 
-    @return true iff state [s] is an accepting state of NFA [n] *)
+(** [get_states m] 
+    @return a list of all states in DFA [m] *)
+    val get_states : dfa -> state list
+
+(** [get_alphabet m]
+    @return the alphabet of DFA [m] as a list *)
+val get_alphabet : dfa -> string list
+
+(** [get_transitions m]
+    @return the transition function of DFA [m] as a list of tuples [(s,a,t)] *)
+val get_transitions : dfa -> (state * string * state) list
+
+(** [get_start m]
+    @return the initial state of DFA [m] *)
+val get_start : dfa -> state
+
+(** [get_accepting m]
+    @return a list of all accepting states in DFA [m] *)
+val get_accepting : dfa -> state list
+
+(** [is_accepting m s] 
+    @return true iff state [s] is an accepting state of DFA [m] *)
 val is_accepting : dfa -> state -> bool
+
+(** [succ m s w] 
+    @return the successor state of DFA [m] after reading word [w] from state [s] *)
+    val succ : dfa -> state -> string -> state
+
+(** [pred m s w] 
+    @return the set of predecessor states of DFA [m] before reading word [w] from state [s] *)
+val pred : dfa -> state -> string -> state list
 
 (** [create q al t s f] 
     @return the DFA of States [q], alphabet [al], transition function [t], initial state [s], and accepting states [f].
@@ -30,14 +51,6 @@ val complement : dfa -> dfa
 (** [reachable_states m]
     @return the set of reachable (connected) states in the DFA [m] *)
 val reachable_states : dfa -> state list
-
-(** [succ m s w] 
-    @return the successor state of DFA [m] after reading word [w] from state [s] *)
-val succ : dfa -> state -> string -> state
-
-(** [pred m s w] 
-    @return the set of predecessor states of DFA [m] before reading word [w] from state [s] *)
-val pred : dfa -> state -> string -> state list
 
 (** [prune m] 
     @return a reduction of DFA [m] by removing unreachable states *)
