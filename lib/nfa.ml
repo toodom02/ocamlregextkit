@@ -36,11 +36,10 @@ let export_graphviz n =
     ) "" (get_transitions n))
 
 (* |eps_reachable_set| -- returns set of all epsilon-reachable states from input set of states *)
-(* TODO: Optimise for ADT *)
 let eps_reachable_set n ss =
 
-    let get_reachable_set states =    
-        List.fold_right Utils.add_unique (List.filter_map (fun (s,a,t) -> if List.mem s states && a = "ε" then Some(t) else None) (get_transitions n)) states
+    let get_reachable_set states =
+        List.fold_right (fun s acc -> Utils.list_union acc (Adt.get_next_states n s "ε")) states states
     in
 
     (* iterate reachable set until no changes *)
@@ -56,23 +55,19 @@ let eps_reachable_set n ss =
 let reachable_states n = Utils.reachable_states (get_start n) (get_transitions n)
 
 (* |succ| -- the resulting states of nfa n after reading symbol *)
-(* TODO: Optimise for ADT *)
 let succ n state symbol =
     let initial_reachable = eps_reachable_set n [state] in
-    let succs = List.fold_left (fun acc (s,a,t) -> 
-        if a = symbol && List.mem s initial_reachable then Utils.add_unique t acc else acc
-    ) [] n.transitions in
+    let succs = List.fold_right Utils.add_unique (List.concat_map (fun s -> Adt.get_next_states n s symbol) initial_reachable) [] in
     eps_reachable_set n succs
 
 (* |pred| -- returns the set of states preceeding state in nfa n *)
-(* TODO: Optimise for ADT *)
 let pred n state =
     (* all states from which state is eps_reachable *)
     let epspreds = List.filter (fun s -> List.mem state (eps_reachable_set n [s])) (get_states n) in
-    let preds = List.fold_left (fun acc tt ->
-            List.fold_left (fun acc' (s,a,t) ->
-                if (tt = t && a <> "ε") then Utils.add_unique s acc' else acc'
-            ) acc n.transitions
+    let preds = List.fold_left (fun acc s ->
+            List.fold_left (fun acc' a ->
+                Utils.list_union acc' (Adt.get_prev_states n s a)
+            ) acc (get_alphabet n)
         ) [] epspreds in
     List.filter (fun s -> List.exists (fun ss -> List.mem ss preds) (eps_reachable_set n [s])) (get_states n)
 
@@ -88,7 +83,7 @@ let is_empty n =
 
 (* |accepts| -- returns true iff string s is accepted by the nfa n. Can take a long time *)
 let accepts n s =
-    let sts = ref (eps_reachable_set n [n.start]) in
+    let sts = ref (eps_reachable_set n [get_start n]) in
     for i = 0 to String.length s - 1 do
         let c = (String.make 1 s.[i]) in
         sts := eps_reachable_set n (List.fold_left (fun a ss -> Utils.list_union (succ n ss c) a) [] !sts);
@@ -97,7 +92,7 @@ let accepts n s =
 
 (* |accepted| -- returns the shortest word accepted by dfa m *)
 let accepted n =
-    let queue = ref (List.rev_map (fun s -> (s,"")) (eps_reachable_set n [n.start])) and
+    let queue = ref (List.rev_map (fun s -> (s,"")) (eps_reachable_set n [get_start n])) and
         seen = ref [] and
         shortest = ref None in
     while Option.is_none !shortest && List.length !queue > 0 do
@@ -105,13 +100,15 @@ let accepted n =
         if (is_accepting n currentState) then (shortest := Some(currentWord))
         else (
             seen := currentState::!seen;
-            queue := (List.tl !queue) @ 
-                List.filter_map (fun (s,a,t) -> 
-                    if s = currentState && not (List.mem t !seen) then 
-                        if a = "ε" then Some((t,currentWord)) 
-                        else Some((t,currentWord^a)) 
-                    else None
-                ) n.transitions;
+            let newteps = List.filter_map (fun t ->
+                if not (List.mem t !seen) then Some((t, currentWord)) else None
+            ) (Adt.get_next_states n currentState "ε") and
+                newt = List.concat_map (fun a -> 
+                let nexts = Adt.get_next_states n currentState a in
+                List.filter_map (fun t -> if not (List.mem t !seen) then Some((t,currentWord^a)) else None) nexts
+            ) (get_alphabet n) in
+            
+            queue := (List.tl !queue) @ newteps @ newt;
         )
     done;
     !shortest
@@ -169,24 +166,24 @@ let rec construct_rec_nfa = function
         counter := !counter + 1;
         let states = (!counter - 1) :: (get_states n1 @ get_states n2) 
         and alphabet = Utils.list_union (get_alphabet n1) (get_alphabet n2) 
-        and transitions = ((!counter - 1, "ε", n1.start) :: n1.transitions) 
-            @ ((!counter - 1, "ε", n2.start) :: n2.transitions) 
+        and transitions = ((!counter - 1, "ε", get_start n1) :: get_transitions n1) 
+            @ ((!counter - 1, "ε", get_start n2) :: get_transitions n2) 
         and start = !counter - 1 
         and accepting = get_accepting n1 @ get_accepting n2 in
         Adt.create_automata states alphabet transitions start accepting
     | Concat (r1, r2) -> let n1 = construct_rec_nfa r1 and n2 = construct_rec_nfa r2 in
-        let newtrans = List.rev_map (fun s -> (s,"ε",n2.start)) (get_accepting n1) in
+        let newtrans = List.rev_map (fun s -> (s,"ε",get_start n2)) (get_accepting n1) in
         let states = get_states n1 @ get_states n2 
         and alphabet = Utils.list_union (get_alphabet n1) (get_alphabet n2) 
-        and transitions = n1.transitions @ newtrans @ n2.transitions 
-        and start = n1.start and accepting = get_accepting n2 in
+        and transitions = get_transitions n1 @ newtrans @ get_transitions n2 
+        and start = get_start n1 and accepting = get_accepting n2 in
         Adt.create_automata states alphabet transitions start accepting
     | Star r -> let n1 = construct_rec_nfa r in
-        let newtrans = List.rev_map (fun s -> (s, "ε", n1.start)) (get_accepting n1) in
+        let newtrans = List.rev_map (fun s -> (s, "ε", get_start n1)) (get_accepting n1) in
         counter := !counter + 1;
         let states = (!counter - 1) :: (get_states n1) 
         and alphabet = (get_alphabet n1) 
-        and transitions = (!counter - 1, "ε", n1.start) :: newtrans @ n1.transitions 
+        and transitions = (!counter - 1, "ε", get_start n1) :: newtrans @ get_transitions n1 
         and start = !counter - 1 and accepting = (!counter - 1) :: (get_accepting n1) in
         Adt.create_automata states alphabet transitions start accepting
 

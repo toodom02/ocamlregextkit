@@ -25,7 +25,7 @@ let is_accepting m s = List.mem s m.accepting
 let create_automata qs alph tran init fin =
   {
     states = qs;
-    alphabet = alph;
+    alphabet = List.sort compare alph;
     transitions = tran;
     start = init;
     accepting = fin;

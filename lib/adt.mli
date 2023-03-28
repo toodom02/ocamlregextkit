@@ -1,6 +1,4 @@
-type 't automata = {
-    states: 't list; alphabet: string list; transitions: ('t * string * 't) list; start: 't; accepting: 't list
-}
+type 't automata
 
 (** [get_states m] 
     @return a list of all states in [m] *)

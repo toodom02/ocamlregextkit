@@ -80,10 +80,11 @@ let accepted m =
         if is_accepting m currentState then (shortest := Some(currentWord))
         else (
             seen := currentState::!seen;
-            queue := (List.tl !queue) @ 
-                List.filter_map (fun (s,a,t) -> 
-                    if s = currentState && not (List.mem t !seen) then Some((t,currentWord^a)) else None
-                ) m.transitions;
+            let newt = List.filter_map (fun a -> 
+                let t = succ m currentState a in
+                if not (List.mem t !seen) then Some((t, currentWord^a)) else None
+            ) (get_alphabet m) in
+            queue := (List.tl !queue) @ newt
         )
     done;
     !shortest
@@ -272,12 +273,10 @@ let brzozowski_min m =
             stack := List.tl !stack;
             List.iter (fun a ->
                 let nextstate = ref [] in
-                List.iter (fun (s',a',t) ->
-                    if a = a' && List.mem (get_state t) currentstate then (
-                        nextstate := Utils.add_unique (get_state s') !nextstate
-                    )
-                ) d.transitions;
-
+                List.iter (fun t ->
+                    let preds = pred d (List.nth (get_states d) t) a in
+                    nextstate := Utils.list_union !nextstate (List.map get_state preds)
+                ) currentstate;
                 nextstate := List.sort compare !nextstate;
 
                 if not (List.mem !nextstate !donestates) then (
@@ -318,7 +317,7 @@ let hopcroft_min m =
         let a = List.hd !w in
         w := List.tl !w;
         List.iter (fun c ->
-            let x = List.fold_left (fun acc (s,c',t) -> if c = c' && List.mem t a then Utils.add_unique s acc else acc) [] (get_transitions m') in
+            let x = List.fold_left (fun acc t -> Utils.list_union acc (pred m' t c)) [] a in
             let newp = ref [] in
             List.iter (fun y ->
                 let xinty = List.filter (fun s -> List.mem s x) y and
@@ -355,7 +354,7 @@ let minimise = hopcroft_min
 
 (* |nfa_to_dfa| -- converts nfa to dfa by the subset construction *)
 let nfa_to_dfa (n: Nfa.nfa) =
-    let newstart = Nfa.eps_reachable_set n [n.start] in
+    let newstart = Nfa.eps_reachable_set n [get_start n] in
     let newtrans = ref [] and
         newstates = ref [State newstart] and
         stack = ref [newstart] and
@@ -365,10 +364,7 @@ let nfa_to_dfa (n: Nfa.nfa) =
         let currentstate = List.hd !stack in
         stack := List.tl !stack;
         List.iter (fun a ->
-            let nextstate = List.concat_map (fun s -> 
-                List.filter_map (fun (s',a',t) -> 
-                    if (s = s' && a = a') then Some(t) else None
-                ) n.transitions) currentstate in
+            let nextstate = List.concat_map (fun s -> Adt.get_next_states n s a) currentstate in
             let epsnext = Nfa.eps_reachable_set n nextstate in
             if (not (List.mem epsnext !donestates)) then (
                 stack := epsnext::!stack;
@@ -376,7 +372,7 @@ let nfa_to_dfa (n: Nfa.nfa) =
                 newstates := (State epsnext)::!newstates;
             );
             newtrans := (State currentstate, a, State epsnext)::!newtrans;
-        ) n.alphabet
+        ) (get_alphabet n)
     done;
 
     let newaccepting = List.filter (function
@@ -384,7 +380,7 @@ let nfa_to_dfa (n: Nfa.nfa) =
         | _ -> false
     ) !newstates in
 
-    Adt.create_automata !newstates (n.alphabet) !newtrans (State newstart) newaccepting
+    Adt.create_automata !newstates (get_alphabet n) !newtrans (State newstart) newaccepting
 
 (* |create| -- Creates DFA, Renames states as their index in qs *)
 let create qs alph tran init fin =

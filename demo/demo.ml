@@ -96,10 +96,10 @@ let main () =
     if not (Dfa.is_equiv dfa2 hopcroftmin2) then exit 1;
     if not (Dfa.is_equiv dfa1 brzozowskimin1) then exit 1;
     if not (Dfa.is_equiv dfa2 brzozowskimin2) then exit 1;
-    if not (List.length myhillmin1.states = List.length brzozowskimin1.states) then exit 1;
-    if not (List.length myhillmin2.states = List.length brzozowskimin2.states) then exit 1;
-    if not (List.length myhillmin1.states = List.length hopcroftmin1.states) then exit 1;
-    if not (List.length myhillmin2.states = List.length hopcroftmin2.states) then exit 1;
+    if not (List.length (Dfa.get_states myhillmin1) = List.length (Dfa.get_states brzozowskimin1)) then exit 1;
+    if not (List.length (Dfa.get_states myhillmin2) = List.length (Dfa.get_states brzozowskimin2)) then exit 1;
+    if not (List.length (Dfa.get_states myhillmin1) = List.length (Dfa.get_states hopcroftmin1)) then exit 1;
+    if not (List.length (Dfa.get_states myhillmin2) = List.length (Dfa.get_states hopcroftmin2)) then exit 1;
 
     if (Option.is_none accepted1 && Option.is_none accepted2) then (
         print_string "Input regex are equal\n";

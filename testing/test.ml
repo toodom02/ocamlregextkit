@@ -23,9 +23,9 @@ let _test_nfa_pred_succ n =
     if List.exists (fun s ->
         let pred = Nfa.pred n s in
         List.exists (fun ss ->
-            not (List.exists (fun a -> List.mem s (Nfa.succ n ss a)) n.alphabet)
+            not (List.exists (fun a -> List.mem s (Nfa.succ n ss a)) (Nfa.get_alphabet n))
         ) pred
-    ) n.states then exit 1
+    ) (Nfa.get_states n) then exit 1
 
 (* |generate_random_dfa| -- Generates a randomised DFA of n connected states, with each state having transitions to random states and 10% chance of final state *)
 let generate_random_dfa n =
@@ -194,8 +194,8 @@ let _min_tester () =
 
             (* Sanity check that our results are the same *)
             if not (Dfa.is_equiv d res_1) || not (Dfa.is_equiv res_1 res_2) || not (Dfa.is_equiv res_2 res_3) then (print_string "Failed\n"; exit 1);
-            if not (List.length d.states >= List.length res_1.states) || not (List.length res_1.states = List.length res_2.states) || not (List.length res_2.states = List.length res_3.states) then (print_string "Failed\n"; exit 1);
-            if not (List.length res_1.transitions = List.length res_2.transitions) || not (List.length res_2.transitions = List.length res_3.transitions) then (print_string "Failed\n"; exit 1);
+            if not (List.length (Dfa.get_states d) >= List.length (Dfa.get_states res_1)) || not (List.length (Dfa.get_states res_1) = List.length (Dfa.get_states res_2)) || not (List.length (Dfa.get_states res_2) = List.length (Dfa.get_states res_3)) then (print_string "Failed\n"; exit 1);
+            if not (List.length (Dfa.get_transitions res_1) = List.length (Dfa.get_transitions res_2)) || not (List.length (Dfa.get_transitions res_2) = List.length (Dfa.get_transitions res_3)) then (print_string "Failed\n"; exit 1);
         done;
         Printf.printf "%i,%f,%f,%f,%f,%f,%f\n" s !cumul_time_myhill !cumul_time_hopcroft !cumul_time_brzozowski (!cumul_time_myhill /. (float_of_int iters)) (!cumul_time_hopcroft /. (float_of_int iters)) (!cumul_time_brzozowski /. (float_of_int iters));
     done
@@ -230,8 +230,8 @@ let _min_circular () =
 
             (* Sanity check that our results are the same *)
             if not (Dfa.is_equiv d res_1) || not (Dfa.is_equiv res_1 res_2) || not (Dfa.is_equiv res_2 res_3) then (print_string "Failed\n"; exit 1);
-            if not (List.length d.states > List.length res_1.states) || not (List.length res_1.states = List.length res_2.states) || not (List.length res_2.states = List.length res_3.states) then (print_string "Failed\n"; exit 1);
-            if not (List.length res_1.transitions = List.length res_2.transitions) || not (List.length res_2.transitions = List.length res_3.transitions) then (print_string "Failed\n"; exit 1);
+            if not (List.length (Dfa.get_states d) > List.length (Dfa.get_states res_1)) || not (List.length (Dfa.get_states res_1) = List.length (Dfa.get_states res_2)) || not (List.length (Dfa.get_states res_2) = List.length (Dfa.get_states res_3)) then (print_string "Failed\n"; exit 1);
+            if not (List.length (Dfa.get_transitions res_1) = List.length (Dfa.get_transitions res_2)) || not (List.length (Dfa.get_transitions res_2) = List.length (Dfa.get_transitions res_3)) then (print_string "Failed\n"; exit 1);
         done;
         Printf.printf "%i,%f,%f,%f,%f,%f,%f\n" s !cumul_time_myhill !cumul_time_hopcroft !cumul_time_brzozowski (!cumul_time_myhill /. (float_of_int iters)) (!cumul_time_hopcroft /. (float_of_int iters)) (!cumul_time_brzozowski /. (float_of_int iters));
     done
