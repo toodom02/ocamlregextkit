@@ -1,4 +1,5 @@
 (** Representation of DFAs and implementation of standard operations *)
+
 type state = State of int list | ProductState of state * state
 type dfa = state Adt.automata
 

@@ -151,44 +151,43 @@ let rec construct_rec_nfa = function
         let states = [!counter - 2; !counter - 1] and alphabet = [a] 
         and transitions = [(!counter - 2, a, !counter - 1)] 
         and start = !counter - 2 and accepting = [!counter - 1] in
-        Adt.create_automata states alphabet transitions start accepting
+        (states, alphabet, transitions, start, accepting)
     | Epsilon -> counter := !counter + 1;
         let states = [!counter - 1] and alphabet = [] 
         and transitions = [] and start = !counter - 1 
         and accepting = [!counter - 1] in
-        Adt.create_automata states alphabet transitions start accepting
+        (states, alphabet, transitions, start, accepting)
     | Empty -> counter := !counter + 1;
         let states = [!counter - 1] and alphabet = [] 
         and transitions = [] and start = !counter - 1 
         and accepting = [] in
-        Adt.create_automata states alphabet transitions start accepting
-    | Union (r1, r2) -> let n1 = construct_rec_nfa r1 and n2 = construct_rec_nfa r2 in
+        (states, alphabet, transitions, start, accepting)
+    | Union (r1, r2) -> let (s1, a1, t1, i1, f1) = construct_rec_nfa r1 and (s2, a2, t2, i2, f2) = construct_rec_nfa r2 in
         counter := !counter + 1;
-        let states = (!counter - 1) :: (get_states n1 @ get_states n2) 
-        and alphabet = Utils.list_union (get_alphabet n1) (get_alphabet n2) 
-        and transitions = ((!counter - 1, "ε", get_start n1) :: get_transitions n1) 
-            @ ((!counter - 1, "ε", get_start n2) :: get_transitions n2) 
+        let states = (!counter - 1) :: (s1 @ s2) 
+        and alphabet = Utils.list_union a1 a2
+        and transitions = ((!counter - 1, "ε", i1) :: t1) @ ((!counter - 1, "ε", i2) :: t2) 
         and start = !counter - 1 
-        and accepting = get_accepting n1 @ get_accepting n2 in
-        Adt.create_automata states alphabet transitions start accepting
-    | Concat (r1, r2) -> let n1 = construct_rec_nfa r1 and n2 = construct_rec_nfa r2 in
-        let newtrans = List.rev_map (fun s -> (s,"ε",get_start n2)) (get_accepting n1) in
-        let states = get_states n1 @ get_states n2 
-        and alphabet = Utils.list_union (get_alphabet n1) (get_alphabet n2) 
-        and transitions = get_transitions n1 @ newtrans @ get_transitions n2 
-        and start = get_start n1 and accepting = get_accepting n2 in
-        Adt.create_automata states alphabet transitions start accepting
-    | Star r -> let n1 = construct_rec_nfa r in
-        let newtrans = List.rev_map (fun s -> (s, "ε", get_start n1)) (get_accepting n1) in
+        and accepting = f1 @ f2 in
+        (states, alphabet, transitions, start, accepting)
+    | Concat (r1, r2) -> let (s1, a1, t1, i1, f1) = construct_rec_nfa r1 and (s2, a2, t2, i2, f2) = construct_rec_nfa r2 in
+        let newtrans = List.rev_map (fun s -> (s,"ε",i2)) f1 in
+        let states = s1 @ s2
+        and alphabet = Utils.list_union a1 a2 
+        and transitions = t1 @ newtrans @ t2 
+        and start = i1 and accepting = f2 in
+        (states, alphabet, transitions, start, accepting)
+    | Star r -> let (s1, a1, t1, i1, f1) = construct_rec_nfa r in
+        let newtrans = List.rev_map (fun s -> (s, "ε", i1)) f1 in
         counter := !counter + 1;
-        let states = (!counter - 1) :: (get_states n1) 
-        and alphabet = (get_alphabet n1) 
-        and transitions = (!counter - 1, "ε", get_start n1) :: newtrans @ get_transitions n1 
-        and start = !counter - 1 and accepting = (!counter - 1) :: (get_accepting n1) in
-        Adt.create_automata states alphabet transitions start accepting
+        let states = (!counter - 1) :: s1 
+        and alphabet = a1
+        and transitions = (!counter - 1, "ε", i1) :: newtrans @ t1
+        and start = !counter - 1 and accepting = (!counter - 1) :: f1 in
+        (states, alphabet, transitions, start, accepting)
 
 (* |re_to_nfa| -- converts input regex AST into nfa *)
 let re_to_nfa re = 
     counter := 0;
-    let n = construct_rec_nfa re in
-    Adt.create_automata (List.sort compare (get_states n)) (List.rev (get_alphabet n)) (get_transitions n) (get_start n) (get_accepting n)
+    let (states, alphabet, transitions, start, accepting) = construct_rec_nfa re in
+    Adt.create_automata (List.sort compare states) (List.rev alphabet) transitions start accepting
