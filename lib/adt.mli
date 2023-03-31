@@ -32,6 +32,10 @@ val get_prev_states : 't automata -> 't -> string -> 't list
     @return true iff state [s] is an accepting state of [m] *)
 val is_accepting : 't automata -> 't -> bool
 
+(** [get_reachable_states m] 
+    @return the set of states reachable for an automaton [m] *)
+val get_reachable_states : 't automata -> 't list
+
 (** [create_automata q al t s f] 
     @return an automata of States [q], alphabet [al], transition function [t], initial state [s], and accepting states [f].
 *)

@@ -15,7 +15,3 @@ val add_unique : 'a -> 'a list -> 'a list
 (** [index x xs] 
     @return Some index of the first occurence of [x] in list [xs], otherwise None *)
 val index : 'a -> 'a list -> int option
-
-(** [reachable_states s t] 
-    @return the set of states reachable for an automaton in state [s] with transition function [t] *)
-val reachable_states : 'a -> ('a * string * 'a) list -> 'a list 

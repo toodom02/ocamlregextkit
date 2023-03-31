@@ -52,7 +52,7 @@ let eps_reachable_set n ss =
     List.sort compare !sts
 
 (* |reachable_states| -- returns the set of reachable states in nfa n *)
-let reachable_states n = Utils.reachable_states (get_start n) (get_transitions n)
+let reachable_states = Adt.get_reachable_states
 
 (* |succ| -- the resulting states of nfa n after reading symbol *)
 let succ n state symbol =

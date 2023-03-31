@@ -13,20 +13,28 @@ let get_start m = m.start
 let get_accepting m = m.accepting
 
 let get_next_states m s a = 
-  List.filter_map (fun (s',a',t) -> if s=s' && a=a' then Some(t) else None) m.transitions
+    List.filter_map (fun (s',a',t) -> if s=s' && a=a' then Some(t) else None) m.transitions
 
 let get_prev_states m t a =
-  List.filter_map (fun (s,a',t') ->
-    if (t = t' && a = a') then Some(s) else None
-  ) m.transitions
+    List.filter_map (fun (s,a',t') ->
+        if (t = t' && a = a') then Some(s) else None
+    ) m.transitions
 
 let is_accepting m s = List.mem s m.accepting
 
+let get_reachable_states m = 
+    let rec find_reachable_states marked =
+        let newmarked = List.fold_left (fun acc (s,_,t) -> if (List.mem s marked) then Utils.add_unique t acc else acc) marked m.transitions in
+        if marked <> newmarked then find_reachable_states newmarked
+        else newmarked
+    in
+  find_reachable_states [m.start]
+
 let create_automata qs alph tran init fin =
-  {
-    states = qs;
-    alphabet = List.sort compare alph;
-    transitions = tran;
-    start = init;
-    accepting = fin;
-  }
+    {
+        states = qs;
+        alphabet = List.sort compare alph;
+        transitions = tran;
+        start = init;
+        accepting = fin;
+    }

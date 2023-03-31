@@ -24,12 +24,3 @@ let index x xs =
             | y::ys -> if (x = y) then Some(c) else aux ys (c+1)
     in
     aux xs 0
-
-(* |reachable_states| -- returns the set of states reachable from the given state *)
-let reachable_states start transitions = 
-    let rec find_reachable_states marked =
-        let newmarked = List.fold_left (fun acc (s,_,t) -> if (List.mem s marked) then add_unique t acc else acc) marked transitions in
-        if marked <> newmarked then find_reachable_states newmarked
-        else newmarked
-    in
-    find_reachable_states [start]

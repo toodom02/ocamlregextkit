@@ -50,7 +50,7 @@ let complement m =
     Adt.create_automata (get_states m) (get_alphabet m) (get_transitions m) (get_start m) (List.filter (fun s -> not (is_accepting m s)) (get_states m))
 
 (* |reachable_states| -- returns the set of reachable states in dfa m *)
-let reachable_states m = Utils.reachable_states (get_start m) (get_transitions m)
+let reachable_states = Adt.get_reachable_states
 
 (* |prune| -- reduces input dfa by pruning unreachable states *)
 let prune m = 
