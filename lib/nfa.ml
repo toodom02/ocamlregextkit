@@ -147,41 +147,36 @@ let counter = ref 0
 
 (* |construct_rec_nfa| -- recursively builds NFA for given re *)
 let rec construct_rec_nfa = function
-    | Literal a -> counter := !counter + 2;
+    | Literal a -> incr counter; incr counter;
         let states = [!counter - 2; !counter - 1] and alphabet = [a] 
         and transitions = [(!counter - 2, a, !counter - 1)] 
         and start = !counter - 2 and accepting = [!counter - 1] in
         (states, alphabet, transitions, start, accepting)
-    | Epsilon -> counter := !counter + 1;
-        let states = [!counter - 1] and alphabet = [] 
-        and transitions = [] and start = !counter - 1 
-        and accepting = [!counter - 1] in
+    | Epsilon -> incr counter;
+        let states = [!counter - 1] and alphabet = [] and transitions = [] 
+        and start = !counter - 1 and accepting = [!counter - 1] in
         (states, alphabet, transitions, start, accepting)
-    | Empty -> counter := !counter + 1;
+    | Empty -> incr counter;
         let states = [!counter - 1] and alphabet = [] 
-        and transitions = [] and start = !counter - 1 
-        and accepting = [] in
+        and transitions = [] and start = !counter - 1 and accepting = [] in
         (states, alphabet, transitions, start, accepting)
     | Union (r1, r2) -> let (s1, a1, t1, i1, f1) = construct_rec_nfa r1 and (s2, a2, t2, i2, f2) = construct_rec_nfa r2 in
-        counter := !counter + 1;
+        incr counter;
         let states = (!counter - 1) :: (s1 @ s2) 
         and alphabet = Utils.list_union a1 a2
         and transitions = ((!counter - 1, "ε", i1) :: t1) @ ((!counter - 1, "ε", i2) :: t2) 
-        and start = !counter - 1 
-        and accepting = f1 @ f2 in
+        and start = !counter - 1 and accepting = f1 @ f2 in
         (states, alphabet, transitions, start, accepting)
     | Concat (r1, r2) -> let (s1, a1, t1, i1, f1) = construct_rec_nfa r1 and (s2, a2, t2, i2, f2) = construct_rec_nfa r2 in
         let newtrans = List.rev_map (fun s -> (s,"ε",i2)) f1 in
-        let states = s1 @ s2
-        and alphabet = Utils.list_union a1 a2 
+        let states = s1 @ s2 and alphabet = Utils.list_union a1 a2 
         and transitions = t1 @ newtrans @ t2 
         and start = i1 and accepting = f2 in
         (states, alphabet, transitions, start, accepting)
     | Star r -> let (s1, a1, t1, i1, f1) = construct_rec_nfa r in
+        incr counter;
         let newtrans = List.rev_map (fun s -> (s, "ε", i1)) f1 in
-        counter := !counter + 1;
-        let states = (!counter - 1) :: s1 
-        and alphabet = a1
+        let states = (!counter - 1) :: s1 and alphabet = a1
         and transitions = (!counter - 1, "ε", i1) :: newtrans @ t1
         and start = !counter - 1 and accepting = (!counter - 1) :: f1 in
         (states, alphabet, transitions, start, accepting)
