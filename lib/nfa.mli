@@ -5,7 +5,7 @@ type nfa = state Adt.automata
 
 (** [get_states n] 
     @return a list of all states in NFA [n] *)
-    val get_states : nfa -> state list
+val get_states : nfa -> state list
 
 (** [get_alphabet n]
     @return the alphabet of NFA [n] as a list *)
@@ -64,13 +64,13 @@ val prune : nfa -> nfa
     @return true iff NFA [n] is empty *)
 val is_empty : nfa -> bool
 
-(** [accepts n s] 
+(** [is_accepted n s] 
     @return true iff NFA [n] accepts string [s] *)
-val accepts : nfa -> string -> bool
+val is_accepted : nfa -> string -> bool
     
-(** [accepted n] 
+(** [get_accepted n] 
     @return the shortest string accepted by NFA [n] *)
-val accepted : nfa -> string option
+val get_accepted : nfa -> string option
 
 (** [merge_alphabets n1 n2] 
     @return a tuple of NFAs [(n1', n2')] such that [n1'] and [n2'] both share a common alphabet *)

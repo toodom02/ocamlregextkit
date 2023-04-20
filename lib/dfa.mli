@@ -5,7 +5,7 @@ type dfa = state Adt.automata
 
 (** [get_states m] 
     @return a list of all states in DFA [m] *)
-    val get_states : dfa -> state list
+val get_states : dfa -> state list
 
 (** [get_alphabet m]
     @return the alphabet of DFA [m] as a list *)
@@ -29,7 +29,7 @@ val is_accepting : dfa -> state -> bool
 
 (** [succ m s w] 
     @return the successor state of DFA [m] after reading word [w] from state [s] *)
-    val succ : dfa -> state -> string -> state
+val succ : dfa -> state -> string -> state
 
 (** [pred m s w] 
     @return the set of predecessor states of DFA [m] before reading word [w] from state [s] *)
@@ -61,13 +61,13 @@ val prune : dfa -> dfa
     @return true iff DFA [m] is empty *)
 val is_empty : dfa -> bool
 
-(** [accepts m s] 
+(** [is_accepted m s] 
     @return true iff DFA [m] accepts string [s] *)
-val accepts : dfa -> string -> bool
+val is_accepted : dfa -> string -> bool
 
-(** [accepted m] 
+(** [get_accepted m] 
     @return the shortest string accepted by DFA [m] *)
-val accepted : dfa -> string option
+val get_accepted : dfa -> string option
 
 (** [product_insterection m1 m2] 
     @return the intersection of DFAs [m1] [m2], by the product construction *)

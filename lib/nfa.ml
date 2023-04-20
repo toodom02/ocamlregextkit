@@ -81,8 +81,8 @@ let is_empty n =
     let marked = reachable_states n in
     not (List.exists (is_accepting n) marked)
 
-(* |accepts| -- returns true iff string s is accepted by the nfa n. Can take a long time *)
-let accepts n s =
+(* |is_accepted| -- returns true iff string s is accepted by the nfa n. Can take a long time *)
+let is_accepted n s =
     let sts = ref (eps_reachable_set n [get_start n]) in
     for i = 0 to String.length s - 1 do
         let c = (String.make 1 s.[i]) in
@@ -90,8 +90,8 @@ let accepts n s =
     done;
     List.exists (is_accepting n) !sts
 
-(* |accepted| -- returns the shortest word accepted by dfa m *)
-let accepted n =
+(* |get_accepted| -- returns the shortest word accepted by dfa m *)
+let get_accepted n =
     let queue = ref (List.rev_map (fun s -> (s,"")) (eps_reachable_set n [get_start n])) and
         seen = ref [] and
         shortest = ref None in

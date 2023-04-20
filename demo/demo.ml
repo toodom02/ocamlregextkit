@@ -65,8 +65,8 @@ let main () =
         snd_and_not_fst = Dfa.product_intersection dfa2 comp1 in
 
     (* Find shortest unique strings *)
-    let accepted1 = Dfa.accepted fst_and_not_snd and
-        accepted2 = Dfa.accepted snd_and_not_fst in
+    let accepted1 = Dfa.get_accepted fst_and_not_snd and
+        accepted2 = Dfa.get_accepted snd_and_not_fst in
 
     (* Testing DFA invariants *)
     test_dfa_pred_succ dfa1; test_dfa_pred_succ comp1;

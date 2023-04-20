@@ -62,16 +62,16 @@ let is_empty m =
     let marked = reachable_states m in
     not (List.exists (is_accepting m) marked)
 
-(* |accepts| -- returns true iff string s is accepted by the dfa m *)
-let accepts m s =
+(* |is_accepted| -- returns true iff string s is accepted by the dfa m *)
+let is_accepted m s =
     let rec does_accept state = function
         | "" -> is_accepting m state
         | str -> does_accept (succ m state (String.make 1 str.[0])) (String.sub str 1 ((String.length str) - 1))
     in
     does_accept (get_start m) s
 
-(* |accepted| -- returns the shortest word accepted by dfa m *)
-let accepted m =
+(* |get_accepted| -- returns the shortest word accepted by dfa m *)
+let get_accepted m =
     let queue = ref [(get_start m, "")] and
         seen = ref [] and
         shortest = ref None in
