@@ -49,7 +49,7 @@ let main () =
     let nfa1 = Nfa.re_to_nfa re1' and
         nfa2 = Nfa.re_to_nfa re2' in
 
-    (* Merge the DFA alphabets *)
+    (* Merge the NFA alphabets *)
     let (nfa1', nfa2') = Nfa.merge_alphabets nfa1 nfa2 in
 
     (* Convert NFAs to DFAs *)
@@ -67,6 +67,13 @@ let main () =
     (* Find shortest unique strings *)
     let accepted1 = Dfa.get_accepted fst_and_not_snd and
         accepted2 = Dfa.get_accepted snd_and_not_fst in
+
+    (* Test brzozowski construction *)
+    let brzozo1 = Dfa.re_to_dfa re1' and
+        brzozo2 = Dfa.re_to_dfa re2' in
+
+    if not (Dfa.is_equiv dfa1 brzozo1) then exit 1;
+    if not (Dfa.is_equiv dfa2 brzozo2) then exit 1;
 
     (* Testing DFA invariants *)
     test_dfa_pred_succ dfa1; test_dfa_pred_succ comp1;

@@ -129,7 +129,6 @@ let product_union = product_construction Union
 let product_difference = product_construction SymmetricDifference
 
 (* |disjoin_dfas| -- returns a tuple of disjoint DFAs, over the same alphabet *)
-(* NB: Transition functions may no longer be Total *)
 let disjoin_dfas m1 m2 =
     (* need to merge alphabets and disjoin our DFAs by renaming states in m2, by negative numbers *)
     let rec negate_state = function
@@ -139,9 +138,37 @@ let disjoin_dfas m1 m2 =
 
     let merged_alphabet = Utils.list_union (get_alphabet m1) (get_alphabet m2) in
 
+    let missingalph1 = List.filter (fun a -> not (List.mem a (get_alphabet m1))) merged_alphabet and
+        missingalph2 = List.filter (fun a -> not (List.mem a (get_alphabet m2))) merged_alphabet in
+
+    (* find a sink states, and add missing transitions *)
+    let missingtran1 = ref [] and hassink1 = ref false in
+    if List.length merged_alphabet > List.length (get_alphabet m1) then (
+        let sink = 
+            match List.find_opt (fun s -> not (is_accepting m1 s) && List.for_all (fun a -> succ m1 s a = s) (get_alphabet m1)) (get_states m1) with
+                | Some t -> (hassink1 := true; t)
+                | None -> State []
+        in
+        missingtran1 := List.concat_map (fun a -> List.map (fun s -> (s,a,sink)) (get_states m1)) missingalph1
+    );
+    let missingtran2 = ref [] and hassink2 = ref false in
+    if List.length merged_alphabet > List.length (get_alphabet m2) then (
+        let sink = 
+            match List.find_opt (fun s -> not (is_accepting m2 s) && List.for_all (fun a -> succ m2 s a = s) (get_alphabet m2)) (get_states m2) with
+                | Some t -> (hassink2 := true; t)
+                | None -> State []
+        in
+        missingtran2 := List.concat_map (fun a -> List.map (fun s -> (s,a,sink)) (Utils.add_unique sink (get_states m2))) missingalph2
+    );
+
+    let newstate1 = if !hassink1 then (get_states m1) else State []::(get_states m1) and
+        newtrans1 = get_transitions m1 @ !missingtran1 in
+    let newstate2 = if !hassink2 then (get_states m2) else State []::(get_states m2) and
+        newtrans2 = get_transitions m2 @ !missingtran2 in
+
     (
-        Adt.create_automata (get_states m1) merged_alphabet (get_transitions m1) (get_start m1) (get_accepting m1),
-        Adt.create_automata (List.rev_map (fun s -> negate_state s) (get_states m2)) merged_alphabet (List.rev_map (fun (s,a,t) -> (negate_state s,a,negate_state t)) (get_transitions m2)) (negate_state (get_start m2)) (List.rev_map (fun s -> negate_state s) (get_accepting m2))
+        Adt.create_automata newstate1 merged_alphabet (newtrans1) (get_start m1) (get_accepting m1),
+        Adt.create_automata (List.rev_map (fun s -> negate_state s) newstate2) merged_alphabet (List.rev_map (fun (s,a,t) -> (negate_state s,a,negate_state t)) newtrans2) (negate_state (get_start m2)) (List.rev_map (fun s -> negate_state s) (get_accepting m2))
     )
 
 (* |hopcroft_equiv| -- returns true iff DFAs are equivalent, by Hopcroft's algorithm *)
@@ -382,6 +409,31 @@ let nfa_to_dfa (n: Nfa.nfa) =
 
     Adt.create_automata !newstates (get_alphabet n) !newtrans (State newstart) newaccepting
 
+(* |re_to_dfa| -- Converts re to (almost) minimal dfa by Brzozowski derivatives *)
+let re_to_dfa (r: Tree.re) =
+    let r' = Re.simplify r in
+    let alphabet = Re.get_alphabet r' in
+    let w = ref [(r',State [0])] in
+    let states = ref [(r', State [0])] in
+    let trans = ref [] in
+    let count = ref 0 in
+    while (List.length !w > 0) do
+        let (re,s) = List.hd !w in
+        w := List.tl !w;
+        List.iter (fun c ->
+            let deriv = Re.simplify (Re.derivative re c) in
+            let t = match List.assoc_opt deriv !states with
+                | Some tt -> tt
+                | None -> (incr count; w := (deriv, State [!count])::!w; states := (deriv, State [!count])::!states; State [!count])
+            in
+            trans := (s,c,t)::!trans;
+        ) alphabet;
+    done;
+
+    let (_,newstates) = List.split !states in
+    let accepting = List.filter_map (fun (re,s) -> if Re.is_nullable re then Some(s) else None) !states in
+    Adt.create_automata newstates alphabet !trans (State [0]) accepting
+
 (* |create| -- Creates DFA, Renames states as their index in qs *)
 let create qs alph tran init fin =
 
@@ -410,17 +462,23 @@ let create qs alph tran init fin =
     in
 
     (* missing transitions for total transition function *)
-    let sink = State [List.length qs] in
-    let missingtran = List.concat_map (fun a ->
+    (* find a sink states, and add missing transitions *)
+    let missingtran = ref [] and hassink1 = ref false and sink = ref (State []) in
+    if List.length newtran < (List.length newstates * List.length alph) then (
+        sink := (
+            match List.find_opt (fun s -> not (List.mem s newfin) && List.for_all (fun (s',_,t') -> s' <> s || t' = s) newtran) newstates with
+                | Some t -> (hassink1 := true; t)
+                | None -> State [List.length qs]
+        );
+        missingtran := List.concat_map (fun a ->
             List.filter_map (fun s ->
                 if not (List.exists (fun (s',a',_) -> s = s' && a = a') newtran)
-                    then Some(s,a,sink)
+                    then Some(s,a,!sink)
                 else None
-            ) newstates
-        ) alph in
-    let newstates = if List.length missingtran > 0 then newstates @ [sink] else newstates in
-    let newtrans = if List.length missingtran > 0 then 
-                        missingtran @ newtran @ List.map (fun a -> (sink,a,sink)) alph
-                   else missingtran @ newtran in
+            ) (Utils.add_unique !sink newstates)
+        ) alph;
+    );
+    let newstates = if List.length !missingtran > 0 then newstates @ [!sink] else newstates in
+    let newtrans = if List.length !missingtran > 0 then !missingtran @ newtran else !missingtran @ newtran in
 
     Adt.create_automata newstates alph newtrans newinit newfin

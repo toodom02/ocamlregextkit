@@ -115,6 +115,10 @@ val minimise : dfa -> dfa
     @return the NFA equivalent to DFA [m], by an optimised subset construction *)
 val nfa_to_dfa : Nfa.nfa -> dfa
 
+(** [re_to_dfa re]
+    @return a DFA recognising the language of [re], by Brzozowski's construction  *)
+val re_to_dfa : Tree.re -> dfa
+
 (** [print m] prints a string representation of the DFA [m] *)
 val print : dfa -> unit
 

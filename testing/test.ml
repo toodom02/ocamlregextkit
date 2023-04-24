@@ -91,6 +91,56 @@ let generate_equivalent_modular_dfas n =
     Dfa.create states2 ["a"] trans2 start2 accepting2
     )
 
+(* Generates 'random' RE *)
+let generate_random_regex n =
+    Random.self_init ();
+    let alphabet = ["a";"b";"c"] in
+    let bracks = ref 0 in
+    let str = List.init (5*n-1) (fun i -> 
+        if (i mod 5 = 1) then (if (Random.float 1. < 0.1) then "?" else List.nth alphabet (Random.int (List.length alphabet)))
+        else if (i mod 5 = 2) then (if (Random.float 1. < 0.2 && !bracks > 0) then (decr bracks; ")") else "")
+        else if (i mod 5 = 3) then (if (Random.float 1. < 0.1) then "*" else "")
+        else if (i mod 5 = 4) then (List.nth ["+";"."] (Random.int 2))
+        else (
+            let t = Random.float 1. in
+            if (t >= 0.2 && t < 0.4) then (incr bracks; "(") else ""
+        )
+    ) in
+    let str = if !bracks > 0 then str @ List.init !bracks (fun _ ->")") else str in
+    let string = String.concat "" str in
+    Re.parse string
+
+let _construction_tester () = 
+    print_string "CONSTRUCTING DFA\n";
+    Printf.printf "Size, Total Nfa->Dfa, Total Brzozowski, Nfa->Dfa, Brzozowski, Minimal\n";
+    let iters = 100 in
+    for s = 1 to 50 do
+        let cumul_time_subset = ref 0. and
+            cumul_time_brzozowski = ref 0. and
+            num_minimal = ref 0 in
+        for _ = 1 to iters do
+            let re = generate_random_regex s in
+
+            (* Case 1: Nfa->Dfa *)
+            let start_1 = Sys.time () in
+            let nfa = Nfa.re_to_nfa re in
+            let dfa = Dfa.nfa_to_dfa nfa in
+            let minimal = Dfa.hopcroft_min dfa in
+            cumul_time_subset := (Sys.time () -. start_1) +. !cumul_time_subset;
+
+            (* Case 2: Brzozowski *)
+            let start_2 = Sys.time () in
+            let dfa2 = Dfa.re_to_dfa re in
+            cumul_time_brzozowski := (Sys.time () -. start_2) +. !cumul_time_brzozowski;
+
+            if not (Dfa.is_equiv minimal dfa2) then (print_string "Failed\n"; exit 1);
+            if (List.length (Dfa.get_states minimal) = List.length (Dfa.get_states dfa2)) then incr num_minimal;
+
+        done;
+        Printf.printf "%i,%f,%f,%f,%f,%i\n" s !cumul_time_subset !cumul_time_brzozowski (!cumul_time_subset /. (float_of_int iters)) (!cumul_time_brzozowski /. (float_of_int iters)) !num_minimal;
+    done
+
+
 (* Output intended to be saved to CSV *)
 let _equiv_tester () = 
     print_string "RANDOM EQUIV\n";
@@ -236,4 +286,4 @@ let _min_circular () =
         Printf.printf "%i,%f,%f,%f,%f,%f,%f\n" s !cumul_time_myhill !cumul_time_hopcroft !cumul_time_brzozowski (!cumul_time_myhill /. (float_of_int iters)) (!cumul_time_hopcroft /. (float_of_int iters)) (!cumul_time_brzozowski /. (float_of_int iters));
     done
 
-let () = _equiv_tester (); _circular_equiv_tester (); _min_tester (); _min_circular ()
+let () = _construction_tester ();
