@@ -43,52 +43,76 @@ let export_graphviz re =
     let notd2 = Dfa.complement d2 in
     Dfa.is_empty (Dfa.product_intersection d1 notd2) *)
 
+let is_literal = function
+    | Literal _ | Epsilon | Empty -> true
+    | _ -> false
+
+(* Recurses through tree of unions to find any repeated a (or starred) *)
+let rec contains a re = 
+    if re = a then true else
+    match re with
+        | Union (r1, r2) -> contains a r1 || contains a r2
+        | Star r1 -> if (a = Epsilon) then true else r1 = a
+        | _ -> false
+
+(* checks if re is just w^n (n>0) *)
+let rec repeated w re =
+    if re = w then true else
+    match re with
+        | Concat (r1, r2) -> repeated w r1 && repeated w r2
+        | _ -> false
+
 (* |simplify_re| -- recursively simplifies the regex *)
 let rec simplify_re = function
     (* Reduce by Kozen Axioms *)
     | Union (Union (r1, r2), r3) -> simplify_re (Union (r1, Union (r2, r3)))                            (* (a + b) + c = a + (b + c) *)
     | Union (r1, Empty) -> simplify_re r1                                                               (* a + ∅ = a *)  
     | Union (Empty, r1) -> simplify_re r1                                                               (* ∅ + a = a *)
-    | Union (r1, r2) when r1 = r2 -> simplify_re r1                                                     (* a + a = a *)
-    | Union (r1, Union (r2, r3)) when r1 = r2 || r1 = r3 -> simplify_re (Union (r2, r3))                (* a + (a + b) = a + b *)
     | Concat(Concat(r1, r2), r3) -> simplify_re (Concat (r1, Concat (r2, r3)))                          (* (a.b).c = a.(b.c) *)
     | Concat (Epsilon, r1) -> simplify_re r1                                                            (* ε.a = a *)
     | Concat (r1, Epsilon) -> simplify_re r1                                                            (* a.ε = a *)
     | Union (Concat (r1, r2), Concat (r3, r4)) when r1 = r3 -> simplify_re (Concat(r1, Union(r2, r4)))  (* ab + ac = a(b+c) *)
     | Union (Concat (r1, r2), Concat (r3, r4)) when r2 = r4 -> simplify_re (Concat(Union(r1, r3), r2))  (* ac + bc = (a+b)c *)
-    | Union (Concat (r1, r2), r3) when r1 = r3 -> simplify_re (Concat(r1, Union(Epsilon, r2)))          (* ab + a = a(ε+b) *)
-    | Union (Concat (r1, r2), r3) when r2 = r3 -> simplify_re (Concat(Union(Epsilon, r1), r2))          (* ab + b = (ε+a)b *)
-    | Union (r1, Concat (r2, r3)) when r1 = r2 -> simplify_re (Concat(r1, Union(Epsilon, r3)))          (* a + ab = a(ε+b) *)
-    | Union (r1, Concat (r2, r3)) when r1 = r3 -> simplify_re (Concat(Union(Epsilon, r2), r1))          (* b + ab = (ε+a)b *)
     | Concat (Empty, _) -> Empty                                                                        (* ∅.a = ∅ *)
     | Concat (_, Empty) -> Empty                                                                        (* a.∅ = ∅ *)
     | Union (Epsilon, (Concat (r1, Star(r2)))) when r1 = r2 -> simplify_re (Star r1)                    (* ε + aa* = a* *)
 
-    (* Order Unions lexicographically *)
+    (* Order Unions lexicographically (for literals) *)
     | Union (a, Epsilon) when a <> Epsilon -> simplify_re (Union (Epsilon, a))
     | Union (r1, Union (Epsilon, r2)) when r1 <> Epsilon -> simplify_re (Union (Epsilon, Union (r1, r2)))
     | Union (Literal r1, Union (Literal r2, r3)) when r2 < r1 -> simplify_re (Union (Literal r2, Union (Literal r1, r3)))
     | Union (Literal r1, Literal r2) when r2 < r1 -> simplify_re (Union (Literal r2, Literal r1))
+    | Union (r1, Union (Literal r2, r3)) when not (is_literal r1) -> simplify_re (Union (Literal r2, Union (r1, r3)))
+    | Union (r1, Literal r2) when not (is_literal r1) -> simplify_re (Union (Literal r2, r1))
 
     (* other reductions *)
     | Concat (Union(Epsilon, r1), Star r2) when r1 = r2 -> simplify_re (Star r1)                            (* (ε + a)a* = a* *)
+    | Concat (Star r1, Union(Epsilon, r2)) when r1 = r2 -> simplify_re (Star r1)                            (* a*(ε + a) = a* *)
     | Concat (r1, Concat (Union(Epsilon, r2), Star r3)) when r2 = r3 -> simplify_re (Concat (r1, Star r2))  (* a.((ε+b).b* ) = ab* *)
     | Star (Concat (Star r1, Star r2)) -> simplify_re (Star (Union (r1, r2)))                               (* ( a*b* )* = (a + b)* *)
     | Star (Union (Epsilon, r1)) -> simplify_re (Star r1)                                                   (* (ε + a)* = a* *)
     | Star (Union (Star r1, r2)) -> simplify_re (Star (Union (r1, r2)))                                     (* ( a* + b )* = (a+b)* *)
     | Star (Union (r1, Star r2)) -> simplify_re (Star (Union (r1, r2)))                                     (* ( a + b* )* = (a+b)* *)
     | Concat (Star r1, r2) when r1 = r2 -> simplify_re (Concat (r1, Star(r1)))                              (* a*a = aa* *)
-    | Concat (Star r1, Star r2) when r1 = r2 -> simplify_re (Star r1)                                       (* a*a* = a* *)
-    | Concat (Star r1, Concat (Star r2, r3)) when r1 = r2 -> simplify_re (Concat (Star r1, r3))             (* a* . (a* . b) = a*.b *)
-    | Star (Star r1) -> simplify_re (Star r1)                                                       (* ( a* )* = a* *)
-    | Union (Epsilon, Star r1) -> simplify_re (Star r1)                                             (* ε + a* = a* *)
-    | Union (Epsilon, Union (r1, Star r2)) -> simplify_re (Union (r1, Star r2))                     (* ε + (b + a* ) = b + a* *)
-    | Union (r1, Star r2) when r1 = r2 -> simplify_re (Star r1)                                     (* a + a* = a* *)
-    | Union (Star r1, r2) when r1 = r2 -> simplify_re (Star r1)                                     (* a* + a = a* *)
-    | Union (r1, Union (r2, r3)) when r2 = r3 || r1 = r3 -> simplify_re (Union (r1, r2))            (* a + (b + a) = a + b *)
-    | Star Empty -> Epsilon                                                                         (* ∅* = ε *)
-    | Star Epsilon -> Epsilon                                                                       (* ε* = ε *)
-(* 
+    | Concat (Star r1, Concat (r2, r3)) when r1 = r2 -> simplify_re (Concat (r1, Concat (Star r2, r3)))     (* a*(ab) = a(a*b) *)
+    | Star (Star r1) -> simplify_re (Star r1)                                                               (* ( a* )* = a* *)
+    | Star Empty -> Epsilon                                                                                 (* ∅* = ε *)
+    | Star Epsilon -> Epsilon                                                                               (* ε* = ε *)
+
+    | Union (r1, r2) when contains r1 r2 -> simplify_re r2                                              (* a + ... + (a + b) = ... + a + b OR a + ... + a* = ... + a* *)
+    | Union (r1, r2) when contains r2 r1 -> simplify_re r1
+    | Union (r1, Star r2) when repeated r2 r1 -> simplify_re (Star r2)                                  (* aa...a + a* = a* *) 
+    | Union (Star r1, r2) when repeated r1 r2 -> simplify_re (Star r1)                                  (* a* + aa...a = a* *) 
+    | Concat (Star r1, Star r2) when contains r1 r2 -> simplify_re (Star r2)                            (* a*b* = b* if a <= b *)
+    | Concat (Star r1, Concat(Star r2, r3)) when contains r1 r2 -> simplify_re (Concat (Star r2, r3))   (* a*(b*c) = b*c if a <= b *)
+    | Concat (Star r1, Star r2) when contains r2 r1 -> simplify_re (Star r1)                            (* a*b* = a* if b <= a *)
+    | Concat (Star r1, Concat(Star r2, r3)) when contains r2 r1 -> simplify_re (Concat (Star r1, r3))   (* a*(b*c) = a*c if b <= a *)
+    | Star (Union (r1, r2)) when repeated r2 r1 -> simplify_re (Star r2)                                (* (a...a + a)* = a* *)
+    | Star (Union (r1, r2)) when repeated r1 r2 -> simplify_re (Star r1)                                (* (a + a...a)* = a* *)
+    | Star (Union (r1, Union (r2, r3))) when repeated r2 r1 -> simplify_re (Star (Union (r2, r3)))      (* (a...a + (a + b))* = (a+b)* *)
+    | Star (Union (r1, Union (r2, r3))) when repeated r1 r2 -> simplify_re (Star (Union (r1, r3)))      (* (a + (a...a + b))* = (a+b)* *)
+
+(* REMOVED since they use DFA conversion for language checking...
     (* More complex reductions, language based *)
     | Union (r1, r2) when is_subset_of r1 r2 -> simplify_re r2                                              (* a + b = b    if a <= b *)
     | Union (r1, r2) when is_subset_of r2 r1 -> simplify_re r1                                              (* a + b = a    if b <= a *)
@@ -99,6 +123,7 @@ let rec simplify_re = function
     | Star (Union (r1, r2)) when is_subset_of r2 (Star r1) -> simplify_re (Star r1)                         (* (a+b)* = a*  if b <= a* *)
     | Star (Union (r1, r2)) when is_subset_of r1 (Star r2) -> simplify_re (Star r2)                         (* (a+b)* = b*  if a <= b* *)
  *)
+
     (* otherwise, simplify children *)
     | Literal a -> Literal a
     | Epsilon -> Epsilon
@@ -118,8 +143,7 @@ let simplify re =
 (* |get_alphabet| -- returns the alphabet of the RE *)
 let rec get_alphabet = function
     | Literal a -> [a]
-    | Epsilon -> []
-    | Empty -> []
+    | Epsilon | Empty -> []
     | Union (r1, r2) | Concat (r1, r2) -> Utils.list_union (get_alphabet r1) (get_alphabet r2)
     | Star r1 -> get_alphabet r1
 
