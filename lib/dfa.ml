@@ -335,30 +335,30 @@ let hopcroft_min m =
 
     let p = ref [] in
     let qnotf = List.filter (fun s -> not (is_accepting m' s)) (get_states m') in
-    if List.length qnotf > 0 && List.length (get_accepting m') > 0 then p := [get_accepting m'; qnotf] 
-    else if List.length (get_accepting m') > 0 then p := [get_accepting m']
-    else if List.length qnotf > 0 then p := [qnotf];
+    if List.length qnotf > 0 then p := [qnotf];
+    if List.length (get_accepting m') > 0 then p := (get_accepting m')::!p;
+
     let w = ref !p in
 
     while (List.length !w > 0) do
-        let a = List.hd !w in
+        let s = List.hd !w in
         w := List.tl !w;
-        List.iter (fun c ->
-            let x = List.fold_left (fun acc t -> Utils.list_union acc (pred m' t c)) [] a in
+        List.iter (fun a ->
+            let l_a = List.fold_left (fun acc t -> Utils.list_union acc (pred m' t a)) [] s in
             let newp = ref [] in
-            List.iter (fun y ->
-                let xinty = List.filter (fun s -> List.mem s x) y and
-                    ynotx = List.filter (fun s -> not (List.mem s x)) y in
-                if (List.length xinty > 0 && List.length ynotx > 0) then (
-                    newp := xinty::ynotx::!newp;
-                    if (List.mem y !w) then (
-                        w := xinty::ynotx::(List.filter ((<>) y) !w)
+            List.iter (fun r ->
+                let r_1 = List.filter (fun s -> List.mem s l_a) r and
+                    r_2 = List.filter (fun s -> not (List.mem s l_a)) r in
+                if (List.length r_1 > 0 && List.length r_2 > 0) then (
+                    newp := r_1::r_2::!newp;
+                    if (List.mem r !w) then (
+                        w := r_1::r_2::(List.filter ((<>) r) !w)
                     ) else (
-                        if List.length xinty <= List.length ynotx then (
-                            w := xinty::!w
-                        ) else w := ynotx::!w
+                        if List.length r_1 <= List.length r_2 then (
+                            w := r_1::!w
+                        ) else w := r_2::!w
                     )
-                ) else newp := y::!newp
+                ) else newp := r::!newp
             ) !p;
             p := !newp
         ) (get_alphabet m')
