@@ -101,10 +101,8 @@ let generate_random_regex n =
         else if (i mod 5 = 2) then (if (Random.float 1. < 0.2 && !bracks > 0) then (decr bracks; ")") else "")
         else if (i mod 5 = 3) then (if (Random.float 1. < 0.1) then "*" else "")
         else if (i mod 5 = 4) then (List.nth ["+";"."] (Random.int 2))
-        else (
-            let t = Random.float 1. in
-            if (t >= 0.2 && t < 0.4) then (incr bracks; "(") else ""
-        )
+        else if (Random.float 1. < 0.2) then (incr bracks; "(")
+        else ""
     ) in
     let str = if !bracks > 0 then str @ List.init !bracks (fun _ ->")") else str in
     let string = String.concat "" str in
@@ -112,14 +110,14 @@ let generate_random_regex n =
 
 let _construction_tester () = 
     print_string "CONSTRUCTING DFA\n";
-    Printf.printf "Size, Total Nfa->Dfa, Total Brzozowski, Nfa->Dfa, Brzozowski, Minimal, Minimal States, Avg Distance\n";
+    Printf.printf "Size, Total Nfa->Dfa, Total Brzozowski, Nfa->Dfa, Brzozowski, Minimal, Minimal States, Mean Absolute Error\n";
     let iters = 100 in
     for s = 1 to 50 do
         let cumul_time_subset = ref 0. and
             cumul_time_brzozowski = ref 0. and
             num_minimal = ref 0 and
             num_states = ref 0 and
-            distance = ref 0 in
+            error = ref 0 in
         for _ = 1 to iters do
             let re = generate_random_regex s in
 
@@ -137,11 +135,11 @@ let _construction_tester () =
 
             if not (Dfa.is_equiv minimal dfa2) then (print_string "Failed\n"; exit 1);
             if (List.length (Dfa.get_states minimal) = List.length (Dfa.get_states dfa2)) then incr num_minimal;
-            distance := (List.length (Dfa.get_states dfa2) - List.length (Dfa.get_states minimal)) + !distance;
+            error := (List.length (Dfa.get_states dfa2) - List.length (Dfa.get_states minimal)) + !error;
             num_states := List.length (Dfa.get_states minimal) + !num_states;
 
         done;
-        Printf.printf "%i,%f,%f,%f,%f,%i,%f,%f\n" s !cumul_time_subset !cumul_time_brzozowski (!cumul_time_subset /. (float_of_int iters)) (!cumul_time_brzozowski /. (float_of_int iters)) !num_minimal (float_of_int !num_states /. float_of_int iters)(if !num_minimal = iters then 0. else (float_of_int !distance) /. (float_of_int (iters - !num_minimal)));
+        Printf.printf "%i,%f,%f,%f,%f,%i,%f,%f\n" s !cumul_time_subset !cumul_time_brzozowski (!cumul_time_subset /. (float_of_int iters)) (!cumul_time_brzozowski /. (float_of_int iters)) !num_minimal (float_of_int !num_states /. float_of_int iters) ((float_of_int !error) /. (float_of_int iters));
     done
 
 (* Output intended to be saved to CSV *)
