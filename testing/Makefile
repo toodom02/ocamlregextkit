@@ -9,5 +9,8 @@ profile:
 test: 
 		dune exec ./test.exe > out.csv
 
+test-compare:
+		dune exec ./testArray.exe > out.csv
+
 clean:
 		rm -f out.txt out.csv
