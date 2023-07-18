@@ -11,7 +11,7 @@
 
 (maintainers "Dominic Too")
 
-(license AGPL-3.0-or-later)
+(license GPL-3.0-or-later)
 
 (documentation https://toodom02.github.io/ocamlregextkit/)
 
@@ -19,7 +19,10 @@
  (name ocamlregextkit)
  (synopsis "A regular expression toolkit for OCaml")
  (description "Provides data structures and algorithms for Regular Expressions, Deterministic Finite Automata, and Non-Deterministic Finite Automata")
- (depends ocaml dune)
+ (depends 
+    (ocaml (>= 4.14))
+    dune
+  )
  (tags
   (automata "regular expressions" "regular languages" regex library DFA NFA RE)))
 

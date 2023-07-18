@@ -5,7 +5,7 @@ description:
   "Provides data structures and algorithms for Regular Expressions, Deterministic Finite Automata, and Non-Deterministic Finite Automata"
 maintainer: ["Dominic Too"]
 authors: ["Dominic Too"]
-license: "AGPL-3.0-or-later"
+license: "GPL-3.0-or-later"
 tags: [
   "automata"
   "regular expressions"
@@ -20,7 +20,7 @@ homepage: "https://github.com/toodom02/ocamlregextkit"
 doc: "https://toodom02.github.io/ocamlregextkit/"
 bug-reports: "https://github.com/toodom02/ocamlregextkit/issues"
 depends: [
-  "ocaml"
+  "ocaml" {>= "4.14"}
   "dune" {>= "3.4"}
   "odoc" {with-doc}
 ]
