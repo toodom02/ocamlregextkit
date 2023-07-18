@@ -20,7 +20,7 @@ homepage: "https://github.com/toodom02/ocamlregextkit"
 doc: "https://toodom02.github.io/ocamlregextkit/"
 bug-reports: "https://github.com/toodom02/ocamlregextkit/issues"
 depends: [
-  "ocaml"
+  "ocaml" {>= "4.14"}
   "dune" {>= "3.4"}
   "odoc" {with-doc}
 ]
