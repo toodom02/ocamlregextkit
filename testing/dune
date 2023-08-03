@@ -2,14 +2,6 @@
  (name test)
  (modules test)
  (libraries regextkit))
-(executable
- (name testArray)
- (modules testArray)
- (libraries regextkit))
-(executable
- (name testCompare)
- (modules testCompare)
- (libraries regextkit))
 
 (executable
  (name profile)
