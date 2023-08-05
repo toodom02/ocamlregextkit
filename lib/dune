@@ -1,5 +1,7 @@
 (library
-  (name regextkit)
-  (public_name ocamlregextkit))
+ (name regextkit)
+ (public_name ocamlregextkit))
+
 (ocamlyacc parser)
+
 (ocamllex lexer)
