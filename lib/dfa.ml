@@ -79,9 +79,9 @@ let export_graphviz d =
 
 (* |complement| -- returns the complement of input dfa *)
 let complement m =
-  Adt.create_automata (get_states m) (get_alphabet m) (get_transitions m)
-    (get_start m)
-    (List.filter (fun s -> not (is_accepting m s)) (get_states m))
+  let m' = Adt.copy m in
+  Adt.map_accepting (fun s -> not (is_accepting m s)) m';
+  m'
 
 (* |reachable_states| -- returns the set of reachable states in dfa m *)
 let reachable_states = Adt.get_reachable_states
@@ -89,12 +89,7 @@ let reachable_states = Adt.get_reachable_states
 (* |prune| -- reduces input dfa by pruning unreachable states *)
 let prune m =
   let marked = reachable_states m in
-  Adt.create_automata
-    (List.filter (fun s -> List.mem s marked) (get_states m))
-    (get_alphabet m)
-    (List.filter (fun (s, _, _) -> List.mem s marked) (get_transitions m))
-    (get_start m)
-    (List.filter (fun s -> List.mem s marked) (get_accepting m))
+  Adt.filter_states m (fun s -> List.mem s marked)
 
 (* |is_empty| -- returns true iff dfa has no reachable accepting states *)
 let is_empty m =
@@ -317,7 +312,7 @@ let rec contains p ps =
 
 (* |myhill_min| -- returns minimised DFA by myhill nerode *)
 let myhill_min m =
-  let m' = prune m in
+  prune m;
 
   let allpairs =
     let rec find_pairs xss yss =
@@ -329,13 +324,13 @@ let myhill_min m =
             (List.rev_map (fun y -> (x, y)) ys)
             (find_pairs xs (List.tl ys))
     in
-    find_pairs (get_states m') (get_states m')
+    find_pairs (get_states m) (get_states m)
   in
   let marked =
     ref
       (List.filter
          (fun (p, q) ->
-           let pa = is_accepting m' p and qa = is_accepting m' q in
+           let pa = is_accepting m p and qa = is_accepting m q in
            (pa && not qa) || ((not pa) && qa))
          allpairs)
   in
@@ -353,7 +348,7 @@ let myhill_min m =
             (fun a ->
               let succp = succ m p a and succq = succ m q a in
               List.mem (succp, succq) !marked || List.mem (succq, succp) !marked)
-            (get_alphabet m')
+            (get_alphabet m)
         then (
           marked := (p, q) :: !marked;
           stop := false)
@@ -401,14 +396,14 @@ let myhill_min m =
             a,
             List.find (contains t) merged_states )
           acc)
-      [] (get_transitions m')
+      [] (get_transitions m)
   and newaccepting =
     List.fold_left
       (fun acc s -> Utils.add_unique (List.find (contains s) merged_states) acc)
-      [] (get_accepting m')
-  and newstart = List.find (contains (get_start m')) merged_states in
+      [] (get_accepting m)
+  and newstart = List.find (contains (get_start m)) merged_states in
 
-  Adt.create_automata merged_states (get_alphabet m') newtrans newstart
+  Adt.create_automata merged_states (get_alphabet m) newtrans newstart
     newaccepting
 
 (* |brzozowski_min| -- minimise input DFA by Brzozowski's algorithm *)
@@ -464,12 +459,12 @@ let brzozowski_min m =
 
 (* |hopcroft_min| -- minimise input DFA by Hopcroft's algorithm *)
 let hopcroft_min m =
-  let m' = prune m in
+  prune m;
 
   let p = ref [] in
-  let qnotf = List.filter (fun s -> not (is_accepting m' s)) (get_states m') in
+  let qnotf = List.filter (fun s -> not (is_accepting m s)) (get_states m) in
   if List.length qnotf > 0 then p := [ qnotf ];
-  if List.length (get_accepting m') > 0 then p := get_accepting m' :: !p;
+  if List.length (get_accepting m) > 0 then p := get_accepting m :: !p;
 
   let w = ref !p in
 
@@ -479,7 +474,7 @@ let hopcroft_min m =
     List.iter
       (fun a ->
         let l_a =
-          List.fold_left (fun acc t -> Utils.list_union acc (pred m' t a)) [] s
+          List.fold_left (fun acc t -> Utils.list_union acc (pred m t a)) [] s
         in
         let newp = ref [] in
         List.iter
@@ -494,7 +489,7 @@ let hopcroft_min m =
             else newp := r :: !newp)
           !p;
         p := !newp)
-      (get_alphabet m')
+      (get_alphabet m)
   done;
 
   let merged_states =
@@ -517,14 +512,14 @@ let hopcroft_min m =
             a,
             List.find (contains t) merged_states )
           acc)
-      [] (get_transitions m')
+      [] (get_transitions m)
   and newaccepting =
     List.fold_left
       (fun acc s -> Utils.add_unique (List.find (contains s) merged_states) acc)
-      [] (get_accepting m')
-  and newstart = List.find (contains (get_start m')) merged_states in
+      [] (get_accepting m)
+  and newstart = List.find (contains (get_start m)) merged_states in
 
-  Adt.create_automata merged_states (get_alphabet m') newtrans newstart
+  Adt.create_automata merged_states (get_alphabet m) newtrans newstart
     newaccepting
 
 (* |minimise| -- synonym for hopcroft_min *)

@@ -54,9 +54,9 @@ val reachable_states : dfa -> state list
 (** [reachable_states m]
     @return the set of reachable (connected) states in the DFA [m] *)
 
-val prune : dfa -> dfa
+val prune : dfa -> unit
 (** [prune m] 
-    @return a reduction of DFA [m] by removing unreachable states *)
+    mutates DFA [m] by removing unreachable states *)
 
 val is_empty : dfa -> bool
 (** [is_empty m] 

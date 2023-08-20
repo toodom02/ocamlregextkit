@@ -66,10 +66,10 @@ let main () =
   let nfa1 = Nfa.re_to_nfa re1' and nfa2 = Nfa.re_to_nfa re2' in
 
   (* Merge the NFA alphabets *)
-  let nfa1', nfa2' = Nfa.merge_alphabets nfa1 nfa2 in
+  Nfa.merge_alphabets nfa1 nfa2;
 
   (* Convert NFAs to DFAs *)
-  let dfa1 = Dfa.nfa_to_dfa nfa1' and dfa2 = Dfa.nfa_to_dfa nfa2' in
+  let dfa1 = Dfa.nfa_to_dfa nfa1 and dfa2 = Dfa.nfa_to_dfa nfa2 in
 
   (* Complement DFAs *)
   let comp1 = Dfa.complement dfa1 and comp2 = Dfa.complement dfa2 in
@@ -105,8 +105,6 @@ let main () =
   (* Testing NFA invariants *)
   test_nfa_pred_succ nfa1;
   test_nfa_pred_succ nfa2;
-  test_nfa_pred_succ nfa1';
-  test_nfa_pred_succ nfa2';
 
   (* Test that our equivalence functions all give the same result *)
   if Dfa.symmetric_equiv dfa1 dfa2 <> Dfa.hopcroft_equiv dfa1 dfa2 then exit 1;

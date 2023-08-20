@@ -128,12 +128,7 @@ let pred n state =
 (* |prune| -- reduces input nfa by pruning unreachable states *)
 let prune n =
   let marked = reachable_states n in
-  Adt.create_automata
-    (List.filter (fun s -> List.mem s marked) (get_states n))
-    (get_alphabet n)
-    (List.filter (fun (s, _, _) -> List.mem s marked) (get_transitions n))
-    (get_start n)
-    (List.filter (fun s -> List.mem s marked) (get_accepting n))
+  Adt.filter_states n (fun s -> List.mem s marked)
 
 (* |is_empty| -- returns true iff nfa has no reachable accepting states *)
 let is_empty n =
@@ -185,11 +180,9 @@ let get_accepted n =
 
 (* |merge_alphabets| -- returns pair of nfas with a common alphabet *)
 let merge_alphabets n1 n2 =
-  let newalphabet = Utils.list_union (get_alphabet n1) (get_alphabet n2) in
-  ( Adt.create_automata (get_states n1) newalphabet (get_transitions n1)
-      (get_start n1) (get_accepting n1),
-    Adt.create_automata (get_states n2) newalphabet (get_transitions n2)
-      (get_start n2) (get_accepting n2) )
+  let alphabet1 = get_alphabet n1 and alphabet2 = get_alphabet n2 in
+  Adt.add_to_alphabet n1 alphabet2;
+  Adt.add_to_alphabet n2 alphabet1
 
 (* |create| -- Creates NFA, Renames states as their index in qs *)
 let create qs alph tran init fin =

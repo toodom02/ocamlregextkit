@@ -36,6 +36,22 @@ val get_reachable_states : 't automata -> 't list
 (** [get_reachable_states m] 
     @return the set of states reachable for an automaton [m] *)
 
+val filter_states : 't automata -> ('t -> bool) -> unit
+(** [filter_states m f] 
+    mutates automaton [m] filtering states by function [f] *)
+
+val add_to_alphabet : 't automata -> string list -> unit
+(** [add_to_alphabet m als] 
+    mutates automaton [m] by adding [als] to the alphabet*)
+
+val map_accepting : ('t -> bool) -> 't automata -> unit
+(** [map_accepting f m] 
+    mutates automaton [m] by applying function [f] to set of states defining acceptance *)
+
+val copy : 't automata -> 't automata
+(** [copy m] 
+    @return a deep copy of automaton [m] *)
+
 val create_automata :
   't list ->
   string list ->

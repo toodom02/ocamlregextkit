@@ -1,13 +1,15 @@
 type 't automata = {
-  states : 't list;
-  alphabet : string list;
+  mutable states : 't list;
+  mutable alphabet : string list;
   transitions : ('t, (string, 't) Hashtbl.t) Hashtbl.t;
   start : 't;
   accepting : ('t, bool) Hashtbl.t;
 }
 
 let get_states m = m.states
+let set_states m qs = m.states <- qs
 let get_alphabet m = m.alphabet
+let set_alphabet m alph = m.alphabet <- alph
 
 let get_transitions m =
   Hashtbl.fold
@@ -29,7 +31,8 @@ let get_prev_states m t a =
         v acc)
     m.transitions []
 
-let is_accepting m s = Option.is_some (Hashtbl.find_opt m.accepting s)
+let is_accepting m s =
+  match Hashtbl.find_opt m.accepting s with None -> false | Some res -> res
 
 let get_reachable_states m =
   let rec find_reachable_states marked =
@@ -45,6 +48,30 @@ let get_reachable_states m =
   in
   find_reachable_states [ m.start ]
 
+let filter_states m f =
+  set_states m (List.filter f m.states);
+  Hashtbl.filter_map_inplace
+    (fun s ts -> if f s then Some ts else None)
+    m.transitions;
+  Hashtbl.filter_map_inplace
+    (fun s b -> if f s then Some b else None)
+    m.accepting
+
+let add_to_alphabet m alph =
+  set_alphabet m (List.sort compare (Utils.list_union m.alphabet alph))
+
+let map_accepting f m =
+  Hashtbl.filter_map_inplace (fun k _ -> Some (f k)) m.accepting
+
+let copy m =
+  {
+    states = m.states;
+    alphabet = m.alphabet;
+    transitions = Hashtbl.copy m.transitions;
+    start = m.start;
+    accepting = Hashtbl.copy m.accepting;
+  }
+
 let create_automata qs alph tran init fin =
   let length = List.length qs in
   let transitions = Hashtbl.create length in
@@ -55,7 +82,7 @@ let create_automata qs alph tran init fin =
     qs;
   List.iter (fun (s, a, t) -> Hashtbl.add (Hashtbl.find transitions s) a t) tran;
   let accepting = Hashtbl.create length in
-  List.iter (fun s -> Hashtbl.add accepting s true) fin;
+  List.iter (fun s -> Hashtbl.add accepting s (List.mem s fin)) qs;
   {
     states = qs;
     alphabet = List.sort compare alph;
