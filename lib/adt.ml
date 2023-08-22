@@ -2,7 +2,7 @@ type 't automata = {
   mutable states : 't list;
   mutable alphabet : string list;
   transitions : ('t, (string, 't) Hashtbl.t) Hashtbl.t;
-  start : 't;
+  mutable start : 't;
   accepting : ('t, bool) Hashtbl.t;
 }
 
@@ -57,6 +57,14 @@ let filter_states m f =
     (fun s b -> if f s then Some b else None)
     m.accepting
 
+let merge_states m p q =
+  filter_states m (fun s -> s <> q);
+  Hashtbl.iter
+    (fun _ v ->
+      Hashtbl.filter_map_inplace (fun _ t -> Some (if t = q then p else t)) v)
+    m.transitions;
+  if m.start = q then m.start <- p
+
 let add_to_alphabet m alph =
   set_alphabet m (List.sort compare (Utils.list_union m.alphabet alph))
 
@@ -64,10 +72,12 @@ let map_accepting f m =
   Hashtbl.filter_map_inplace (fun k _ -> Some (f k)) m.accepting
 
 let copy m =
+  let copytrans = Hashtbl.copy m.transitions in
+  Hashtbl.filter_map_inplace (fun _ v -> Some (Hashtbl.copy v)) copytrans;
   {
     states = m.states;
     alphabet = m.alphabet;
-    transitions = Hashtbl.copy m.transitions;
+    transitions = copytrans;
     start = m.start;
     accepting = Hashtbl.copy m.accepting;
   }

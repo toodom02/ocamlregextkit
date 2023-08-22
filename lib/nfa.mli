@@ -45,6 +45,10 @@ val create :
     @raise Invalid_argument if [t] is not a valid tranition function for states [qs] and alphabet [al]
 *)
 
+val copy : nfa -> nfa
+(** [copy n] 
+    @return a deep copy of NFA [n] *)
+
 val re_to_nfa : Tree.re -> nfa
 (** [re_to_nfa r] 
     @return an NFA constructed from the RE [r] *)

@@ -110,12 +110,16 @@ let main () =
   if Dfa.symmetric_equiv dfa1 dfa2 <> Dfa.hopcroft_equiv dfa1 dfa2 then exit 1;
 
   (* Test that minimisation works as expected *)
-  let myhillmin1 = Dfa.myhill_min dfa1
-  and myhillmin2 = Dfa.myhill_min dfa2
-  and hopcroftmin1 = Dfa.hopcroft_min dfa1
-  and hopcroftmin2 = Dfa.hopcroft_min dfa2
-  and brzozowskimin1 = Dfa.brzozowski_min dfa1
-  and brzozowskimin2 = Dfa.brzozowski_min dfa2 in
+  let myhillmin1 = Dfa.copy dfa1 in
+  Dfa.myhill_min myhillmin1;
+  let myhillmin2 = Dfa.copy dfa2 in
+  Dfa.myhill_min myhillmin2;
+  let hopcroftmin1 = Dfa.copy dfa1 in
+  Dfa.hopcroft_min hopcroftmin1;
+  let hopcroftmin2 = Dfa.copy dfa2 in
+  Dfa.hopcroft_min hopcroftmin2;
+  let brzozowskimin1 = Dfa.brzozowski_min dfa1 in
+  let brzozowskimin2 = Dfa.brzozowski_min dfa2 in
   if not (Dfa.is_equiv dfa1 myhillmin1) then exit 1;
   if not (Dfa.is_equiv dfa2 myhillmin2) then exit 1;
   if not (Dfa.is_equiv dfa1 hopcroftmin1) then exit 1;

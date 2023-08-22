@@ -38,15 +38,17 @@ val get_reachable_states : 't automata -> 't list
 
 val filter_states : 't automata -> ('t -> bool) -> unit
 (** [filter_states m f] 
-    mutates automaton [m] filtering states by function [f] *)
+    mutates automaton [m] inplace filtering states by function [f] *)
+
+val merge_states : 't automata -> 't -> 't -> unit
 
 val add_to_alphabet : 't automata -> string list -> unit
 (** [add_to_alphabet m als] 
-    mutates automaton [m] by adding [als] to the alphabet*)
+    mutates automaton [m] inplace by adding [als] to the alphabet *)
 
 val map_accepting : ('t -> bool) -> 't automata -> unit
 (** [map_accepting f m] 
-    mutates automaton [m] by applying function [f] to set of states defining acceptance *)
+    mutates automaton [m] inplace by applying function [f] to set of states defining acceptance *)
 
 val copy : 't automata -> 't automata
 (** [copy m] 

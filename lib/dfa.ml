@@ -287,7 +287,6 @@ let hopcroft_equiv m1 m2 =
               !merged_states))
       (get_alphabet m1')
   done;
-
   List.for_all
     (fun ss ->
       List.for_all (fun s -> is_accepting m1' s || is_accepting m2' s) ss
@@ -301,14 +300,6 @@ let symmetric_equiv m1 m2 = is_empty (product_difference m1 m2)
 
 (* |is_equiv| -- synonym for hopcroft_equiv *)
 let is_equiv = hopcroft_equiv
-
-(* helper func returns true iff state p is within some product state *)
-let rec contains p ps =
-  if ps = p then true
-  else
-    match ps with
-    | State _ -> false
-    | ProductState (s, s') -> contains p s || contains p s'
 
 (* |myhill_min| -- returns minimised DFA by myhill nerode *)
 let myhill_min m =
@@ -359,52 +350,7 @@ let myhill_min m =
 
   (* unmarked gives us all pairs of indistinguishable states *)
   (* merge these states! *)
-  let merged_states =
-    let merged = ref [] and seen = ref [] in
-    List.iter
-      (fun (p, q) ->
-        if List.mem p !seen && List.mem q !seen then (
-          let s = List.find (contains p) !merged
-          and s' = List.find (contains q) !merged in
-          if s <> s' then
-            merged :=
-              ProductState (s, s')
-              :: List.filter (fun ps -> ps <> s && ps <> s') !merged)
-        else if List.mem p !seen then (
-          let s = List.find (contains p) !merged in
-          merged := ProductState (s, q) :: List.filter (( <> ) s) !merged;
-          seen := q :: !seen)
-        else if List.mem q !seen then (
-          let s' = List.find (contains q) !merged in
-          merged := ProductState (p, s') :: List.filter (( <> ) s') !merged;
-          seen := p :: !seen)
-        else if p = q then (
-          merged := p :: !merged;
-          seen := p :: !seen)
-        else (
-          merged := ProductState (p, q) :: !merged;
-          seen := p :: q :: !seen))
-      !unmarked;
-    !merged
-  in
-
-  let newtrans =
-    List.fold_left
-      (fun acc (s, a, t) ->
-        Utils.add_unique
-          ( List.find (contains s) merged_states,
-            a,
-            List.find (contains t) merged_states )
-          acc)
-      [] (get_transitions m)
-  and newaccepting =
-    List.fold_left
-      (fun acc s -> Utils.add_unique (List.find (contains s) merged_states) acc)
-      [] (get_accepting m)
-  and newstart = List.find (contains (get_start m)) merged_states in
-
-  Adt.create_automata merged_states (get_alphabet m) newtrans newstart
-    newaccepting
+  List.iter (fun (p, q) -> if p <> q then Adt.merge_states m p q) !unmarked
 
 (* |brzozowski_min| -- minimise input DFA by Brzozowski's algorithm *)
 let brzozowski_min m =
@@ -492,35 +438,17 @@ let hopcroft_min m =
       (get_alphabet m)
   done;
 
-  let merged_states =
-    List.fold_left
-      (fun acc ss ->
-        if List.length ss > 1 then
-          List.fold_left
-            (fun acc' s -> ProductState (acc', s))
-            (List.hd ss) (List.tl ss)
-          :: acc
-        else List.hd ss :: acc)
-      [] !p
-  in
-
-  let newtrans =
-    List.fold_left
-      (fun acc (s, a, t) ->
-        Utils.add_unique
-          ( List.find (contains s) merged_states,
-            a,
-            List.find (contains t) merged_states )
-          acc)
-      [] (get_transitions m)
-  and newaccepting =
-    List.fold_left
-      (fun acc s -> Utils.add_unique (List.find (contains s) merged_states) acc)
-      [] (get_accepting m)
-  and newstart = List.find (contains (get_start m)) merged_states in
-
-  Adt.create_automata merged_states (get_alphabet m) newtrans newstart
-    newaccepting
+  List.iter
+    (fun ss ->
+      if List.length ss > 1 then
+        let rec merge_list p = function
+          | q :: xs ->
+              Adt.merge_states m p q;
+              merge_list p xs
+          | [] -> ()
+        in
+        merge_list (List.hd ss) (List.tl ss))
+    !p
 
 (* |minimise| -- synonym for hopcroft_min *)
 let minimise = hopcroft_min
@@ -593,6 +521,9 @@ let re_to_dfa (r : Tree.re) =
       !states
   in
   Adt.create_automata newstates alphabet !trans (State [ 0 ]) accepting
+
+(* |copy| -- Creates a deep copy of DFA *)
+let copy = Adt.copy
 
 (* |create| -- Creates DFA, Renames states as their index in qs *)
 let create qs alph tran init fin =

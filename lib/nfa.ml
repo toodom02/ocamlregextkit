@@ -184,6 +184,9 @@ let merge_alphabets n1 n2 =
   Adt.add_to_alphabet n1 alphabet2;
   Adt.add_to_alphabet n2 alphabet1
 
+(* |copy| -- Creates a deep copy of NFA *)
+let copy = Adt.copy
+
 (* |create| -- Creates NFA, Renames states as their index in qs *)
 let create qs alph tran init fin =
   (* Check parameters for correctness *)

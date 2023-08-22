@@ -46,6 +46,10 @@ val create :
     @raise Invalid_argument if [t] is not a valid tranition function for states [qs] and alphabet [al]
 *)
 
+val copy : dfa -> dfa
+(** [copy m] 
+    @return a deep copy of DFA [m] *)
+
 val complement : dfa -> dfa
 (** [complement m] 
     @return the complement of DFA [m] *)
@@ -56,7 +60,7 @@ val reachable_states : dfa -> state list
 
 val prune : dfa -> unit
 (** [prune m] 
-    mutates DFA [m] by removing unreachable states *)
+    mutates DFA inplace [m] by removing unreachable states *)
 
 val is_empty : dfa -> bool
 (** [is_empty m] 
@@ -94,21 +98,20 @@ val is_equiv : dfa -> dfa -> bool
 (** [is_equiv m1 m2] synonym for [hopcroft_equiv m1 m2]
     @return true iff the two DFAs [m1] and [m2] are equivalent *)
 
-val myhill_min : dfa -> dfa
+val myhill_min : dfa -> unit
 (** [myhill_min m]
-    @return minimisation of DFA [m], by Myhill-Nerode theorem *)
+    minimises DFA [m] inplace, by Myhill-Nerode theorem *)
 
-val hopcroft_min : dfa -> dfa
+val hopcroft_min : dfa -> unit
 (** [hopcroft_min m]
-    @return minimisation of DFA [m], by Hopcroft's algorithm. 
-    Note that states will be renamed. *)
+    minimises DFA [m] inplace, by Hopcroft's algorithm *)
 
 val brzozowski_min : dfa -> dfa
 (** [brzozowski_min m]
     @return minimisation of DFA [m], by Brzozowski's algorithm. 
     Note that states will be renamed. *)
 
-val minimise : dfa -> dfa
+val minimise : dfa -> unit
 (** [minimise m] synonym for [hopcroft_min m]
     @return minimisation of DFA [m] *)
 
