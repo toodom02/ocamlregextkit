@@ -183,7 +183,8 @@ let _construction_tester () =
       let start_1 = Sys.time () in
       let nfa = Nfa.re_to_nfa re in
       let dfa = Dfa.nfa_to_dfa nfa in
-      let minimal = Dfa.hopcroft_min dfa in
+      let minimal = Dfa.copy dfa in
+      Dfa.hopcroft_min minimal;
       cumul_time_subset := Sys.time () -. start_1 +. !cumul_time_subset;
 
       (* Case 2: Brzozowski *)
@@ -318,12 +319,14 @@ let _min_tester () =
 
       (* case 1: Myhill min *)
       let start_1 = Sys.time () in
-      let res_1 = Dfa.myhill_min d in
+      let res_1 = Dfa.copy d in
+      Dfa.myhill_min res_1;
       cumul_time_myhill := Sys.time () -. start_1 +. !cumul_time_myhill;
 
       (* case 2: Hopcroft min *)
       let start_2 = Sys.time () in
-      let res_2 = Dfa.hopcroft_min d in
+      let res_2 = Dfa.copy d in
+      Dfa.hopcroft_min res_2;
       cumul_time_hopcroft := Sys.time () -. start_2 +. !cumul_time_hopcroft;
 
       (* case 3: Brzozowski min *)
@@ -385,12 +388,14 @@ let _min_circular () =
 
       (* case 1: Myhill min *)
       let start_1 = Sys.time () in
-      let res_1 = Dfa.myhill_min d in
+      let res_1 = Dfa.copy d in
+      Dfa.myhill_min res_1;
       cumul_time_myhill := Sys.time () -. start_1 +. !cumul_time_myhill;
 
       (* case 2: Hopcroft min *)
       let start_2 = Sys.time () in
-      let res_2 = Dfa.hopcroft_min d in
+      let res_2 = Dfa.copy d in
+      Dfa.hopcroft_min res_2;
       cumul_time_hopcroft := Sys.time () -. start_2 +. !cumul_time_hopcroft;
 
       (* case 3: Brzozowski min *)

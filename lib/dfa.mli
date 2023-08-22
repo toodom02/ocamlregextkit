@@ -25,7 +25,7 @@ val get_accepting : dfa -> state list
 
 val is_accepting : dfa -> state -> bool
 (** [is_accepting m s] 
-    @return true iff state [s] is an accepting state of DFA [m] *)
+    @return [true] iff state [s] is an accepting state of DFA [m] *)
 
 val succ : dfa -> state -> string -> state
 (** [succ m s w] 
@@ -64,11 +64,11 @@ val prune : dfa -> unit
 
 val is_empty : dfa -> bool
 (** [is_empty m] 
-    @return true iff DFA [m] is empty *)
+    @return [true] iff DFA [m] is empty *)
 
 val is_accepted : dfa -> string -> bool
 (** [is_accepted m s] 
-    @return true iff DFA [m] accepts string [s] *)
+    @return [true] iff DFA [m] accepts string [s] *)
 
 val get_accepted : dfa -> string option
 (** [get_accepted m] 
@@ -88,15 +88,15 @@ val product_union : dfa -> dfa -> dfa
 
 val hopcroft_equiv : dfa -> dfa -> bool
 (** [hopcroft_equiv m1 m2] 
-    @return true iff the two DFAs [m1] and [m2] are equivalent, by Hopcroft's algorithm *)
+    @return [true] iff the two DFAs [m1] and [m2] are equivalent, by Hopcroft's algorithm *)
 
 val symmetric_equiv : dfa -> dfa -> bool
 (** [symmetric_equiv m1 m2] 
-    @return true iff the two DFAs [m1] and [m2] are equivalent, by symmetric difference *)
+    @return [true] iff the two DFAs [m1] and [m2] are equivalent, by symmetric difference *)
 
 val is_equiv : dfa -> dfa -> bool
 (** [is_equiv m1 m2] synonym for [hopcroft_equiv m1 m2]
-    @return true iff the two DFAs [m1] and [m2] are equivalent *)
+    @return [true] iff the two DFAs [m1] and [m2] are equivalent *)
 
 val myhill_min : dfa -> unit
 (** [myhill_min m]

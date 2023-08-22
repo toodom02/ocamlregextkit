@@ -28,31 +28,31 @@ let rec stringify_state = function
 (* |print| -- prints out dfa representation *)
 let print m =
   print_string "states: ";
-  List.iter (fun s -> print_string (stringify_state s)) (get_states m);
+  Adt.iter_states (fun s -> print_string (stringify_state s)) m;
   print_newline ();
   print_string "alphabet: ";
-  List.iter
+  Adt.iter_alphabet
     (fun a ->
       print_string a;
       print_char ' ')
-    (get_alphabet m);
+    m;
   print_newline ();
   print_string "start: ";
   print_string (stringify_state (get_start m));
   print_newline ();
   print_string "accepting: ";
-  List.iter (fun s -> print_string (stringify_state s)) (get_accepting m);
+  Adt.iter_accepting (fun s -> print_string (stringify_state s)) m;
   print_newline ();
   print_string "transitions: ";
   print_newline ();
-  List.iter
+  Adt.iter_transitions
     (fun (s, a, t) ->
       print_string "    ";
       print_string (stringify_state s);
       print_string ("\t--" ^ a ^ "-->\t");
       print_string (stringify_state t);
       print_newline ())
-    (get_transitions m)
+    m
 
 (* |export_graphviz| -- exports the dfa in the DOT language for Graphviz *)
 let export_graphviz d =
@@ -80,7 +80,7 @@ let export_graphviz d =
 (* |complement| -- returns the complement of input dfa *)
 let complement m =
   let m' = Adt.copy m in
-  Adt.map_accepting (fun s -> not (is_accepting m s)) m';
+  Adt.map_accepting_inplace (fun s -> not (is_accepting m s)) m';
   m'
 
 (* |reachable_states| -- returns the set of reachable states in dfa m *)
@@ -89,7 +89,7 @@ let reachable_states = Adt.get_reachable_states
 (* |prune| -- reduces input dfa by pruning unreachable states *)
 let prune m =
   let marked = reachable_states m in
-  Adt.filter_states m (fun s -> List.mem s marked)
+  Adt.filter_states_inplace m (fun s -> List.mem s marked)
 
 (* |is_empty| -- returns true iff dfa has no reachable accepting states *)
 let is_empty m =
@@ -202,7 +202,7 @@ let disjoin_dfas m1 m2 =
        List.find_opt
          (fun s ->
            (not (is_accepting m1 s))
-           && List.for_all (fun a -> succ m1 s a = s) (get_alphabet m1))
+           && Adt.for_all_alphabet (fun a -> succ m1 s a = s) m1)
          (get_states m1)
      with
      | Some t ->
@@ -212,7 +212,7 @@ let disjoin_dfas m1 m2 =
    in
    missingtran1 :=
      List.concat_map
-       (fun a -> List.map (fun s -> (s, a, sink)) (get_states m1))
+       (fun a -> Adt.map_states (fun s -> (s, a, sink)) m1)
        missingalph1);
   let missingtran2 = ref [] and hassink2 = ref false in
   (if List.length merged_alphabet > List.length (get_alphabet m2) then
@@ -221,7 +221,7 @@ let disjoin_dfas m1 m2 =
        List.find_opt
          (fun s ->
            (not (is_accepting m2 s))
-           && List.for_all (fun a -> succ m2 s a = s) (get_alphabet m2))
+           && Adt.for_all_alphabet (fun a -> succ m2 s a = s) m2)
          (get_states m2)
      with
      | Some t ->
@@ -251,7 +251,7 @@ let disjoin_dfas m1 m2 =
          (fun (s, a, t) -> (negate_state s, a, negate_state t))
          newtrans2)
       (negate_state (get_start m2))
-      (List.rev_map (fun s -> negate_state s) (get_accepting m2)) )
+      (Adt.map_accepting (fun s -> negate_state s) m2) )
 
 (* |hopcroft_equiv| -- returns true iff DFAs are equivalent, by Hopcroft's algorithm *)
 let hopcroft_equiv m1 m2 =
@@ -271,7 +271,7 @@ let hopcroft_equiv m1 m2 =
   while List.length !stack > 0 do
     let q1, q2 = List.hd !stack in
     stack := List.tl !stack;
-    List.iter
+    Adt.iter_alphabet
       (fun a ->
         let succ1 = succ m1' q1 a and succ2 = succ m2' q2 a in
         let r1 = List.find (List.mem succ1) !merged_states
@@ -285,7 +285,7 @@ let hopcroft_equiv m1 m2 =
                 else if s = r2 then Some (r1 @ s)
                 else Some s)
               !merged_states))
-      (get_alphabet m1')
+      m1'
   done;
   List.for_all
     (fun ss ->
@@ -335,11 +335,11 @@ let myhill_min m =
     List.iter
       (fun (p, q) ->
         if
-          List.exists
+          Adt.exists_alphabet
             (fun a ->
               let succp = succ m p a and succq = succ m q a in
               List.mem (succp, succq) !marked || List.mem (succq, succp) !marked)
-            (get_alphabet m)
+            m
         then (
           marked := (p, q) :: !marked;
           stop := false)
@@ -350,13 +350,15 @@ let myhill_min m =
 
   (* unmarked gives us all pairs of indistinguishable states *)
   (* merge these states! *)
-  List.iter (fun (p, q) -> if p <> q then Adt.merge_states m p q) !unmarked
+  List.iter
+    (fun (p, q) -> if p <> q then Adt.merge_states_inplace m p q)
+    !unmarked
 
 (* |brzozowski_min| -- minimise input DFA by Brzozowski's algorithm *)
 let brzozowski_min m =
   let reverse_and_determinise d =
     let get_state s = Option.get (Utils.index s (get_states d)) in
-    let newstart = List.sort compare (List.map get_state (get_accepting d)) in
+    let newstart = List.sort compare (Adt.map_accepting get_state d) in
     let newstates = ref [ State newstart ]
     and newtrans = ref []
     and stack = ref [ newstart ]
@@ -365,7 +367,7 @@ let brzozowski_min m =
     while List.length !stack > 0 do
       let currentstate = List.hd !stack in
       stack := List.tl !stack;
-      List.iter
+      Adt.iter_alphabet
         (fun a ->
           let nextstate = ref [] in
           List.iter
@@ -382,7 +384,7 @@ let brzozowski_min m =
             newstates := Utils.add_unique (State !nextstate) !newstates);
 
           newtrans := (State currentstate, a, State !nextstate) :: !newtrans)
-        (get_alphabet d)
+        d
     done;
 
     let newaccepting =
@@ -408,7 +410,8 @@ let hopcroft_min m =
   prune m;
 
   let p = ref [] in
-  let qnotf = List.filter (fun s -> not (is_accepting m s)) (get_states m) in
+  (* let __s = Adt.filter_states (fun s -> print_string (stringify_state s)) m in *)
+  let qnotf = Adt.filter_states (fun s -> not (is_accepting m s)) m in
   if List.length qnotf > 0 then p := [ qnotf ];
   if List.length (get_accepting m) > 0 then p := get_accepting m :: !p;
 
@@ -417,7 +420,7 @@ let hopcroft_min m =
   while List.length !w > 0 do
     let s = List.hd !w in
     w := List.tl !w;
-    List.iter
+    Adt.iter_alphabet
       (fun a ->
         let l_a =
           List.fold_left (fun acc t -> Utils.list_union acc (pred m t a)) [] s
@@ -435,7 +438,7 @@ let hopcroft_min m =
             else newp := r :: !newp)
           !p;
         p := !newp)
-      (get_alphabet m)
+      m
   done;
 
   List.iter
@@ -443,7 +446,7 @@ let hopcroft_min m =
       if List.length ss > 1 then
         let rec merge_list p = function
           | q :: xs ->
-              Adt.merge_states m p q;
+              Adt.merge_states_inplace m p q;
               merge_list p xs
           | [] -> ()
         in
@@ -464,7 +467,7 @@ let nfa_to_dfa (n : Nfa.nfa) =
   while List.length !stack > 0 do
     let currentstate = List.hd !stack in
     stack := List.tl !stack;
-    List.iter
+    Adt.iter_alphabet
       (fun a ->
         let nextstate =
           List.concat_map (fun s -> Adt.get_next_states n s a) currentstate
@@ -475,7 +478,7 @@ let nfa_to_dfa (n : Nfa.nfa) =
           donestates := epsnext :: !donestates;
           newstates := State epsnext :: !newstates);
         newtrans := (State currentstate, a, State epsnext) :: !newtrans)
-      (get_alphabet n)
+      n
   done;
 
   let newaccepting =
