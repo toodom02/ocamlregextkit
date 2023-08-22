@@ -1,3 +1,11 @@
+## v1.0.0 (2023-08-22)
+
+### Added
+
+ - Removed extraneous fields from ADT and enforced single source of truth.
+
+ - Use inplace mutations of automata for functions `prune`, `merge_alphabets` and `minimise`.
+
 ## v0.2.0 (2023-08-05)
 
 ### Added

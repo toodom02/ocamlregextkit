@@ -45,6 +45,10 @@ val create :
     @raise Invalid_argument if [t] is not a valid tranition function for states [qs] and alphabet [al]
 *)
 
+val copy : nfa -> nfa
+(** [copy n] 
+    @return a deep copy of NFA [n] *)
+
 val re_to_nfa : Tree.re -> nfa
 (** [re_to_nfa r] 
     @return an NFA constructed from the RE [r] *)
@@ -57,9 +61,9 @@ val reachable_states : nfa -> state list
 (** [reachable_states n]
     @return the set of reachable (connected) states in the NFA [n] *)
 
-val prune : nfa -> nfa
+val prune : nfa -> unit
 (** [prune n] 
-    @return a reduction of NFA [n] by removing unreachable states *)
+    mutates DFA [n] by removing unreachable states *)
 
 val is_empty : nfa -> bool
 (** [is_empty n] 
@@ -73,9 +77,9 @@ val get_accepted : nfa -> string option
 (** [get_accepted n] 
     @return the shortest string accepted by NFA [n] *)
 
-val merge_alphabets : nfa -> nfa -> nfa * nfa
+val merge_alphabets : nfa -> nfa -> unit
 (** [merge_alphabets n1 n2] 
-    @return a tuple of NFAs [(n1', n2')] such that [n1'] and [n2'] both share a common alphabet *)
+    mutates NFAs [n1] and [n2] such that they share a common alphabet *)
 
 val print : nfa -> unit
 (** [print n] prints a string representation of the NFA [n] *)

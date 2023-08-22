@@ -25,7 +25,7 @@ val get_accepting : dfa -> state list
 
 val is_accepting : dfa -> state -> bool
 (** [is_accepting m s] 
-    @return true iff state [s] is an accepting state of DFA [m] *)
+    @return [true] iff state [s] is an accepting state of DFA [m] *)
 
 val succ : dfa -> state -> string -> state
 (** [succ m s w] 
@@ -46,6 +46,10 @@ val create :
     @raise Invalid_argument if [t] is not a valid tranition function for states [qs] and alphabet [al]
 *)
 
+val copy : dfa -> dfa
+(** [copy m] 
+    @return a deep copy of DFA [m] *)
+
 val complement : dfa -> dfa
 (** [complement m] 
     @return the complement of DFA [m] *)
@@ -54,17 +58,17 @@ val reachable_states : dfa -> state list
 (** [reachable_states m]
     @return the set of reachable (connected) states in the DFA [m] *)
 
-val prune : dfa -> dfa
+val prune : dfa -> unit
 (** [prune m] 
-    @return a reduction of DFA [m] by removing unreachable states *)
+    mutates DFA inplace [m] by removing unreachable states *)
 
 val is_empty : dfa -> bool
 (** [is_empty m] 
-    @return true iff DFA [m] is empty *)
+    @return [true] iff DFA [m] is empty *)
 
 val is_accepted : dfa -> string -> bool
 (** [is_accepted m s] 
-    @return true iff DFA [m] accepts string [s] *)
+    @return [true] iff DFA [m] accepts string [s] *)
 
 val get_accepted : dfa -> string option
 (** [get_accepted m] 
@@ -84,31 +88,30 @@ val product_union : dfa -> dfa -> dfa
 
 val hopcroft_equiv : dfa -> dfa -> bool
 (** [hopcroft_equiv m1 m2] 
-    @return true iff the two DFAs [m1] and [m2] are equivalent, by Hopcroft's algorithm *)
+    @return [true] iff the two DFAs [m1] and [m2] are equivalent, by Hopcroft's algorithm *)
 
 val symmetric_equiv : dfa -> dfa -> bool
 (** [symmetric_equiv m1 m2] 
-    @return true iff the two DFAs [m1] and [m2] are equivalent, by symmetric difference *)
+    @return [true] iff the two DFAs [m1] and [m2] are equivalent, by symmetric difference *)
 
 val is_equiv : dfa -> dfa -> bool
 (** [is_equiv m1 m2] synonym for [hopcroft_equiv m1 m2]
-    @return true iff the two DFAs [m1] and [m2] are equivalent *)
+    @return [true] iff the two DFAs [m1] and [m2] are equivalent *)
 
-val myhill_min : dfa -> dfa
+val myhill_min : dfa -> unit
 (** [myhill_min m]
-    @return minimisation of DFA [m], by Myhill-Nerode theorem *)
+    minimises DFA [m] inplace, by Myhill-Nerode theorem *)
 
-val hopcroft_min : dfa -> dfa
+val hopcroft_min : dfa -> unit
 (** [hopcroft_min m]
-    @return minimisation of DFA [m], by Hopcroft's algorithm. 
-    Note that states will be renamed. *)
+    minimises DFA [m] inplace, by Hopcroft's algorithm *)
 
 val brzozowski_min : dfa -> dfa
 (** [brzozowski_min m]
     @return minimisation of DFA [m], by Brzozowski's algorithm. 
     Note that states will be renamed. *)
 
-val minimise : dfa -> dfa
+val minimise : dfa -> unit
 (** [minimise m] synonym for [hopcroft_min m]
     @return minimisation of DFA [m] *)
 

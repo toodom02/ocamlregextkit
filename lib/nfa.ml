@@ -15,39 +15,39 @@ let is_accepting = Adt.is_accepting
 (* |print| -- prints out nfa representation *)
 let print n =
   print_string "states: ";
-  List.iter
+  Adt.iter_states
     (fun s ->
       print_int s;
       print_char ' ')
-    (get_states n);
+    n;
   print_newline ();
   print_string "alphabet: ";
-  List.iter
+  Adt.iter_alphabet
     (fun a ->
       print_string a;
       print_char ' ')
-    (get_alphabet n);
+    n;
   print_newline ();
   print_string "start: ";
   print_int (get_start n);
   print_newline ();
   print_string "accepting: ";
-  List.iter
+  Adt.iter_accepting
     (fun s ->
       print_int s;
       print_char ' ')
-    (get_accepting n);
+    n;
   print_newline ();
   print_string "transitions: ";
   print_newline ();
-  List.iter
+  Adt.iter_transitions
     (fun (s, a, t) ->
       print_string "    ";
       print_int s;
       print_string ("\t--" ^ a ^ "-->\t");
       print_int t;
       print_newline ())
-    (get_transitions n)
+    n
 
 (* |export_graphviz| -- exports the nfa in the DOT language for Graphviz *)
 let export_graphviz n =
@@ -108,9 +108,7 @@ let succ n state symbol =
 let pred n state =
   (* all states from which state is eps_reachable *)
   let epspreds =
-    List.filter
-      (fun s -> List.mem state (eps_reachable_set n [ s ]))
-      (get_states n)
+    Adt.filter_states (fun s -> List.mem state (eps_reachable_set n [ s ])) n
   in
   let preds =
     List.fold_left
@@ -120,20 +118,15 @@ let pred n state =
           acc (get_alphabet n))
       [] epspreds
   in
-  List.filter
+  Adt.filter_states
     (fun s ->
       List.exists (fun ss -> List.mem ss preds) (eps_reachable_set n [ s ]))
-    (get_states n)
+    n
 
 (* |prune| -- reduces input nfa by pruning unreachable states *)
 let prune n =
   let marked = reachable_states n in
-  Adt.create_automata
-    (List.filter (fun s -> List.mem s marked) (get_states n))
-    (get_alphabet n)
-    (List.filter (fun (s, _, _) -> List.mem s marked) (get_transitions n))
-    (get_start n)
-    (List.filter (fun s -> List.mem s marked) (get_accepting n))
+  Adt.filter_states_inplace n (fun s -> List.mem s marked)
 
 (* |is_empty| -- returns true iff nfa has no reachable accepting states *)
 let is_empty n =
@@ -185,11 +178,12 @@ let get_accepted n =
 
 (* |merge_alphabets| -- returns pair of nfas with a common alphabet *)
 let merge_alphabets n1 n2 =
-  let newalphabet = Utils.list_union (get_alphabet n1) (get_alphabet n2) in
-  ( Adt.create_automata (get_states n1) newalphabet (get_transitions n1)
-      (get_start n1) (get_accepting n1),
-    Adt.create_automata (get_states n2) newalphabet (get_transitions n2)
-      (get_start n2) (get_accepting n2) )
+  let alphabet1 = get_alphabet n1 and alphabet2 = get_alphabet n2 in
+  Adt.add_to_alphabet n1 alphabet2;
+  Adt.add_to_alphabet n2 alphabet1
+
+(* |copy| -- Creates a deep copy of NFA *)
+let copy = Adt.copy
 
 (* |create| -- Creates NFA, Renames states as their index in qs *)
 let create qs alph tran init fin =
