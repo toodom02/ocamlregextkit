@@ -5,6 +5,7 @@ let add_unique e l = if List.mem e l then l else e :: l
 let rec list_union l1 = function
   | [] -> l1
   | x :: xs -> list_union (add_unique x l1) xs
+;;
 
 (* |index| -- finds Some index of x in xs, otherwise returns None *)
 let index x xs =
@@ -13,3 +14,4 @@ let index x xs =
     | y :: ys -> if x = y then Some c else aux (c + 1) ys
   in
   aux 0 xs
+;;
