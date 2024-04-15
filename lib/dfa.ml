@@ -147,6 +147,8 @@ let get_accepted m =
 ;;
 
 let product_construction op m1 m2 =
+  if (get_alphabet m1 <> get_alphabet m2) 
+  then raise (Invalid_argument "Cannot perform product operation over different alphabets");
   let cross_product a b =
     List.concat
       (List.rev_map (fun e1 -> List.rev_map (fun e2 -> ProductState (e1, e2)) b) a)
