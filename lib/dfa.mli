@@ -79,11 +79,13 @@ val is_accepted : dfa -> string -> bool
 val get_accepted : dfa -> string option
 
 (** [product_insterection m1 m2]
-    @return the intersection of DFAs [m1] [m2], by the product construction *)
+    @return the intersection of DFAs [m1] [m2], by the product construction 
+    @raise Invalid_argument if [m1] and [m2] have different alphabets *)
 val product_intersection : dfa -> dfa -> dfa
 
 (** [product_difference m1 m2]
-    @return the symmetric difference of DFAs [m1] [m2], by the product construction *)
+    @return the symmetric difference of DFAs [m1] [m2], by the product construction
+    @raise Invalid_argument if [m1] and [m2] have different alphabets *)
 val product_difference : dfa -> dfa -> dfa
 
 (** [product_union m1 m2]
@@ -91,7 +93,8 @@ val product_difference : dfa -> dfa -> dfa
 val product_union : dfa -> dfa -> dfa
 
 (** [hopcroft_equiv m1 m2]
-    @return [true] iff the two DFAs [m1] and [m2] are equivalent, by Hopcroft's algorithm *)
+    @return [true] iff the two DFAs [m1] and [m2] are equivalent, by Hopcroft's algorithm
+    @raise Invalid_argument if [m1] and [m2] have different alphabets *)
 val hopcroft_equiv : dfa -> dfa -> bool
 
 (** [symmetric_equiv m1 m2]
