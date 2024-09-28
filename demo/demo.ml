@@ -63,6 +63,8 @@ let main () =
   (* Convert REs to NFAs *)
   let nfa1 = Nfa.re_to_nfa re1'
   and nfa2 = Nfa.re_to_nfa re2' in
+  (* Prune NFAs to reachable states *)
+  Nfa.prune nfa1; Nfa.prune nfa2;
   (* Merge the NFA alphabets *)
   Nfa.merge_alphabets nfa1 nfa2;
   (* Convert NFAs to DFAs *)

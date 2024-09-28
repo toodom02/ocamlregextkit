@@ -75,7 +75,7 @@ let get_reachable_states m =
           List.fold_left
             (fun acc2 a -> Utils.list_union acc2 (get_next_states m s a))
             acc
-            m.alphabet)
+            ("ε"::m.alphabet))
         marked
         marked
     in
