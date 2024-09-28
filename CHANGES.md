@@ -1,3 +1,9 @@
+## v1.0.2 (2024-09-29)
+
+### Fix
+
+ - `get_reachable_states` missing epsilon transitions (#8).
+
 ## v1.0.1 (2024-04-15)
 
 ### Fix
