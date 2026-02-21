@@ -2,6 +2,10 @@
 
 open Regextkit
 
+let exit_with_log_msg code msg =
+  Printf.eprintf "failed: %s (exit %d)\n%!" msg code;
+  exit code
+
 (* |test_dfa_pred_succ| -- Tests DFAs pred and succ methods by checking that for each state, the predecessors of a successor contains itself *)
 let test_dfa_pred_succ m =
   if List.exists
@@ -12,7 +16,7 @@ let test_dfa_pred_succ m =
              not (List.mem s (Dfa.pred m succ a)))
            (Dfa.get_alphabet m))
        (Dfa.get_states m)
-  then exit 1
+  then exit_with_log_msg 1 "DFA pred/succ invariant failed"
 ;;
 
 (* |test_dfa_total| -- Tests that DFA is total, i.e. each state has exactly one transition for each letter *)
@@ -30,7 +34,7 @@ let test_dfa_total m =
                 List.length ts = 1)
               (Dfa.get_alphabet m))
           (Dfa.get_states m))
-  then exit 1
+  then exit_with_log_msg 1 "DFA totality invariant failed"
 ;;
 
 (* |test_nfa_pred_succ| -- Tests NFAs pred and succ methods by checking that for each state, the successor of a predecessor contains itself *)
@@ -41,10 +45,10 @@ let test_nfa_pred_succ n =
          List.exists
            (fun ss ->
              not
-               (List.exists (fun a -> List.mem s (Nfa.succ n ss a)) (Nfa.get_alphabet n)))
+               (List.exists (fun a -> List.mem s (Nfa.succ n ss a)) ("ε"::Nfa.get_alphabet n)))
            pred)
        (Nfa.get_states n)
-  then exit 1
+  then exit_with_log_msg 1 "NFA pred/succ invariant failed"
 ;;
 
 let main () =
@@ -82,8 +86,8 @@ let main () =
   (* Test brzozowski construction *)
   let brzozo1 = Dfa.re_to_dfa re1'
   and brzozo2 = Dfa.re_to_dfa re2' in
-  if not (Dfa.is_equiv dfa1 brzozo1) then exit 1;
-  if not (Dfa.is_equiv dfa2 brzozo2) then exit 1;
+  if not (Dfa.is_equiv dfa1 brzozo1) then exit_with_log_msg 1 "Brzozowski construction mismatch (first regex)";
+  if not (Dfa.is_equiv dfa2 brzozo2) then exit_with_log_msg 1 "Brzozowski construction mismatch (second regex)";
   (* Testing DFA invariants *)
   test_dfa_pred_succ dfa1;
   test_dfa_pred_succ comp1;
@@ -101,7 +105,7 @@ let main () =
   test_nfa_pred_succ nfa1;
   test_nfa_pred_succ nfa2;
   (* Test that our equivalence functions all give the same result *)
-  if Dfa.symmetric_equiv dfa1 dfa2 <> Dfa.hopcroft_equiv dfa1 dfa2 then exit 1;
+  if Dfa.symmetric_equiv dfa1 dfa2 <> Dfa.hopcroft_equiv dfa1 dfa2 then exit_with_log_msg 1 "Equivalence algorithms disagree (symmetric vs hopcroft)";
   (* Test that minimisation works as expected *)
   let myhillmin1 = Dfa.copy dfa1 in
   Dfa.myhill_min myhillmin1;
@@ -113,28 +117,28 @@ let main () =
   Dfa.hopcroft_min hopcroftmin2;
   let brzozowskimin1 = Dfa.brzozowski_min dfa1 in
   let brzozowskimin2 = Dfa.brzozowski_min dfa2 in
-  if not (Dfa.is_equiv dfa1 myhillmin1) then exit 1;
-  if not (Dfa.is_equiv dfa2 myhillmin2) then exit 1;
-  if not (Dfa.is_equiv dfa1 hopcroftmin1) then exit 1;
-  if not (Dfa.is_equiv dfa2 hopcroftmin2) then exit 1;
-  if not (Dfa.is_equiv dfa1 brzozowskimin1) then exit 1;
-  if not (Dfa.is_equiv dfa2 brzozowskimin2) then exit 1;
+  if not (Dfa.is_equiv dfa1 myhillmin1) then exit_with_log_msg 1 "Myhill minimisation failed equivalence (first regex)";
+  if not (Dfa.is_equiv dfa2 myhillmin2) then exit_with_log_msg 1 "Myhill minimisation failed equivalence (second regex)";
+  if not (Dfa.is_equiv dfa1 hopcroftmin1) then exit_with_log_msg 1 "Hopcroft minimisation failed equivalence (first regex)";
+  if not (Dfa.is_equiv dfa2 hopcroftmin2) then exit_with_log_msg 1 "Hopcroft minimisation failed equivalence (second regex)";
+  if not (Dfa.is_equiv dfa1 brzozowskimin1) then exit_with_log_msg 1 "Brzozowski minimisation failed equivalence (first regex)";
+  if not (Dfa.is_equiv dfa2 brzozowskimin2) then exit_with_log_msg 1 "Brzozowski minimisation failed equivalence (second regex)";
   if not
-       (List.length (Dfa.get_states myhillmin1)
-        = List.length (Dfa.get_states brzozowskimin1))
-  then exit 1;
+    (List.length (Dfa.get_states myhillmin1)
+    = List.length (Dfa.get_states brzozowskimin1))
+  then exit_with_log_msg 1 "State count mismatch between Myhill and Brzozowski minimisation (first regex)";
   if not
-       (List.length (Dfa.get_states myhillmin2)
-        = List.length (Dfa.get_states brzozowskimin2))
-  then exit 1;
+    (List.length (Dfa.get_states myhillmin2)
+    = List.length (Dfa.get_states brzozowskimin2))
+  then exit_with_log_msg 1 "State count mismatch between Myhill and Brzozowski minimisation (second regex)";
   if not
-       (List.length (Dfa.get_states myhillmin1)
-        = List.length (Dfa.get_states hopcroftmin1))
-  then exit 1;
+    (List.length (Dfa.get_states myhillmin1)
+    = List.length (Dfa.get_states hopcroftmin1))
+  then exit_with_log_msg 1 "State count mismatch between Myhill and Hopcroft minimisation (first regex)";
   if not
-       (List.length (Dfa.get_states myhillmin2)
-        = List.length (Dfa.get_states hopcroftmin2))
-  then exit 1;
+    (List.length (Dfa.get_states myhillmin2)
+    = List.length (Dfa.get_states hopcroftmin2))
+  then exit_with_log_msg 1 "State count mismatch between Myhill and Hopcroft minimisation (second regex)";
   if Option.is_none accepted1 && Option.is_none accepted2
   then (
     print_string "Input regex are equal\n";

@@ -11,7 +11,7 @@
 
 (maintainers "Dominic Too")
 
-(license GPL-3.0-or-later)
+(license LGPL-3.0-or-later)
 
 (documentation https://toodom02.github.io/ocamlregextkit/)
 
@@ -22,6 +22,7 @@
  (depends 
     (ocaml (>= 4.14))
     dune
+    (alcotest :with-test)
   )
  (tags
   (automata "regular expressions" "regular languages" regex library DFA NFA RE)))

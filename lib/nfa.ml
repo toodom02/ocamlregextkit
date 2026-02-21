@@ -118,12 +118,13 @@ let pred n state =
         List.fold_left
           (fun acc' a -> Utils.list_union acc' (Adt.get_prev_states n s a))
           acc
-          (get_alphabet n))
+          ("ε"::get_alphabet n))
       []
       epspreds
   in
+  let preds = Utils.list_union preds epspreds in
   Adt.filter_states
-    (fun s -> List.exists (fun ss -> List.mem ss preds) (eps_reachable_set n [ s ]))
+    (fun s -> s <> state && List.exists (fun ss -> List.mem ss preds) (eps_reachable_set n [ s ]))
     n
 ;;
 

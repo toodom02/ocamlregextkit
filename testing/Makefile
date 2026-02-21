@@ -7,7 +7,7 @@ profile:
 		done
 
 test: 
-		dune exec ./test.exe > out.csv
+		dune exec ./testing.exe > out.csv
 
 clean:
 		rm -f out.txt out.csv

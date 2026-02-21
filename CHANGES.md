@@ -1,3 +1,8 @@
+## v1.0.3 (2026-02-21)
+
+ - Change licence to LGPL-3.0
+ - Added Alcotest unit tests
+
 ## v1.0.2 (2024-09-29)
 
 ### Fix

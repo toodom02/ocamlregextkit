@@ -1,0 +1,35 @@
+name: OCaml CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        ocaml-compiler: [5.1.0]
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup OCaml
+        uses: avsm/setup-ocaml@v3
+        with:
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+
+      - name: Install dependencies
+        run: opam install . --deps-only --with-test
+
+      - name: Build
+        run: opam exec -- dune build @all
+
+      - name: Unit tests
+        run: opam exec -- dune runtest --verbose
+
+      - name: Integration tests
+        run: opam exec -- make -C demo test
