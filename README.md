@@ -49,6 +49,14 @@ make test
 
 This will run a set of test cases, which checks correctness of basic parsing, equivalence, and difference of two regular expressions.
 
+## Test
+
+The `test` directory contains Alcotest unit tests.
+
+```bash
+dune runtest
+```
+
 ## Testing
 
 The `testing` directory contains code to profile and run timing tests for equivalence and minimisation of DFAs.

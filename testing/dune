@@ -1,4 +1,4 @@
 (executable
- (name test)
- (modules test)
+ (name testing)
+ (modules testing)
  (libraries regextkit))

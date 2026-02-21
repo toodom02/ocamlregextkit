@@ -1,0 +1,11 @@
+(test
+ (name test_re)
+ (libraries regextkit alcotest))
+
+(test
+ (name test_dfa)
+ (libraries regextkit alcotest))
+
+(test
+ (name test_nfa)
+ (libraries regextkit alcotest))
